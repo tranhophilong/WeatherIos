@@ -86,7 +86,7 @@ extension WeatherLocation{
         }
         
         self.coordinates = Coordinates(longitude: lon, latitude: lat)
-        self.currentWeather = try Weather.init(json: currentWeather)
+        self.currentWeather =  Weather.init(json: currentWeather)
         self.date = date
         self.name = name
         self.region = region
