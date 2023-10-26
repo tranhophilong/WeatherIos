@@ -10,11 +10,19 @@ import UIKit
 
 enum AdaptiveFont{
     static func regular(size: CGFloat) -> UIFont {
-        UIFont.systemFont(ofSize: size.adaptedFontSize)
+        UIFont.systemFont(ofSize: size.adaptedFontSize, weight: .regular)
+    }
+    
+    static func medium(size: CGFloat) -> UIFont {
+        UIFont.systemFont(ofSize: size.adaptedFontSize, weight: .medium)
     }
     
     static func bold(size: CGFloat) -> UIFont {
         UIFont.systemFont(ofSize: size.adaptedFontSize, weight: .bold)
+    }
+    
+    static func thin(size: CGFloat) -> UIFont {
+        UIFont.systemFont(ofSize: size.adaptedFontSize, weight: .thin)
     }
     
 }

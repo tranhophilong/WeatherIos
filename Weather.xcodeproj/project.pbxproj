@@ -29,6 +29,7 @@
 		867EF8A42AE3A3E30064562C /* ArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8A32AE3A3E30064562C /* ArrayExtension.swift */; };
 		867EF8A62AE3A6820064562C /* IntExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8A52AE3A6820064562C /* IntExtension.swift */; };
 		867EF8A82AE3BD2C0064562C /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8A72AE3BD2B0064562C /* MasterViewController.swift */; };
+		869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DAE742AEA5FBC00152FCF /* String+Extra.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 		867EF8A32AE3A3E30064562C /* ArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtension.swift; sourceTree = "<group>"; };
 		867EF8A52AE3A6820064562C /* IntExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntExtension.swift; sourceTree = "<group>"; };
 		867EF8A72AE3BD2B0064562C /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
+		869DAE742AEA5FBC00152FCF /* String+Extra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extra.swift"; sourceTree = "<group>"; };
 		96507A61F81A03808727A305 /* Pods_Weather.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Weather.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8B60D1FABAAC2457C7DB861 /* Pods-Weather.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Weather.debug.xcconfig"; path = "Target Support Files/Pods-Weather/Pods-Weather.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -158,6 +160,7 @@
 				867EF8A12AE39CEF0064562C /* AdaptiveLayout */,
 				867EF8942AE39C5D0064562C /* Enums */,
 				863FA7112AE57B5F000229CB /* Constant.swift */,
+				869DAE742AEA5FBC00152FCF /* String+Extra.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -167,7 +170,6 @@
 			children = (
 				867EF8952AE39C5D0064562C /* Dimension.swift */,
 				867EF8962AE39C5D0064562C /* Device.swift */,
-				867EF8972AE39C5D0064562C /* Font.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -180,6 +182,7 @@
 				867EF89D2AE39CB20064562C /* CGFloatExtension.swift */,
 				867EF8A32AE3A3E30064562C /* ArrayExtension.swift */,
 				867EF8A52AE3A6820064562C /* IntExtension.swift */,
+				867EF8972AE39C5D0064562C /* Font.swift */,
 			);
 			path = AdaptiveLayout;
 			sourceTree = "<group>";
@@ -309,6 +312,7 @@
 				867EF8982AE39C5D0064562C /* Dimension.swift in Sources */,
 				867EF8A82AE3BD2C0064562C /* MasterViewController.swift in Sources */,
 				863FA70E2AE51106000229CB /* ContentView.swift in Sources */,
+				869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */,
 				865463162AE17CC1008E56A2 /* ViewController.swift in Sources */,
 				867EF89A2AE39C5D0064562C /* Font.swift in Sources */,
 				865463022AE1796C008E56A2 /* AppDelegate.swift in Sources */,

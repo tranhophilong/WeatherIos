@@ -26,6 +26,7 @@ class CardView: UIView {
     private var widtHIcon: Constraint?
     private var heightIcon: Constraint?
     private var marginIcon: Constraint?
+    var topContrainHeader: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -49,7 +50,7 @@ class CardView: UIView {
     
     private func setupHeader(){
         
-        header.backgroundColor = .clear
+//        header.backgroundColor = .red
         titleLbl.font = AdaptiveFont.bold(size: 16)
         titleLbl.textColor = .white.withAlphaComponent(0.5)
         titleLbl.numberOfLines = 0
@@ -114,13 +115,24 @@ class CardView: UIView {
     }
     
     
+    func remakeContrainTopHeader(to view: UIView){
+        view.addSubview(header)
+//        header.snp.removeConstraints()
+        header.snp.remakeConstraints{ make in
+            topContrainHeader =  make.top.equalTo(view.snp.top).constraint
+            make.left.equalTo(view.snp.left)
+            make.right.equalTo(view.snp.right)
+            make.height.equalTo(100)
+        }
+    }
+    
     
     private func constraint(){
         addSubview(header)
         addSubview(body)
         
         header.snp.makeConstraints { [weak self] make in
-            make.top.equalToSuperview()
+            topContrainHeader =  make.top.equalTo(self!.snp.top).constraint
             make.left.equalToSuperview()
             make.right.equalToSuperview()
             self!.heightHeaderConstraint =  make.height.equalTo(50).constraint

@@ -26,7 +26,7 @@ class MasterViewController: UIViewController {
     
     
     private func setupContainerView(){
-        containerView.backgroundColor = .greyGrade
+        containerView.backgroundColor = .clearAtmosphere
         containerView.contentSize = CGSize(width: widthContent * CGFloat(numberSubviews), height: heightContent)
         containerView.isPagingEnabled = true
         containerView.showsHorizontalScrollIndicator = false
