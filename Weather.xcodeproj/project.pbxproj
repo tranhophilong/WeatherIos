@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8434B261537F25A536173518 /* Pods_Weather.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96507A61F81A03808727A305 /* Pods_Weather.framework */; };
+		8626F3412AECFB4100E2F826 /* HeaderContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8626F3402AECFB4100E2F826 /* HeaderContentView.swift */; };
 		863FA70E2AE51106000229CB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FA70D2AE51106000229CB /* ContentView.swift */; };
 		863FA7102AE51246000229CB /* BottomAppBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FA70F2AE51246000229CB /* BottomAppBarView.swift */; };
 		863FA7122AE57B5F000229CB /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FA7112AE57B5F000229CB /* Constant.swift */; };
@@ -38,6 +39,7 @@
 
 /* Begin PBXFileReference section */
 		79EFCBC84E4F951CEB03AFEB /* Pods-Weather.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Weather.release.xcconfig"; path = "Target Support Files/Pods-Weather/Pods-Weather.release.xcconfig"; sourceTree = "<group>"; };
+		8626F3402AECFB4100E2F826 /* HeaderContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderContentView.swift; sourceTree = "<group>"; };
 		863FA70D2AE51106000229CB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		863FA70F2AE51246000229CB /* BottomAppBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomAppBarView.swift; sourceTree = "<group>"; };
 		863FA7112AE57B5F000229CB /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 				863FA70D2AE51106000229CB /* ContentView.swift */,
 				863FA70F2AE51246000229CB /* BottomAppBarView.swift */,
 				863FA7132AE63679000229CB /* CardView.swift */,
+				8626F3402AECFB4100E2F826 /* HeaderContentView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -334,6 +337,7 @@
 				867EF8982AE39C5D0064562C /* Dimension.swift in Sources */,
 				867EF8A82AE3BD2C0064562C /* MasterViewController.swift in Sources */,
 				863FA70E2AE51106000229CB /* ContentView.swift in Sources */,
+				8626F3412AECFB4100E2F826 /* HeaderContentView.swift in Sources */,
 				868B6C192AEC0EE3006610A9 /* UILabel+Extra.swift in Sources */,
 				869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */,
 				865463162AE17CC1008E56A2 /* ViewController.swift in Sources */,
