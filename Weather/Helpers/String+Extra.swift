@@ -17,5 +17,6 @@ extension String{
         let textSize = text.size(withAttributes: attributes)
         return textSize
     }
-
+    
+    
 }

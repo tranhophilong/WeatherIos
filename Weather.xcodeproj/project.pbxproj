@@ -29,7 +29,11 @@
 		867EF8A42AE3A3E30064562C /* ArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8A32AE3A3E30064562C /* ArrayExtension.swift */; };
 		867EF8A62AE3A6820064562C /* IntExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8A52AE3A6820064562C /* IntExtension.swift */; };
 		867EF8A82AE3BD2C0064562C /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8A72AE3BD2B0064562C /* MasterViewController.swift */; };
+		868B6C172AEC0E93006610A9 /* FitUILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 868B6C162AEC0E92006610A9 /* FitUILabel.swift */; };
+		868B6C192AEC0EE3006610A9 /* UILabel+Extra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 868B6C182AEC0EE3006610A9 /* UILabel+Extra.swift */; };
+		868B6C1B2AEC2DC1006610A9 /* blue-sky.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 868B6C1A2AEC2DC0006610A9 /* blue-sky.jpeg */; };
 		869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DAE742AEA5FBC00152FCF /* String+Extra.swift */; };
+		869DAE792AEB91A400152FCF /* white-cloud-blue-sky.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 869DAE782AEB91A400152FCF /* white-cloud-blue-sky.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,7 +61,11 @@
 		867EF8A32AE3A3E30064562C /* ArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtension.swift; sourceTree = "<group>"; };
 		867EF8A52AE3A6820064562C /* IntExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntExtension.swift; sourceTree = "<group>"; };
 		867EF8A72AE3BD2B0064562C /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
+		868B6C162AEC0E92006610A9 /* FitUILabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitUILabel.swift; sourceTree = "<group>"; };
+		868B6C182AEC0EE3006610A9 /* UILabel+Extra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extra.swift"; sourceTree = "<group>"; };
+		868B6C1A2AEC2DC0006610A9 /* blue-sky.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "blue-sky.jpeg"; sourceTree = "<group>"; };
 		869DAE742AEA5FBC00152FCF /* String+Extra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extra.swift"; sourceTree = "<group>"; };
+		869DAE782AEB91A400152FCF /* white-cloud-blue-sky.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "white-cloud-blue-sky.jpg"; sourceTree = "<group>"; };
 		96507A61F81A03808727A305 /* Pods_Weather.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Weather.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8B60D1FABAAC2457C7DB861 /* Pods-Weather.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Weather.debug.xcconfig"; path = "Target Support Files/Pods-Weather/Pods-Weather.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -91,6 +99,15 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		8626F33F2AECF7D100E2F826 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				869DAE782AEB91A400152FCF /* white-cloud-blue-sky.jpg */,
+				868B6C1A2AEC2DC0006610A9 /* blue-sky.jpeg */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		865462F52AE1796B008E56A2 = {
 			isa = PBXGroup;
 			children = (
@@ -118,6 +135,7 @@
 				867EF8882AE180B70064562C /* Model */,
 				867EF8872AE180B10064562C /* ViewModel */,
 				867EF8862AE180AB0064562C /* View */,
+				8626F33F2AECF7D100E2F826 /* Resources */,
 				8654630A2AE1796E008E56A2 /* Assets.xcassets */,
 				8654630C2AE1796E008E56A2 /* LaunchScreen.storyboard */,
 				8654630F2AE1796E008E56A2 /* Info.plist */,
@@ -161,6 +179,8 @@
 				867EF8942AE39C5D0064562C /* Enums */,
 				863FA7112AE57B5F000229CB /* Constant.swift */,
 				869DAE742AEA5FBC00152FCF /* String+Extra.swift */,
+				868B6C162AEC0E92006610A9 /* FitUILabel.swift */,
+				868B6C182AEC0EE3006610A9 /* UILabel+Extra.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -255,6 +275,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				869DAE792AEB91A400152FCF /* white-cloud-blue-sky.jpg in Resources */,
+				868B6C1B2AEC2DC1006610A9 /* blue-sky.jpeg in Resources */,
 				8654630E2AE1796E008E56A2 /* LaunchScreen.storyboard in Resources */,
 				8654630B2AE1796E008E56A2 /* Assets.xcassets in Resources */,
 			);
@@ -312,6 +334,7 @@
 				867EF8982AE39C5D0064562C /* Dimension.swift in Sources */,
 				867EF8A82AE3BD2C0064562C /* MasterViewController.swift in Sources */,
 				863FA70E2AE51106000229CB /* ContentView.swift in Sources */,
+				868B6C192AEC0EE3006610A9 /* UILabel+Extra.swift in Sources */,
 				869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */,
 				865463162AE17CC1008E56A2 /* ViewController.swift in Sources */,
 				867EF89A2AE39C5D0064562C /* Font.swift in Sources */,
@@ -323,6 +346,7 @@
 				867EF88F2AE185AF0064562C /* ModelExtension.swift in Sources */,
 				865463042AE1796C008E56A2 /* SceneDelegate.swift in Sources */,
 				863FA7122AE57B5F000229CB /* Constant.swift in Sources */,
+				868B6C172AEC0E93006610A9 /* FitUILabel.swift in Sources */,
 				867EF8912AE271B00064562C /* WeatherData.swift in Sources */,
 				867EF8A62AE3A6820064562C /* IntExtension.swift in Sources */,
 				867EF8A02AE39CB20064562C /* UIViewExtension.swift in Sources */,

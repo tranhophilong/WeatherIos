@@ -12,7 +12,8 @@ class MasterViewController: UIViewController {
 
     private lazy var containerView  = UIScrollView(frame: .zero)
     private lazy var bottomAppBarView = BottomAppBarView(frame: .zero)
-    var numberSubviews: Int = 3
+    private lazy var backGroundImg = UIImageView(frame: .zero)
+    var numberSubviews: Int = 1
     private lazy var widthContent: CGFloat = self.view.bounds.width
     private lazy var heightContent: CGFloat = self.view.bounds.height
     private var currentXContainer: CGFloat = 0
@@ -22,11 +23,13 @@ class MasterViewController: UIViewController {
         setupContainerView()
         setupBottomAppBar()
         constraint()
+        
+        
     }
     
     
     private func setupContainerView(){
-        containerView.backgroundColor = .clearAtmosphere
+        containerView.backgroundColor = .clear
         containerView.contentSize = CGSize(width: widthContent * CGFloat(numberSubviews), height: heightContent)
         containerView.isPagingEnabled = true
         containerView.showsHorizontalScrollIndicator = false
@@ -45,8 +48,13 @@ class MasterViewController: UIViewController {
     }
     
     private func constraint(){
+        
+        view.addSubview(backGroundImg)
         view.addSubview(containerView)
         view.addSubview(bottomAppBarView)
+      
+        
+      
         
         containerView.snp.makeConstraints { make in
             make.top.equalToSuperview()
@@ -57,6 +65,19 @@ class MasterViewController: UIViewController {
         
         bottomAppBarView.snp.makeConstraints { make in
             make.height.equalTo(80.VAdapted)
+            make.left.equalToSuperview()
+            make.right.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+        
+//        containerView.addSubview(backGroundImg)
+//        
+        
+        backGroundImg.image = UIImage(named: "white-cloud-blue-sky.jpg")
+        
+
+        backGroundImg.snp.makeConstraints { make in
+            make.top.equalToSuperview()
             make.left.equalToSuperview()
             make.right.equalToSuperview()
             make.bottom.equalToSuperview()

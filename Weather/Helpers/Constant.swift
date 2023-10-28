@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 func SCREEN_BOUNDS() -> CGRect {
     return UIScreen.main.bounds
 }

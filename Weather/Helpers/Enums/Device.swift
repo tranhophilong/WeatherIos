@@ -19,8 +19,9 @@ enum Device {
     case iPhone12
     case iPhone12ProMax
     case iphone15Pro
+    case iphoneXSMax
     
-    static let baseScreenSize: Device = .iphone15Pro
+    static let baseScreenSize: Device = .iphoneXSMax
 }
 
 extension Device: RawRepresentable {
@@ -44,6 +45,8 @@ extension Device: RawRepresentable {
             self = .iPhone12ProMax
         case CGSize(width: 393, height: 852):
             self = .iphone15Pro
+        case CGSize(width: 414, height: 896):
+            self = .iphoneXSMax
        
         default:
             return nil
@@ -68,6 +71,8 @@ extension Device: RawRepresentable {
             return CGSize(width: 393, height: 852)
         case .iphoneX:
             return CGSize(width: 375, height: 812)
+        case .iphoneXSMax:
+            return CGSize(width: 414, height: 896)
         }
     }
 }

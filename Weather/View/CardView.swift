@@ -45,7 +45,7 @@ class CardView: UIView {
         clipsToBounds = true
         backgroundColor = .clear
         layer.cornerRadius = 20.HAdapted
-        backgroundColor = .white.withAlphaComponent(0.05)
+        backgroundColor = .blueRas.withAlphaComponent(0.5)
     }
     
     private func setupHeader(){
