@@ -34,9 +34,9 @@ class HeaderContentView: UIView{
     private let heightDegreeLbl: CGFloat = heightHeaderContent/5
     
         
-    private let fontDegreeLbl = UIFont.systemFont(ofSize: 100.HAdapted, weight: .thin)
-    private let fontConditionLbl = UIFont.systemFont(ofSize: 20.HAdapted, weight: .bold)
-    private let fontLocationLbl = UIFont.systemFont(ofSize: 40.HAdapted, weight: .regular)
+    private let fontDegreeLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.27), weight: .thin)
+    private let fontConditionLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.054), weight: .bold)
+    private let fontLocationLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.108), weight: .regular)
     
    
 
@@ -44,13 +44,6 @@ class HeaderContentView: UIView{
         super.init(frame: frame)
         layout()
         constraint()
-        print(disConditionLblAndDegreeLbl)
-        print(disLocationLblAndTopHeader)
-        print(disDegreeLblAndBottomHeader)
-        print(disConditionLblAndDegreeLbl)
-        print(disDegreeConditionAndBottomHeader)
-        print(heightConditionLbl)
-        print(round(heightHeaderContent * 0.173))
         
     }
     
