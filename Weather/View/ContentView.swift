@@ -15,7 +15,6 @@ class ContentView: UIView{
     private lazy var cardView = CardView(frame: .zero)
     private lazy var headerContent = HeaderContentView(frame: .zero)
     private var heightHeaderContentConstraint: Constraint?
-    private let heightHeaderContent: Int = Int(370.VAdapted)
     let title : String
     
     
@@ -39,7 +38,7 @@ class ContentView: UIView{
         cardView.setWidthSeparator(width: SCREEN_WIDTH())
         cardView.setTitleColor(color: .white)
         cardView.setIconColor(color: .white)
-        cardView.setHeighHeader(height: 50)
+        cardView.setHeighHeader(height: Int(50.VAdapted))
         cardView.setIcon(icon: UIImage(systemName: "figure.stand.line.dotted.figure.stand"))
 //        cardView.remakeContrainTopHeader(to: self)
         
@@ -61,7 +60,7 @@ class ContentView: UIView{
         addSubview(containerView)
         
         
-        containerView.snp.makeConstraints {[weak self] make in
+        containerView.snp.makeConstraints {make in
             make.top.equalToSuperview()
             make.left.equalToSuperview()
             make.right.equalToSuperview()
@@ -71,20 +70,20 @@ class ContentView: UIView{
         containerView.addSubview(headerContent)
         
         headerContent.snp.makeConstraints { [weak self] make in
-            make.top.equalTo(self!.snp_topMargin)
+            make.top.equalTo(self!.snp.topMargin)
             make.left.equalTo(self!.snp.left)
             make.right.equalTo(self!.snp.right)
-            heightHeaderContentConstraint =  make.height.equalTo(heightHeaderContent.VAdapted).constraint
+            self!.heightHeaderContentConstraint =  make.height.equalTo(heightHeaderContent).constraint
         }
         
 //        headerContent.backgroundColor = .gray
         
         containerView.addSubview(cardView)
         
-        cardView.snp.makeConstraints { make in
-            make.top.equalTo(headerContent.snp.bottom)
+        cardView.snp.makeConstraints {[weak self] make in
+            make.top.equalTo(self!.headerContent.snp.bottom)
             make.centerX.equalToSuperview()
-            make.width.equalTo(350)
+            make.width.equalTo(self!.frame.width * 90/100)
             make.height.equalTo(350.VAdapted)
             
         }
@@ -96,10 +95,11 @@ class ContentView: UIView{
 extension ContentView: UIScrollViewDelegate{
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
 //            minis margin top of Screen
-        var contentOffSet = -scrollView.contentOffset.y - 44.VAdapted
-        
+        var contentOffSet = -scrollView.contentOffset.y - STATUS_BAR_HEIGHT()
+//        print(-scrollView.contentOffset.y)
+//        print(STATUS_BAR_HEIGHT())
         if (CGFloat(heightHeaderContent) + contentOffSet - 10.VAdapted >= CGFloat(74.VAdapted) ){
-            heightHeaderContentConstraint?.update(offset: heightHeaderContent + Int(contentOffSet))
+            heightHeaderContentConstraint?.update(offset: heightHeaderContent + contentOffSet)
             headerContent.changeDisLblAndTopHeaderDidScroll(scrollView: scrollView)
             headerContent.hiddenLabelDidScroll(scrollView: scrollView)
         }

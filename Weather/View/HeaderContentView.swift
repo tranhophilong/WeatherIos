@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 
 class HeaderContentView: UIView{
+    
     private lazy var locationLbl = FittableFontLabel(frame: .zero)
     private lazy var degreeLbl = FittableFontLabel(frame: .zero)
     private lazy var conditionWeatherLbl = FittableFontLabel(frame: .zero)
@@ -18,28 +19,39 @@ class HeaderContentView: UIView{
     
     private var locationLblToTopHeaderConstraint: Constraint?
     
-    private let disHightLowDegreeLblAndBottomHeader: CGFloat = 74
-    private let disConditionWeatherLblAndBottomHeader: CGFloat = 111.VAdapted
-    private let disDegreeLblAndBottomHeader: CGFloat = 148.VAdapted
-    private let disDegreeConditionAndBottomHeader: CGFloat = 232.VAdapted
+    private let disConditionLblAndDegreeLbl: CGFloat = round(heightHeaderContent * 0.027)
+    private let disHightLowDegreeLblAndConditionWeatherLbl: CGFloat = round(heightHeaderContent * 0.027)
+    private let didsDegreeLblAndLocationLbl: CGFloat = round(heightHeaderContent * 0.027)
     
-    private let disConditionLblAndDegreeLbl: CGFloat = 10.VAdapted
-    private let disHightLowDegreeLblAndConditionWeatherLbl: CGFloat = 10.VAdapted
-    private let disLocationLblAndTopHeader: CGFloat = 74.VAdapted
-    private let didsDegreeLblAndLocationLbl: CGFloat = 10.VAdapted
+    private let disLocationLblAndTopHeader: CGFloat = heightHeaderContent/5
+    private let disDegreeLblAndBottomHeader: CGFloat = heightHeaderContent * 2/5
+    private let disConditionWeatherLblAndBottomHeader: CGFloat = round(heightHeaderContent * 0.3)
+    private let disDegreeConditionAndBottomHeader: CGFloat = round(heightHeaderContent * 0.627)
+    private let disHightLowDegreeLblAndBottomHeader: CGFloat = heightHeaderContent/5
     
-    private let fontDegreeLbl = UIFont.systemFont(ofSize: 100.VAdapted, weight: .thin)
-    private let fontConditionLbl = UIFont.systemFont(ofSize: 20.VAdapted, weight: .bold)
-    private let fontLocationLbl = UIFont.systemFont(ofSize: 40.VAdapted, weight: .regular)
+    private let heightHightAndLowDegreeLbl: CGFloat = round(heightHeaderContent * 0.073)
+    private let heightConditionLbl: CGFloat = round(heightHeaderContent * 0.073)
+    private let heightDegreeLbl: CGFloat = heightHeaderContent/5
     
-    private let heightHightAndLowDegreeLbl: CGFloat = 27.VAdapted
-    private let heightConditionLbl: CGFloat = 27.VAdapted
-    private let heightDegreeLbl: CGFloat = 74.VAdapted
+        
+    private let fontDegreeLbl = UIFont.systemFont(ofSize: 100.HAdapted, weight: .thin)
+    private let fontConditionLbl = UIFont.systemFont(ofSize: 20.HAdapted, weight: .bold)
+    private let fontLocationLbl = UIFont.systemFont(ofSize: 40.HAdapted, weight: .regular)
+    
+   
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         layout()
         constraint()
+        print(disConditionLblAndDegreeLbl)
+        print(disLocationLblAndTopHeader)
+        print(disDegreeLblAndBottomHeader)
+        print(disConditionLblAndDegreeLbl)
+        print(disDegreeConditionAndBottomHeader)
+        print(heightConditionLbl)
+        print(round(heightHeaderContent * 0.173))
+        
     }
     
     required init?(coder: NSCoder) {
@@ -47,7 +59,6 @@ class HeaderContentView: UIView{
     }
     
     private func layout(){
-        
         
 //        font
         degreeLbl.font = fontDegreeLbl
@@ -120,7 +131,7 @@ class HeaderContentView: UIView{
         locationLbl.snp.makeConstraints { make in
             make.centerX.equalTo(degreeLbl)
             locationLblToTopHeaderConstraint =  make.top.equalToSuperview().offset(disLocationLblAndTopHeader ).constraint
-            make.height.equalTo(64.VAdapted)
+            make.height.equalTo(round(heightHeaderContent * 0.173))
             
             make.width.equalTo(String.textSize(locationLbl.text, withFont: fontLocationLbl).width.adaptedFontSize)
                 
@@ -129,7 +140,7 @@ class HeaderContentView: UIView{
         degreeConditionLbl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.width.equalTo(String.textSize(degreeConditionLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
-            make.height.equalTo(27.VAdapted)
+            make.height.equalTo(round(heightHeaderContent * 0.073))
             make.top.equalTo(locationLbl.snp.bottom).offset(5.VAdapted)
         }
         
@@ -159,44 +170,37 @@ class HeaderContentView: UIView{
             make.height.equalTo(heightHightAndLowDegreeLbl)
             make.width.equalTo(String.textSize(hightLowDegreeLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
         }
-        
-                
-    }
-    
+            }
    
 }
-
-
 //MARK: - Animation Scroll
 
 extension HeaderContentView{
     func changeDisLblAndTopHeaderDidScroll(scrollView: UIScrollView){
-//        minus margin top of Screen
-        var contentOffSet = -scrollView.contentOffset.y - 44.VAdapted
-        var offSet = contentOffSet * 1/3
+        var contentOffSet = -scrollView.contentOffset.y - STATUS_BAR_HEIGHT()
+        let offSet = contentOffSet * 1/3
         
         locationLblToTopHeaderConstraint?.update(offset: disLocationLblAndTopHeader + offSet)
         
     }
     
     func hiddenLabelDidScroll(scrollView: UIScrollView){
-        //        minus margin top of Screen
 
-        var contentOffSet = -scrollView.contentOffset.y - 44.VAdapted
+        let contentOffSet = -scrollView.contentOffset.y - STATUS_BAR_HEIGHT()
         
-        var alpha1 =   ( disHightLowDegreeLblAndBottomHeader  + heightHightAndLowDegreeLbl + contentOffSet ) / (disHightLowDegreeLblAndBottomHeader / 2)
+        let alpha1 =   ( disHightLowDegreeLblAndBottomHeader  + heightHightAndLowDegreeLbl + contentOffSet ) / (disHightLowDegreeLblAndBottomHeader / 2)
         
         hiddenLabel(lbl: hightLowDegreeLbl, with:  alpha1)
             
-        var alpha2 = (disConditionWeatherLblAndBottomHeader + heightConditionLbl + contentOffSet) / (disConditionWeatherLblAndBottomHeader - disHightLowDegreeLblAndBottomHeader  )
+        let alpha2 = (disConditionWeatherLblAndBottomHeader + heightConditionLbl + contentOffSet) / (disConditionWeatherLblAndBottomHeader - disHightLowDegreeLblAndBottomHeader  )
         
         hiddenLabel(lbl: conditionWeatherLbl, with: alpha2)
         
-        var alpha3 = (disDegreeLblAndBottomHeader  + heightConditionLbl + contentOffSet) / (disDegreeLblAndBottomHeader - disConditionWeatherLblAndBottomHeader  - heightConditionLbl)
+        let alpha3 = (disDegreeLblAndBottomHeader  + heightConditionLbl + contentOffSet) / (disDegreeLblAndBottomHeader - disConditionWeatherLblAndBottomHeader  - heightConditionLbl)
         hiddenLabel(lbl: degreeLbl, with: alpha3)
         hiddenLabel(lbl: degreeIcon, with: alpha3)
         
-        var alpha4 = (disDegreeConditionAndBottomHeader + contentOffSet) / (heightDegreeLbl / 2)
+        let alpha4 = (disDegreeConditionAndBottomHeader + contentOffSet) / (heightDegreeLbl / 2)
         showLabel(lbl: degreeConditionLbl, with: alpha4)
     }
     

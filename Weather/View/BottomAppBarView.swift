@@ -77,7 +77,7 @@ class BottomAppBarView: UIView {
         
         pageControl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(10.HAdapted)
+            make.top.equalToSuperview().offset(10.VAdapted)
             
         }
         

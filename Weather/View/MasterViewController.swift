@@ -14,8 +14,8 @@ class MasterViewController: UIViewController {
     private lazy var bottomAppBarView = BottomAppBarView(frame: .zero)
     private lazy var backGroundImg = UIImageView(frame: .zero)
     var numberSubviews: Int = 1
-    private lazy var widthContent: CGFloat = self.view.bounds.width
-    private lazy var heightContent: CGFloat = self.view.bounds.height
+    private lazy var widthContent: CGFloat = CGFloat(self.view.bounds.width).adaptedFontSize
+    private lazy var heightContent: CGFloat = CGFloat(self.view.bounds.height).adaptedFontSize
     private var currentXContainer: CGFloat = 0
     
     override func viewDidLoad() {

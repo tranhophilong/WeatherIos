@@ -7,6 +7,8 @@
 
 import UIKit
 
+let heightHeaderContent: CGFloat = 350.VAdapted
+
 func SCREEN_BOUNDS() -> CGRect {
     return UIScreen.main.bounds
 }
@@ -26,4 +28,17 @@ func SCREEN_MAX_LENGTH() -> CGFloat {
 
 func SCREEN_MIN_LENGTH() -> CGFloat {
     return min(SCREEN_WIDTH(), SCREEN_HEIGHT())
+}
+
+func STATUS_BAR_HEIGHT() -> CGFloat {
+    var statusBarHeight: CGFloat = 0.0
+    
+    if #available(iOS 13.0, *) {
+        let window = UIApplication.shared.windows.filter { $0.isKeyWindow }.first
+        statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0
+    } else {
+        statusBarHeight = UIApplication.shared.statusBarFrame.height
+    }
+    
+    return statusBarHeight
 }
