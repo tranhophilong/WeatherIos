@@ -17,7 +17,6 @@
 		865463042AE1796C008E56A2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865463032AE1796C008E56A2 /* SceneDelegate.swift */; };
 		8654630B2AE1796E008E56A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8654630A2AE1796E008E56A2 /* Assets.xcassets */; };
 		8654630E2AE1796E008E56A2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8654630C2AE1796E008E56A2 /* LaunchScreen.storyboard */; };
-		865463162AE17CC1008E56A2 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865463152AE17CC1008E56A2 /* ViewController.swift */; };
 		867EF88B2AE1821D0064562C /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF88A2AE1821D0064562C /* Model.swift */; };
 		867EF88F2AE185AF0064562C /* ModelExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF88E2AE185AF0064562C /* ModelExtension.swift */; };
 		867EF8912AE271B00064562C /* WeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8902AE271B00064562C /* WeatherData.swift */; };
@@ -35,6 +34,8 @@
 		868B6C1B2AEC2DC1006610A9 /* blue-sky.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 868B6C1A2AEC2DC0006610A9 /* blue-sky.jpeg */; };
 		869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DAE742AEA5FBC00152FCF /* String+Extra.swift */; };
 		869DAE792AEB91A400152FCF /* white-cloud-blue-sky.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 869DAE782AEB91A400152FCF /* white-cloud-blue-sky.jpg */; };
+		86ED66502AEF681300BED0D5 /* CardViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ED664F2AEF681300BED0D5 /* CardViewItem.swift */; };
+		86FE70062AEE4BF400E4BC1D /* BodyContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86FE70052AEE4BF400E4BC1D /* BodyContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,7 +51,6 @@
 		8654630A2AE1796E008E56A2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8654630D2AE1796E008E56A2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8654630F2AE1796E008E56A2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		865463152AE17CC1008E56A2 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		867EF88A2AE1821D0064562C /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		867EF88E2AE185AF0064562C /* ModelExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelExtension.swift; sourceTree = "<group>"; };
 		867EF8902AE271B00064562C /* WeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherData.swift; sourceTree = "<group>"; };
@@ -68,6 +68,8 @@
 		868B6C1A2AEC2DC0006610A9 /* blue-sky.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "blue-sky.jpeg"; sourceTree = "<group>"; };
 		869DAE742AEA5FBC00152FCF /* String+Extra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extra.swift"; sourceTree = "<group>"; };
 		869DAE782AEB91A400152FCF /* white-cloud-blue-sky.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "white-cloud-blue-sky.jpg"; sourceTree = "<group>"; };
+		86ED664F2AEF681300BED0D5 /* CardViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewItem.swift; sourceTree = "<group>"; };
+		86FE70052AEE4BF400E4BC1D /* BodyContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyContentView.swift; sourceTree = "<group>"; };
 		96507A61F81A03808727A305 /* Pods_Weather.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Weather.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8B60D1FABAAC2457C7DB861 /* Pods-Weather.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Weather.debug.xcconfig"; path = "Target Support Files/Pods-Weather/Pods-Weather.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -141,7 +143,6 @@
 				8654630A2AE1796E008E56A2 /* Assets.xcassets */,
 				8654630C2AE1796E008E56A2 /* LaunchScreen.storyboard */,
 				8654630F2AE1796E008E56A2 /* Info.plist */,
-				865463152AE17CC1008E56A2 /* ViewController.swift */,
 			);
 			path = Weather;
 			sourceTree = "<group>";
@@ -154,6 +155,8 @@
 				863FA70F2AE51246000229CB /* BottomAppBarView.swift */,
 				863FA7132AE63679000229CB /* CardView.swift */,
 				8626F3402AECFB4100E2F826 /* HeaderContentView.swift */,
+				86FE70052AEE4BF400E4BC1D /* BodyContentView.swift */,
+				86ED664F2AEF681300BED0D5 /* CardViewItem.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -340,7 +343,6 @@
 				8626F3412AECFB4100E2F826 /* HeaderContentView.swift in Sources */,
 				868B6C192AEC0EE3006610A9 /* UILabel+Extra.swift in Sources */,
 				869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */,
-				865463162AE17CC1008E56A2 /* ViewController.swift in Sources */,
 				867EF89A2AE39C5D0064562C /* Font.swift in Sources */,
 				865463022AE1796C008E56A2 /* AppDelegate.swift in Sources */,
 				863FA7102AE51246000229CB /* BottomAppBarView.swift in Sources */,
@@ -352,8 +354,10 @@
 				863FA7122AE57B5F000229CB /* Constant.swift in Sources */,
 				868B6C172AEC0E93006610A9 /* FitUILabel.swift in Sources */,
 				867EF8912AE271B00064562C /* WeatherData.swift in Sources */,
+				86ED66502AEF681300BED0D5 /* CardViewItem.swift in Sources */,
 				867EF8A62AE3A6820064562C /* IntExtension.swift in Sources */,
 				867EF8A02AE39CB20064562C /* UIViewExtension.swift in Sources */,
+				86FE70062AEE4BF400E4BC1D /* BodyContentView.swift in Sources */,
 				867EF88B2AE1821D0064562C /* Model.swift in Sources */,
 				867EF89F2AE39CB20064562C /* CGFloatExtension.swift in Sources */,
 				867EF8A42AE3A3E30064562C /* ArrayExtension.swift in Sources */,

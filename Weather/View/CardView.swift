@@ -43,7 +43,7 @@ class CardView: UIView {
     private func setupView(){
 //
         clipsToBounds = true
-        backgroundColor = .clear
+        backgroundColor = .red
         layer.cornerRadius = 20.HAdapted
         backgroundColor = .blueRas.withAlphaComponent(0.5)
     }
@@ -65,54 +65,7 @@ class CardView: UIView {
         body.backgroundColor = .clear
     }
     
-    func setTitle(title: String){
-        titleLbl.text = title
-        self.title = title
-    }
-    
-    func setIcon(icon: UIImage?){
-        
-        self.icon = icon
-//        
-        if let icon = icon{
-            marginIcon?.update(offset: 10.HAdapted)
-            iconView.snp.updateConstraints { make in
-                make.width.equalTo(20.HAdapted)
-            }
-        }else{
-            marginIcon?.update(inset: 0)
-            iconView.snp.updateConstraints { make in
-                make.width.equalTo(0.HAdapted)
-            }
-            
-        }
-     
-        iconView.image = icon
-    }
-    
-    func setWidthSeparator(width: CGFloat){
-        separator?.snp.updateConstraints({ make in
-            make.width.equalTo(width)
-        })
-        
-        self.widthSeparator = width
-        
-    }
-    
-    func setTitleColor(color: UIColor){
-        titleLbl.textColor = color
-        self.titleColor = color
-    }
-    
-    func setIconColor(color: UIColor){
-        iconView.tintColor = color
-        self.iconColor = color
-    }
-    
-    func setHeighHeader(height: Int){
-        heightHeaderConstraint?.update(offset: height.VAdapted)
-        self.heighHeader = height
-    }
+
     
     
     func remakeContrainTopHeader(to view: UIView){
@@ -125,6 +78,8 @@ class CardView: UIView {
             make.height.equalTo(100)
         }
     }
+    
+    
     
     
     private func constraint(){
@@ -167,4 +122,59 @@ class CardView: UIView {
         
     }
     
+}
+
+
+//MARK: Config CardView
+
+extension CardView{
+    
+    func setTitle(title: String){
+        titleLbl.text = title
+        self.title = title
+    }
+    
+    func setIcon(icon: UIImage?){
+        
+        self.icon = icon
+//
+        if let icon = icon{
+            marginIcon?.update(offset: 10.HAdapted)
+            iconView.snp.updateConstraints { make in
+                make.width.equalTo(20.HAdapted)
+            }
+        }else{
+            marginIcon?.update(inset: 0)
+            iconView.snp.updateConstraints { make in
+                make.width.equalTo(0.HAdapted)
+            }
+            
+        }
+     
+        iconView.image = icon
+    }
+    
+    func setWidthSeparator(width: CGFloat){
+        separator?.snp.updateConstraints({ make in
+            make.width.equalTo(width)
+        })
+        
+        self.widthSeparator = width
+        
+    }
+    
+    func setTitleColor(color: UIColor){
+        titleLbl.textColor = color
+        self.titleColor = color
+    }
+    
+    func setIconColor(color: UIColor){
+        iconView.tintColor = color
+        self.iconColor = color
+    }
+    
+    func setHeightHeader(height: Int){
+        heightHeaderConstraint?.update(offset: height.VAdapted)
+        self.heighHeader = height
+    }
 }
