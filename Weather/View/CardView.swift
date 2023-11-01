@@ -16,12 +16,15 @@ class CardView: UIView {
     private lazy var iconView = UIImageView(frame: .zero)
     private  var separator: UIView?
     
+    
     private(set) var title: String?
     private(set) var icon: UIImage?
     private(set) var heighHeader: Int?
     private(set) var widthSeparator: CGFloat?
     private(set) var titleColor: UIColor?
     private(set) var iconColor: UIColor?
+    let initAlphaColor = 0.8
+    var didRemakeConstraint: Bool = false
     private var heightHeaderConstraint: Constraint?
     private var widtHIcon: Constraint?
     private var heightIcon: Constraint?
@@ -43,14 +46,14 @@ class CardView: UIView {
     private func setupView(){
 //
         clipsToBounds = true
-        backgroundColor = .red
         layer.cornerRadius = 20.HAdapted
-        backgroundColor = .blueRas.withAlphaComponent(0.5)
+        backgroundColor = .brightBlue.withAlphaComponent(initAlphaColor)
     }
     
     private func setupHeader(){
         
-//        header.backgroundColor = .red
+        header.backgroundColor = .clear
+        header.layer.cornerRadius = 20.HAdapted
         titleLbl.font = AdaptiveFont.bold(size: 16)
         titleLbl.textColor = .white.withAlphaComponent(0.5)
         titleLbl.numberOfLines = 0
@@ -63,22 +66,42 @@ class CardView: UIView {
     
     private func setupBody(){
         body.backgroundColor = .clear
+//        body.layer.cornerRadius = 50.HAdapted
     }
     
 
     
     
-    func remakeContrainTopHeader(to view: UIView){
-        view.addSubview(header)
-//        header.snp.removeConstraints()
-        header.snp.remakeConstraints{ make in
-            topContrainHeader =  make.top.equalTo(view.snp.top).constraint
-            make.left.equalTo(view.snp.left)
-            make.right.equalTo(view.snp.right)
-            make.height.equalTo(100)
+    func remakeContrainHeader(to view: UIView){
+        
+        if !didRemakeConstraint{
+            view.addSubview(header)
+            header.snp.remakeConstraints{ make in
+                make.top.equalTo(view.snp.top)
+                make.left.equalTo(view.snp.left)
+                make.right.equalTo(view.snp.right)
+                make.height.equalTo(heighHeader!)
+            }
+            
+            didRemakeConstraint = true
+
         }
+        
     }
     
+
+    func refreshConstrainHeader(){
+        
+        header.snp.remakeConstraints { [weak self] make in
+            self!.topContrainHeader =  make.top.equalTo(self!.snp.top).constraint
+            make.left.equalToSuperview()
+            make.right.equalToSuperview()
+            self!.heightHeaderConstraint =  make.height.equalTo(50).constraint
+        }
+        
+        didRemakeConstraint = false
+        
+    }
     
     
     
@@ -87,7 +110,7 @@ class CardView: UIView {
         addSubview(body)
         
         header.snp.makeConstraints { [weak self] make in
-            topContrainHeader =  make.top.equalTo(self!.snp.top).constraint
+            self!.topContrainHeader =  make.top.equalTo(self!.snp.top).constraint
             make.left.equalToSuperview()
             make.right.equalToSuperview()
             self!.heightHeaderConstraint =  make.height.equalTo(50).constraint
@@ -112,7 +135,7 @@ class CardView: UIView {
         
         
         body.snp.makeConstraints { make in
-            make.top.equalTo(header.snp.bottom)
+            make.top.equalToSuperview().offset(heighHeader ?? 50.VAdapted)
             make.left.equalToSuperview()
             make.right.equalToSuperview()
             make.bottom.equalToSuperview()
@@ -176,5 +199,42 @@ extension CardView{
     func setHeightHeader(height: Int){
         heightHeaderConstraint?.update(offset: height.VAdapted)
         self.heighHeader = height
+    }
+    
+    func setBackGroundForCard(colorHeader: UIColor, colorBody: UIColor){
+        self.backgroundColor = colorBody
+        header.backgroundColor = colorHeader
+    }
+    
+    
+    func hiddenHeader(with alpha: CGFloat){
+         self.backgroundColor = .clear
+        header.backgroundColor = .brightBlue.withAlphaComponent(initAlphaColor - alpha)
+        titleLbl.textColor = titleColor?.withAlphaComponent(initAlphaColor - alpha)
+        iconView.tintColor = iconColor?.withAlphaComponent(initAlphaColor - alpha)
+    }
+    
+    func refreshColorHeader(){
+        self.titleLbl.textColor = titleColor
+        self.iconView.tintColor = iconColor
+        header.backgroundColor = .clear
+        self.backgroundColor = .brightBlue.withAlphaComponent(initAlphaColor)
+    }
+    
+}
+
+
+// MARK: Scroll Action
+
+extension CardView{
+    
+    func isScrollToHeader(with contentOffSet: CGFloat) -> Bool{
+//        print(self.frame.maxY -  CGFloat(heighHeader!)  )
+//        print(contentOffSet)
+        if self.frame.maxY - CGFloat(heighHeader!) <= contentOffSet{
+            return true
+        }else{
+            return false
+        }
     }
 }

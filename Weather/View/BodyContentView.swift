@@ -24,9 +24,12 @@ class BodyContentView: UIView {
         }
     }
     
+    
+    
     private let containerView = UIScrollView(frame: .zero)
     private(set) var heightContent: CGFloat = 0
     private(set) var widthContent: CGFloat = 0
+    private var isOverScroll: Bool = true
    
     
     override init(frame: CGRect) {
@@ -43,10 +46,9 @@ class BodyContentView: UIView {
     private func setupContainerView(){
         containerView.backgroundColor = .white.withAlphaComponent(0)
         containerView.isPagingEnabled = false
+        containerView.isScrollEnabled = false
         containerView.showsVerticalScrollIndicator = false
         widthContent = self.frame.width
-        
-
         
     }
     private func layoutSubViews(){
@@ -61,7 +63,6 @@ class BodyContentView: UIView {
             cardView.setHeightHeader(height: cardViewItem.heightHeader)
             cardView.setWidthSeparator(width: cardViewItem.widthSeparator)
             containerView.addSubview(cardView)
-            print(currentViewOffset)
             currentViewOffset += spacingItem + cardViewItem.content.frame.height
         }
     }
@@ -93,6 +94,71 @@ class BodyContentView: UIView {
     }
     
     
+}
+
+
+//MARK: Scroll Action
+
+extension BodyContentView{
+    
+    func viewDidScroll(with scrollView: UIScrollView, and contentOffSetDidScroll: CGFloat){
+        let contentOffSet = scrollView.contentOffset.y - contentOffSetDidScroll
+        containerView.contentOffset.y = contentOffSet
+        for view in containerView.subviews{
+            if let cardView = view as? CardView{
+                if contentOffSet >= cardView.frame.minY{
+                    cardView.remakeContrainHeader(to: self)
+
+                }else{
+                    cardView.refreshConstrainHeader()
+
+                }
+                if cardView.isScrollToHeader(with: contentOffSet ){
+                    let alpha = (contentOffSet - cardView.frame.maxY) / CGFloat(cardView.heighHeader!) * -1
+                    cardView.hiddenHeader(with: 1 - alpha)
+                }else{
+                    cardView.refreshColorHeader()
+                }
+  
+            }
+
+        }
+        
+//        print(containerView.subviews.count)
+         
+    }
+    
+    func refreshScroll(){
+        isOverScroll = true
+       
+    }
+    
+    
+    func refreshHeaderSubview(){
+        
+        containerView.subviews.forEach {view in
+            if view is CardView == false {
+                view.removeFromSuperview()
+            }
+        }
+        
+        containerView.subviews.forEach { view in
+            if let cardView = view as? CardView{
+                cardView.refreshConstrainHeader()
+            }
+        }
+        
+    }
+    
+    func checkContentOffSetIsZero() -> Bool{
+        if containerView.contentOffset.y <= 0 {
+            return true
+        }else{
+            return false
+        }
+    }
+    
+ 
 }
 
 

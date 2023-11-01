@@ -42,7 +42,7 @@ class BottomAppBarView: UIView {
     }
     
     private func setupView(){
-        backgroundColor = .blueRas.withAlphaComponent(0.6)
+        backgroundColor = .brightBlue.withAlphaComponent(0.9)
         var separate  =  addSeparator(width: SCREEN_WIDTH(), x: 0, y: 0, to: self)
     }
 
@@ -57,14 +57,14 @@ class BottomAppBarView: UIView {
     
     private func setupShowLstContentBtn(){
 
-        showLstContentBtn.image = UIImage(systemName: "list.bullet", withConfiguration: UIImage.SymbolConfiguration(weight: .light))?.withRenderingMode(.alwaysTemplate)
+        showLstContentBtn.image = UIImage(systemName: "list.bullet", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
         showLstContentBtn.tintColor = .white
         showLstContentBtn.contentMode = .scaleAspectFit
     }
     
     private func setupShowMapBtn(){
 
-        showMapBtn.image = UIImage(systemName: "map", withConfiguration: UIImage.SymbolConfiguration(weight: .light))?.withRenderingMode(.alwaysTemplate)
+        showMapBtn.image = UIImage(systemName: "map", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
         showMapBtn.tintColor = UIColor.white
         showMapBtn.contentMode = .scaleAspectFit
     }
