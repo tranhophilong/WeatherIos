@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 class ContentView: UIView{
     
@@ -18,6 +19,8 @@ class ContentView: UIView{
     private var contentOffSetDidScroll: CGFloat = 0
     private var didGetContentOffSetDidScroll: Bool = false
     let title : String
+    private let viewModel = ContentViewModel()
+    private var cancellables = Set<AnyCancellable>()
     
     
     public init(frame: CGRect, title: String) {
@@ -26,7 +29,7 @@ class ContentView: UIView{
         setupBody()
         setupContainerView()
         constraint()
-        
+        setupBinder()
     }
     
     required init?(coder: NSCoder) {
@@ -45,6 +48,29 @@ class ContentView: UIView{
     
     private func setupHeader(){
         
+    }
+    
+    private func setupBinder(){
+        viewModel.bodyContentState.sink { [weak self] (state, offsetDidScroll) in
+            switch state{
+            case .refreshHeaderSubview:
+                self!.bodyContent.refreshHeaderSubview()
+            case .viewDidScroll:
+                self!.bodyContent.viewDidScroll(with: self!.containerView, and: offsetDidScroll)
+            }
+        }.store(in: &cancellables)
+        
+        viewModel.heightHeader.sink { [weak self] height in
+            self!.heightHeaderContentConstraint?.update(offset: height)
+        }.store(in: &cancellables)
+        
+        
+        viewModel.changeLblHeader.sink {[weak self] (value, offSet) in
+            if value{
+                self!.headerContent.changeDisLblAndTopHeaderDidScroll(contentOffset: offSet)
+                self!.headerContent.changeColorLbl(contentOffSet: offSet)
+            }
+        }.store(in: &cancellables)
     }
     
     private func setupBody(){
@@ -89,7 +115,6 @@ class ContentView: UIView{
             self!.heightHeaderContentConstraint =  make.height.equalTo(heightHeaderContent).constraint
         }
         
-        
         bodyContent.snp.makeConstraints { [weak self] make in
             make.top.equalTo(self!.headerContent.snp.bottom).offset(5.VAdapted)
             make.width.equalTo(self!.frame.width * 95/100)
@@ -97,44 +122,16 @@ class ContentView: UIView{
             make.bottom.equalTo(self!.snp.bottom)
             make.centerX.equalToSuperview()
         }
-        
-        
     }
 }
 
 extension ContentView: UIScrollViewDelegate{
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        //            minis margin top of Screen
-        let contentOffSet = -scrollView.contentOffset.y - STATUS_BAR_HEIGHT()
-        if (CGFloat(heightHeaderContent) + contentOffSet - 30.VAdapted >= heightHeaderContent/5 && bodyContent.checkContentOffSetIsZero() == true){
-            heightHeaderContentConstraint?.update(offset: heightHeaderContent + contentOffSet)
-            headerContent.changeDisLblAndTopHeaderDidScroll(scrollView: scrollView)
-            headerContent.hiddenLabelDidScroll(scrollView: scrollView)
-            if didGetContentOffSetDidScroll{
-                bodyContent.refreshHeaderSubview()
-                bodyContent.refreshScroll()
-                
-//                print(bodyContent.subviews.count)
-            }
-            didGetContentOffSetDidScroll = false
+        let contentOffset = scrollView.contentOffset.y
+        viewModel.scrollAction(with: contentOffset, bodyContentOffsetIsZero: bodyContent.checkContentOffSetIsZero())
             
-        }else{
-            if !didGetContentOffSetDidScroll{
-                didGetContentOffSetDidScroll = true
-                contentOffSetDidScroll = scrollView.contentOffset.y
-            }
-            bodyContent.viewDidScroll(with: scrollView, and: contentOffSetDidScroll)
-        }
-        
-        
-        
-
     }
     
-  
-    
-    
-  
 }
 
 

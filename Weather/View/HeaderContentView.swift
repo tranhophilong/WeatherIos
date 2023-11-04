@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import Combine
+
 
 class HeaderContentView: UIView{
     
@@ -16,23 +18,12 @@ class HeaderContentView: UIView{
     private lazy var hightLowDegreeLbl = FittableFontLabel(frame: .zero)
     private lazy var degreeIcon = FittableFontLabel(frame: .zero)
     private lazy var  degreeConditionLbl = FittableFontLabel(frame: .zero)
+    private let viewModel = HeaderContentViewModel()
+    private var cancellables = Set<AnyCancellable>()
+    private let lblColor: UIColor = .white
+    
     
     private var locationLblToTopHeaderConstraint: Constraint?
-    
-    private let disConditionLblAndDegreeLbl: CGFloat = round(heightHeaderContent * 0.027)
-    private let disHightLowDegreeLblAndConditionWeatherLbl: CGFloat = round(heightHeaderContent * 0.027)
-    private let didsDegreeLblAndLocationLbl: CGFloat = round(heightHeaderContent * 0.027)
-    
-    private let disLocationLblAndTopHeader: CGFloat = heightHeaderContent/5
-    private let disDegreeLblAndBottomHeader: CGFloat = heightHeaderContent * 2/5
-    private let disConditionWeatherLblAndBottomHeader: CGFloat = round(heightHeaderContent * 0.3)
-    private let disDegreeConditionAndBottomHeader: CGFloat = round(heightHeaderContent * 0.627)
-    private let disHightLowDegreeLblAndBottomHeader: CGFloat = heightHeaderContent/5
-    
-    private let heightHightAndLowDegreeLbl: CGFloat = round(heightHeaderContent * 0.073)
-    private let heightConditionLbl: CGFloat = round(heightHeaderContent * 0.073)
-    private let heightDegreeLbl: CGFloat = heightHeaderContent/5
-    
         
     private let fontDegreeLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.27), weight: .thin)
     private let fontConditionLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.054), weight: .bold)
@@ -44,7 +35,7 @@ class HeaderContentView: UIView{
         super.init(frame: frame)
         layout()
         constraint()
-        
+        setupBinder()
     }
     
     required init?(coder: NSCoder) {
@@ -61,11 +52,11 @@ class HeaderContentView: UIView{
         locationLbl.font = fontLocationLbl
         
 //      color
-        locationLbl.textColor = .white
-        degreeLbl.textColor = .white
-        conditionWeatherLbl.textColor = .white
-        hightLowDegreeLbl.textColor = .white
-        degreeConditionLbl.textColor = .white.withAlphaComponent(0)
+        locationLbl.textColor = lblColor
+        degreeLbl.textColor = lblColor
+        conditionWeatherLbl.textColor = lblColor
+        hightLowDegreeLbl.textColor = lblColor
+        degreeConditionLbl.textColor = lblColor
         
 //        setText
         locationLbl.text = "Ho Chi Minh City"
@@ -111,6 +102,29 @@ class HeaderContentView: UIView{
         degreeIcon.font = fontDegreeLbl
     }
     
+    private func setupBinder(){
+        viewModel.alphaColorhightLowDegreeLbl.sink {[weak self] alpha in
+            self!.hightLowDegreeLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
+        }.store(in: &cancellables)
+        
+        viewModel.alphaColorConditionWeatherLbl.sink {[weak self] alpha in
+            self!.conditionWeatherLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
+        }.store(in: &cancellables)
+        
+        viewModel.alphaColorDegreeConditionLbl.sink { [weak self] alpha in
+            self!.degreeConditionLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
+        }.store(in: &cancellables)
+        
+        viewModel.alphaColorDegreeLbl.sink {[weak self] alpha in
+            self!.degreeLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
+            self!.degreeIcon.textColor = self!.lblColor.withAlphaComponent(alpha)
+        }.store(in: &cancellables)
+        
+        viewModel.disLocationLblAndTopHeader.sink {[weak self] dis in
+            self!.locationLblToTopHeaderConstraint?.update(offset: dis)
+        }.store(in: &cancellables)
+    }
+    
     private func constraint(){
         
         addSubview(locationLbl)
@@ -123,7 +137,7 @@ class HeaderContentView: UIView{
         
         locationLbl.snp.makeConstraints { make in
             make.centerX.equalTo(degreeLbl)
-            locationLblToTopHeaderConstraint =  make.top.equalToSuperview().offset(disLocationLblAndTopHeader ).constraint
+            locationLblToTopHeaderConstraint =  make.top.equalToSuperview().offset(disLocationLblAndTopHeaderStart ).constraint
             make.height.equalTo(round(heightHeaderContent * 0.173))
             
             make.width.equalTo(String.textSize(locationLbl.text, withFont: fontLocationLbl).width.adaptedFontSize)
@@ -138,7 +152,7 @@ class HeaderContentView: UIView{
         }
         
         degreeLbl.snp.makeConstraints { make in
-            make.top.equalTo(locationLbl.snp.bottom).offset(didsDegreeLblAndLocationLbl)
+            make.top.equalTo(locationLbl.snp.bottom).offset( didsDegreeLblAndLocationLbl)
             make.centerX.equalToSuperview()
             make.height.equalTo(heightDegreeLbl)
             make.width.equalTo(String.textSize(degreeLbl.text, withFont: fontDegreeLbl).width.adaptedFontSize)
@@ -169,39 +183,13 @@ class HeaderContentView: UIView{
 //MARK: - Animation Scroll
 
 extension HeaderContentView{
-    func changeDisLblAndTopHeaderDidScroll(scrollView: UIScrollView){
-        var contentOffSet = -scrollView.contentOffset.y - STATUS_BAR_HEIGHT()
-        let offSet = contentOffSet * 1/3
-        
-        locationLblToTopHeaderConstraint?.update(offset: disLocationLblAndTopHeader + offSet)
-        
+    func changeDisLblAndTopHeaderDidScroll(contentOffset: CGFloat){
+        viewModel.changeDisLblAndTopHeaderDidScroll(with: contentOffset)
     }
     
-    func hiddenLabelDidScroll(scrollView: UIScrollView){
-
-        let contentOffSet = -scrollView.contentOffset.y - STATUS_BAR_HEIGHT()
-        
-        let alpha1 =   ( disHightLowDegreeLblAndBottomHeader  + heightHightAndLowDegreeLbl + contentOffSet ) / (disHightLowDegreeLblAndBottomHeader / 2)
-        
-        hiddenLabel(lbl: hightLowDegreeLbl, with:  alpha1)
-            
-        let alpha2 = (disConditionWeatherLblAndBottomHeader + heightConditionLbl + contentOffSet) / (disConditionWeatherLblAndBottomHeader - disHightLowDegreeLblAndBottomHeader  )
-        
-        hiddenLabel(lbl: conditionWeatherLbl, with: alpha2)
-        
-        let alpha3 = (disDegreeLblAndBottomHeader  + heightConditionLbl + contentOffSet) / (disDegreeLblAndBottomHeader - disConditionWeatherLblAndBottomHeader  - heightConditionLbl)
-        hiddenLabel(lbl: degreeLbl, with: alpha3)
-        hiddenLabel(lbl: degreeIcon, with: alpha3)
-        
-        let alpha4 = (disDegreeConditionAndBottomHeader + contentOffSet) / (heightDegreeLbl / 2)
-        showLabel(lbl: degreeConditionLbl, with: alpha4)
+    func changeColorLbl(contentOffSet: CGFloat){
+        viewModel.changeColorLbl(with: contentOffSet)
     }
     
-    private func showLabel(lbl: UILabel, with alpha: CGFloat){
-        lbl.textColor = .white.withAlphaComponent( 1 - alpha)
-    }
-    
-    private func hiddenLabel(lbl : UILabel, with alpha: CGFloat){
-        lbl.textColor = .white.withAlphaComponent(alpha)
-    }
+   
 }
