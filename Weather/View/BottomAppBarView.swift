@@ -42,7 +42,7 @@ class BottomAppBarView: UIView {
     }
     
     private func setupView(){
-        backgroundColor = .brightBlue.withAlphaComponent(0.9)
+        backgroundColor = .brightBlue.withAlphaComponent(1)
         var separate  =  addSeparator(width: SCREEN_WIDTH(), x: 0, y: 0, to: self)
     }
 

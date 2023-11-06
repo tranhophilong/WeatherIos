@@ -45,13 +45,13 @@ class BodyContentView: UIView {
         containerView.isPagingEnabled = false
         containerView.isScrollEnabled = false
         containerView.showsVerticalScrollIndicator = false
-        widthContent = self.frame.width
         
     }
     private func layoutSubViews(){
-        var currentViewOffset = CGFloat(0);
+        var currentViewOffsetY = CGFloat(0)
+        var currentViewOffsetX = CGFloat(0)
         for cardViewItem in lstCardViewItem{
-            let frame = CGRectMake(0, currentViewOffset, cardViewItem.content.frame.width, cardViewItem.content.frame.height)
+            let frame = CGRectMake(currentViewOffsetX, currentViewOffsetY, cardViewItem.content.frame.width, cardViewItem.content.frame.height)
             let cardView = CardView(frame: frame)
             cardView.setIcon(icon: cardViewItem.icon)
             cardView.setTitle(title: cardViewItem.title)
@@ -60,17 +60,28 @@ class BodyContentView: UIView {
             cardView.setHeightHeader(height: cardViewItem.heightHeader)
             cardView.setWidthSeparator(width: cardViewItem.widthSeparator)
             cardView.setupBindToPinHeader(to: self)
+            cardView.setContentBody(view: cardViewItem.content)
+            self.addSubview(cardView.header)
             containerView.addSubview(cardView)
-            currentViewOffset += spacingItem + cardViewItem.content.frame.height
+            cardView.refreshConstrainHeader()
+            currentViewOffsetX += cardView.frame.width + spacingItem
+            if currentViewOffsetX + spacingItem >= widthContent{
+                currentViewOffsetY += spacingItem + cardViewItem.content.frame.height
+                currentViewOffsetX = 0
+            }
+            
         }
+        
     }
     
     private func reloadContainerView(){
         heightContent = 0
+        widthContent = 0
         for cardViewItem in lstCardViewItem{
             heightContent += cardViewItem.content.frame.height + CGFloat(cardViewItem.heightHeader)
+            widthContent = max(widthContent, cardViewItem.content.frame.width)
         }
-  
+        
 
         containerView.contentSize = CGSize(width: widthContent, height: heightContent + CGFloat(lstCardViewItem.count) * spacingItem)
         containerView.subviews.forEach { view in
@@ -78,17 +89,17 @@ class BodyContentView: UIView {
         }
     }
     
-    
-        
     private func constraint(){
         
         addSubview(containerView)
         containerView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(15.VAdapted)
             make.left.equalToSuperview()
             make.right.equalToSuperview()
             make.bottom.equalToSuperview()
+
         }
+        
     }
     
     

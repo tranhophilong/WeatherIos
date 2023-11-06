@@ -11,7 +11,7 @@ import Combine
 
 class CardView: UIView {
 
-    private lazy var header = UIView(frame: .zero)
+    lazy var header = UIView(frame: .zero)
     private lazy var body = UIView(frame: .zero)
     private lazy var titleLbl = UILabel(frame: .zero)
     private lazy var iconView = UIImageView(frame: .zero)
@@ -19,8 +19,6 @@ class CardView: UIView {
     let cardViewMdoel = CardViewModel()
     
     private  var separator: UIView?
-    
-    
     private(set) var title: String?
     private(set) var icon: UIImage?
     private(set) var heightHeader: Int?
@@ -50,13 +48,13 @@ class CardView: UIView {
     private func setupView(){
 //
         clipsToBounds = true
-        layer.cornerRadius = 20.HAdapted
+        layer.cornerRadius = 15.HAdapted
     }
     
     private func setupHeader(){
-        
+        header.clipsToBounds = true
         header.backgroundColor = .clear
-        header.layer.cornerRadius = 20.HAdapted
+        header.layer.cornerRadius = 15.HAdapted
         titleLbl.font = AdaptiveFont.bold(size: 16)
         titleLbl.numberOfLines = 0
         titleLbl.textAlignment = .left
@@ -81,19 +79,28 @@ class CardView: UIView {
             self!.titleLbl.textColor = self!.titleColor?.withAlphaComponent(alpha)
             self!.iconView.tintColor = self!.iconColor?.withAlphaComponent(alpha)
         }.store(in: &cancellables)
+        
+        
+        cardViewMdoel.hiddenBody.sink {[weak self] value in
+            if value{
+                self!.body.isHidden = true
+            }else{
+                self!.body.isHidden = false
+            }
+        }.store(in: &cancellables)
     }
     
     func setupBindToPinHeader(to view: UIView){
         cardViewMdoel.remakeConstraintHeader.sink { [weak self] value in
             if value{
-                view.addSubview(self!.header)
                 self!.header.snp.remakeConstraints{  make in
                     make.top.equalTo(view.snp.top)
-                    make.left.equalTo(view.snp.left)
-                    make.right.equalTo(view.snp.right)
+                    make.left.equalTo(self!.snp.left)
+                    make.right.equalTo(self!.snp.right)
                     make.height.equalTo(self!.heightHeader!)
                 }
             }else{
+                
                 self!.refreshConstrainHeader()
             }
         }.store(in: &cancellables)
@@ -105,9 +112,9 @@ class CardView: UIView {
     func refreshConstrainHeader(){
         header.snp.remakeConstraints { [weak self] make in
             self!.topContrainHeader =  make.top.equalTo(self!.snp.top).constraint
-            make.left.equalToSuperview()
-            make.right.equalToSuperview()
-            self!.heightHeaderConstraint =  make.height.equalTo(50.VAdapted).constraint
+            make.left.equalTo(self!.snp.left)
+            make.right.equalTo(self!.snp.right)
+            self!.heightHeaderConstraint =  make.height.equalTo(40.VAdapted).constraint
         }
         
     }
@@ -120,7 +127,7 @@ class CardView: UIView {
             self!.topContrainHeader =  make.top.equalTo(self!.snp.top).constraint
             make.left.equalToSuperview()
             make.right.equalToSuperview()
-            self!.heightHeaderConstraint =  make.height.equalTo(50).constraint
+            self!.heightHeaderConstraint =  make.height.equalTo(40.VAdapted).constraint
         }
         
         header.addSubview(titleLbl)
@@ -142,13 +149,13 @@ class CardView: UIView {
         
         
         body.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(heightHeader ?? 50.VAdapted)
+            make.top.equalToSuperview().offset(heightHeader ?? 40.VAdapted)
             make.left.equalToSuperview()
             make.right.equalToSuperview()
             make.bottom.equalToSuperview()
         }
         
-        separator =  addSeparator(width: 0, x: 20.HAdapted, y: 0, to: body)
+        separator =  addSeparator(width: 0, x: 10.HAdapted, y: 0, to: body)
         
     }
     
@@ -210,6 +217,16 @@ extension CardView{
     func setBackGroundForCard(colorHeader: UIColor, colorBody: UIColor){
         self.backgroundColor = colorBody
         header.backgroundColor = colorHeader
+    }
+    
+    func setContentBody(view: UIView){
+        body.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.left.equalToSuperview()
+            make.right.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
     }
     
 

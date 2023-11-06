@@ -76,21 +76,20 @@ class ContentView: UIView{
     private func setupBody(){
         
         
-        let cardView1 = CardViewItem(title: "Hourly Forecast", icon: UIImage(systemName: "timer"), content: ViewForCardView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 95/100 , height: 150.VAdapted)), widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(50.VAdapted))
+        let cardView1 = CardViewItem(title: "Hourly Forecast", icon: UIImage(systemName: "timer"), content: HourlyForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 180.VAdapted)), widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
+        let cardView2 = CardViewItem(title: "Ten day Forecast", icon: UIImage(systemName: "calendar.circle.fill"), content: TenDayForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 550.VAdapted)), widthSeparator: (self.frame.width * 90/100) - 20.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
-        let cardView2 = CardViewItem(title: "Ten day Forecast", icon: UIImage(systemName: "calendar.circle.fill"), content: ViewForCardView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 95/100 , height: 350.VAdapted)), widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(50.VAdapted))
+        let cardView3 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
-        let cardView3 = CardViewItem(title: "Forecast", icon: UIImage(systemName: "exclamationmark.triangle"), content: ViewForCardView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 95/100 , height: 350.VAdapted)), widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(50.VAdapted))
+        let cardView4 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
+        let cardView5 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
+     
+        let cardView6 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
-        let cardView4 = CardViewItem(title: "Forecast333", icon: UIImage(systemName: "exclamationmark.triangle"), content: ViewForCardView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 95/100 , height: 350.VAdapted)), widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(50.VAdapted))
-
-        
-        let lstCardViewItem: [CardViewItem] = [cardView1, cardView2, cardView3, cardView4]
+        let lstCardViewItem: [CardViewItem] = [cardView1, cardView2, cardView3, cardView4, cardView5, cardView6]
         
         bodyContent.lstCardViewItem = lstCardViewItem
-        bodyContent.clipsToBounds = true
-        bodyContent.layer.cornerRadius = 20.HAdapted
         heightBodyContent = bodyContent.heightContent + CGFloat(bodyContent.lstCardViewItem.count) * bodyContent.spacingItem
     }
     
@@ -117,8 +116,7 @@ class ContentView: UIView{
         
         bodyContent.snp.makeConstraints { [weak self] make in
             make.top.equalTo(self!.headerContent.snp.bottom).offset(5.VAdapted)
-            make.width.equalTo(self!.frame.width * 95/100)
-//            make.height.equalTo(self!.frame.height)
+            make.width.equalTo(self!.frame.width * 90/100)
             make.bottom.equalTo(self!.snp.bottom)
             make.centerX.equalToSuperview()
         }
