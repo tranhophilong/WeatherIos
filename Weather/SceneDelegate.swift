@@ -19,7 +19,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScence = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScence.coordinateSpace.bounds)
         window?.windowScene = windowScence
-        let weatherView = MasterViewController()
+        let searchVC = MasterViewController()
+        let nav = UINavigationController(rootViewController: searchVC)
+        nav.isNavigationBarHidden = true
+        let weatherView = nav
         window?.rootViewController = weatherView
         window?.makeKeyAndVisible()
     }

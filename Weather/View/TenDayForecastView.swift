@@ -225,7 +225,6 @@ class TenDayForecastViewCell: UITableViewCell{
             make.bottom.equalToSuperview()
         }
         
-        print(self.frame.width)
     }
     
     

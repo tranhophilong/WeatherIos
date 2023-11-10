@@ -78,7 +78,10 @@ class MasterViewController: UIViewController {
             make.bottom.equalToSuperview()
         }
          
-        backGroundImg.image = UIImage(named: "white-cloud-blue-sky.jpg")
+        backGroundImg.image = UIImage(named: "blue-sky2.jpeg")
+        backGroundImg.contentMode = .scaleAspectFill
+        backGroundImg.clipsToBounds = true
+        
         backGroundImg.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.left.equalToSuperview()
