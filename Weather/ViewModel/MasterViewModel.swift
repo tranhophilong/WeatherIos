@@ -26,4 +26,10 @@ class MasterViewModel{
         currentPageControl.value = Int(pageIndex)
         currentXContainer = contentOffsetX
     }
+    
+    
+//    MARK: -  Data
+    func getData(){
+        
+    }
 }

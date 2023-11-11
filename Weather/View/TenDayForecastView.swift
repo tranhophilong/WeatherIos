@@ -49,7 +49,7 @@ class TenDayForecastView: ViewForCardView {
             make.top.equalToSuperview()
             make.left.equalToSuperview()
             make.right.equalToSuperview()
-            make.bottom.equalToSuperview().inset(-15.VAdapted)
+            make.bottom.equalToSuperview()
         }
     }
 
@@ -138,6 +138,7 @@ class TenDayForecastViewCell: UITableViewCell{
     }
     
     private func layout(){
+        selectionStyle = .none
         backgroundColor = .clear
         stackViewHorizontal.backgroundColor = .clear
         stackViewHorizontal.spacing = 5.HAdapted

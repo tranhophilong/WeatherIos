@@ -13,4 +13,16 @@ class SearchViewModel{
     let isEditDataWeather = CurrentValueSubject<Bool, Never>(false)
     let isShowEditView = CurrentValueSubject<Bool, Never>(false)
 
+    
+//    MARK: - Data
+    
+    func getData(){
+        
+    }
+    
+    func deleteData(){
+        
+    }
+    
+    
 }

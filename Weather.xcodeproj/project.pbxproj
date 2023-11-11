@@ -20,6 +20,7 @@
 		865F687D2AFB7A6400593105 /* EditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865F687C2AFB7A6400593105 /* EditView.swift */; };
 		865F687F2AFB7B4300593105 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865F687E2AFB7B4300593105 /* SearchViewModel.swift */; };
 		865F68832AFCDC1300593105 /* UIImage + Extra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865F68822AFCDC1300593105 /* UIImage + Extra.swift */; };
+		865F68862AFE2B4600593105 /* CoreData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 865F68842AFE2B4600593105 /* CoreData.xcdatamodeld */; };
 		867EF88B2AE1821D0064562C /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF88A2AE1821D0064562C /* Model.swift */; };
 		867EF88F2AE185AF0064562C /* ModelExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF88E2AE185AF0064562C /* ModelExtension.swift */; };
 		867EF8912AE271B00064562C /* WeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867EF8902AE271B00064562C /* WeatherData.swift */; };
@@ -71,6 +72,7 @@
 		865F687C2AFB7A6400593105 /* EditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditView.swift; sourceTree = "<group>"; };
 		865F687E2AFB7B4300593105 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		865F68822AFCDC1300593105 /* UIImage + Extra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage + Extra.swift"; sourceTree = "<group>"; };
+		865F68852AFE2B4600593105 /* CoreData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreData.xcdatamodel; sourceTree = "<group>"; };
 		867EF88A2AE1821D0064562C /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		867EF88E2AE185AF0064562C /* ModelExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelExtension.swift; sourceTree = "<group>"; };
 		867EF8902AE271B00064562C /* WeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherData.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				8654630A2AE1796E008E56A2 /* Assets.xcassets */,
 				8654630C2AE1796E008E56A2 /* LaunchScreen.storyboard */,
 				8654630F2AE1796E008E56A2 /* Info.plist */,
+				865F68842AFE2B4600593105 /* CoreData.xcdatamodeld */,
 			);
 			path = Weather;
 			sourceTree = "<group>";
@@ -438,6 +441,7 @@
 				86ED665A2AF4A83C00BED0D5 /* MasterViewModel.swift in Sources */,
 				867EF8A62AE3A6820064562C /* IntExtension.swift in Sources */,
 				867EF8A02AE39CB20064562C /* UIViewExtension.swift in Sources */,
+				865F68862AFE2B4600593105 /* CoreData.xcdatamodeld in Sources */,
 				86ED68AE2AF653B500BED0D5 /* TenDayForecastView.swift in Sources */,
 				86FE70062AEE4BF400E4BC1D /* BodyContentView.swift in Sources */,
 				867EF88B2AE1821D0064562C /* Model.swift in Sources */,
@@ -594,8 +598,8 @@
 				INFOPLIST_FILE = Weather/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -603,9 +607,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = philong.com.Weather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -622,8 +629,8 @@
 				INFOPLIST_FILE = Weather/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -631,9 +638,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = philong.com.Weather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -659,6 +669,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		865F68842AFE2B4600593105 /* CoreData.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				865F68852AFE2B4600593105 /* CoreData.xcdatamodel */,
+			);
+			currentVersion = 865F68852AFE2B4600593105 /* CoreData.xcdatamodel */;
+			path = CoreData.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 865462F62AE1796B008E56A2 /* Project object */;
 }

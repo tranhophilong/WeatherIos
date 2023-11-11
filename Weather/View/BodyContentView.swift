@@ -77,11 +77,19 @@ class BodyContentView: UIView {
     private func reloadContainerView(){
         heightContent = 0
         widthContent = 0
+        
         for cardViewItem in lstCardViewItem{
-            heightContent += cardViewItem.content.frame.height + CGFloat(cardViewItem.heightHeader)
             widthContent = max(widthContent, cardViewItem.content.frame.width)
         }
-        
+        var widthTemp: CGFloat = 0
+        for cardViewItem in lstCardViewItem{
+            widthTemp += cardViewItem.content.frame.width
+            if widthTemp > widthContent / 2{
+                widthTemp = 0
+                heightContent += cardViewItem.content.frame.height + CGFloat(cardViewItem.heightHeader)
+            }
+            
+        }
 
         containerView.contentSize = CGSize(width: widthContent, height: heightContent + CGFloat(lstCardViewItem.count) * spacingItem)
         containerView.subviews.forEach { view in

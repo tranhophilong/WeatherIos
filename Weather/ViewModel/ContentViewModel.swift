@@ -26,7 +26,7 @@ class ContentViewModel{
 //    MARK: - Scroll Action
     func scrollAction(with contentOffset: CGFloat, bodyContentOffsetIsZero: Bool){
         let offset = -contentOffset - STATUS_BAR_HEIGHT()
-        if heightHeaderContent + offset - 30.VAdapted >= heightHeaderContent/5 && bodyContentOffsetIsZero == true{
+        if heightHeaderContent + offset - 35.VAdapted >= heightHeaderContent/5 && bodyContentOffsetIsZero == true{
             heightHeader.value = heightHeaderContent + offset
             changeLblHeader.send((true, offset))
             if didGetContentOffSetDidScroll{

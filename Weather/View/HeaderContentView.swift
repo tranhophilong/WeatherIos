@@ -188,6 +188,7 @@ extension HeaderContentView{
     }
     
     func changeColorLbl(contentOffSet: CGFloat){
+        
         viewModel.changeColorLbl(with: contentOffSet)
     }
     

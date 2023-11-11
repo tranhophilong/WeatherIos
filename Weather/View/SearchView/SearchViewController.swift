@@ -51,23 +51,8 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         layout()
         setupTableView()
         setupBinderToChangeSateView()
-        
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .gray2
-        appearance.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        navigationController?.navigationBar.standardAppearance = appearance
-        
-        let appearanceScroll = UINavigationBarAppearance()
-        appearanceScroll.configureWithOpaqueBackground()
-        appearanceScroll.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        appearanceScroll.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        appearanceScroll.backgroundColor = .black
-        
-        
-        navigationController?.navigationBar.scrollEdgeAppearance =  appearanceScroll
         editView.delegate = self
+        
     }
     
    
@@ -92,17 +77,21 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
             if value{
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].tintColor = .darkGray
 //                show editView
-                UIView.animate(withDuration: 1, delay: 10, options: UIView.AnimationOptions.curveLinear) {
-                    self!.widthEditViewConstraint?.update(offset: self!.view.frame.width / 2)
-                    self!.heighEditViewConstraint?.update(offset: 120.VAdapted)
-                }
+//                UIView.animate(withDuration: 0.2) {
+////                    self!.editView.isHidden = false
+//                    self!.widthEditViewConstraint?.update(offset: self!.view.frame.width / 2)
+//                    self!.heighEditViewConstraint?.update(offset: 120.VAdapted)
+//                    self!.navigationController?.navigationBar.layoutIfNeeded()
+//                }
             }else{
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].tintColor = .white
 //                hidden editView
-                UIView.animate(withDuration: 1, delay: 10, options: UIView.AnimationOptions.curveLinear) {
-                    self!.widthEditViewConstraint?.update(offset: 0)
-                    self!.heighEditViewConstraint?.update(offset: 0)
-                }
+//                UIView.animate(withDuration: 0.2) {
+//                    self!.widthEditViewConstraint?.update(offset: 0)
+//                    self!.heighEditViewConstraint?.update(offset: 0)
+//                    self!.navigationController?.navigationBar.layoutIfNeeded()
+//                }
+                
                 
             }
         }.store(in: &cancellables)
@@ -128,6 +117,21 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
     
     
     private func setupNavigationController(){
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .gray2
+        appearance.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.standardAppearance = appearance
+        
+        let appearanceScroll = UINavigationBarAppearance()
+        appearanceScroll.configureWithOpaqueBackground()
+        appearanceScroll.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        appearanceScroll.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        appearanceScroll.backgroundColor = .black
+        navigationController?.navigationBar.scrollEdgeAppearance =  appearanceScroll
+        
         let searchController = UISearchController(searchResultsController: SearchResult())
         let editItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.automatic), style: .plain, target: self, action: #selector(showEditView))
          
@@ -160,7 +164,6 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         navigationItem.searchController?.searchBar.searchTextField.delegate = self
         navigationItem.searchController?.hidesNavigationBarDuringPresentation = true
         navigationItem.hidesSearchBarWhenScrolling = false
-
     }
     
     
@@ -169,19 +172,23 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         editView.layer.cornerRadius = 15.HAdapted
         editView.backgroundColor = .red
         editView.clipsToBounds = true
+        editView.isHidden = true
+        
     }
     
    
     private func constraint(){
-        
-        view.addSubview(tableView)
+       
         self.navigationController?.navigationBar.addSubview(editView)
-        
+        view.addSubview(tableView)
+       
+//        view.addSubview(editView)
+       
         editView.snp.makeConstraints {[weak self] make in
             make.top.equalToSuperview().offset(50.VAdapted)
             make.right.equalToSuperview().offset(-20.HAdapted)
-            self!.widthEditViewConstraint =   make.width.equalTo(0).constraint
-            self!.heighEditViewConstraint =   make.height.equalTo(0).constraint
+            make.width.equalTo(self!.view.frame.width / 2)
+            make.height.equalTo(120.VAdapted)
         }
         
         tableView.snp.makeConstraints {  make in
@@ -190,8 +197,9 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
             make.right.equalToSuperview().offset(-15.HAdapted)
             make.bottom.equalToSuperview()
         }
+        
+       
     }
-    
     
     func updateSearchResults(for searchController: UISearchController) {
 //        guard let text = searchController.searchBar.text else{
@@ -199,10 +207,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
 //        }
     }
     
-    
-    
 
-   
 }
 // MARK: -  datasource
 
@@ -227,7 +232,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
         if tableView.isEditing {
             return 85.VAdapted
         }else{
-            return 130.VAdapted
+            return 120.VAdapted
         }
         
     }
@@ -256,9 +261,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
         var actions = [UIContextualAction]()
-
         let delete = UIContextualAction(style: .normal, title: nil) { [weak self] (contextualAction, view, completion) in
             self!.weatherItems.remove(at: indexPath.row)
             self!.tableView.deleteRows(at: [indexPath], with: .bottom)
@@ -266,16 +269,12 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
 
             completion(true)
         }
-
         let largeConfig = UIImage.SymbolConfiguration(pointSize: 15.0, weight: .heavy, scale: .large)
         delete.image = UIImage(systemName: "trash", withConfiguration: largeConfig)?.withTintColor(.white, renderingMode: .alwaysTemplate).addBackgroundCircle(.red)
         delete.backgroundColor = .black
-    
         actions.append(delete)
-
         let config = UISwipeActionsConfiguration(actions: actions)
-//        config.performsFirstActionWithFullSwipe = true
-
+        
         return config
     }
     
@@ -338,9 +337,10 @@ extension SearchViewController: UITableViewDropDelegate{
 }
 
 
-// MARK: - Edit data
+// MARK: - EditView
 extension SearchViewController: EditViewDelegate{
     func editData() {
+        mainViewModel.isShowEditView.value = false
         tableView.reloadData()
         tableView.layoutSubviews()
         mainViewModel.isEditDataWeather.value = true
@@ -366,12 +366,11 @@ extension SearchViewController: EditViewDelegate{
     
     @objc private func showEditView(){
         mainViewModel.isShowEditView.value = !mainViewModel.isShowEditView.value
-//        editView.isHidden = !editView.isHidden
-//        UIView.animate(withDuration: 5) {[weak self] in
-//            self!.editView.isHidden = !self!.editView.isHidden
-////            self!.navigationController?.navigationBar.topItem?.rightBarButtonItems?[1].tintColor = .gray
-//        }
+        UIView.animate(withDuration: 0.3) {[weak self] in
+            self!.editView.isHidden = !self!.editView.isHidden
+        }
         
+     
     }
    
     
