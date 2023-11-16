@@ -23,7 +23,7 @@ class BottomAppBarView: UIView {
     }
     
     private lazy var pageControl  = UIPageControl(frame: .zero)
-    private lazy var showLstContentBtn = UIImageView(frame: .zero)
+     lazy var showLstContentBtn = UIImageView(frame: .zero)
     private lazy var showMapBtn = UIImageView(frame: .zero)
     
     override init(frame: CGRect) {
@@ -34,7 +34,14 @@ class BottomAppBarView: UIView {
         setupShowMapBtn()
         setupShowLstContentBtn()
         contrain()
+        
+        
+       
+        
+        
     }
+    
+  
     
     required init?(coder: NSCoder) {
         

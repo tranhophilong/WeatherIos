@@ -77,7 +77,7 @@ extension HourlyForecastView: UICollectionViewDataSource{
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HourlyForecastViewCell.identifier, for: indexPath) as! HourlyForecastViewCell
-        let hourlyForeCastItem = HourlyForecastItem(time: "Now", imgCondtion: UIImage(systemName: "cloud.heavyrain.fill")!.withRenderingMode(.alwaysTemplate), subCondtion: "22%", degree: "33°")
+        let hourlyForeCastItem = HourlyForecastItem(time: "Now", imgCondtion: UIImage(named: "113")!.withRenderingMode(.alwaysOriginal), subCondtion: "22%", degree: "33°")
         cell.config(hourlyForecastItem: hourlyForeCastItem)
     
         return cell
@@ -144,6 +144,8 @@ class HourlyForecastViewCell: UICollectionViewCell{
         stackView.addArrangedSubview(iconCondition)
         stackView.addArrangedSubview(subCondition)
         stackView.addArrangedSubview(degreeLbl)
+        
+
     }
     
     private func constraint(){

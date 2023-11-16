@@ -18,5 +18,13 @@ extension String{
         return textSize
     }
     
+   static func convertNextDate(dateString : String) -> String{
+       let dateFormatter = DateFormatter()
+       dateFormatter.dateFormat = "yyyy-MM-dd"
+       let myDate = dateFormatter.date(from: dateString)!
+       let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: myDate)
+       let somedateString = dateFormatter.string(from: tomorrow!)
+       return somedateString
+   }
     
 }

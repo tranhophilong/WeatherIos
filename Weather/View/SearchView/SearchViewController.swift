@@ -44,7 +44,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.navigationController?.isNavigationBarHidden = false
         setupNavigationController()
         setupSearchBar()
         constraint()
@@ -181,9 +181,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
        
         self.navigationController?.navigationBar.addSubview(editView)
         view.addSubview(tableView)
-       
-//        view.addSubview(editView)
-       
+              
         editView.snp.makeConstraints {[weak self] make in
             make.top.equalToSuperview().offset(50.VAdapted)
             make.right.equalToSuperview().offset(-20.HAdapted)

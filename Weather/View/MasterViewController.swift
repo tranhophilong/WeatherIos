@@ -8,25 +8,64 @@
 import UIKit
 import SnapKit
 import Combine
+import CoreLocation
+
 
 class MasterViewController: UIViewController {
 
+    
+    private let event = PassthroughSubject<MasterViewModel.EventMasterView, Never>()
     private lazy var containerView  = UIScrollView(frame: .zero)
     private lazy var bottomAppBarView = BottomAppBarView(frame: .zero)
     private lazy var backGroundImg = UIImageView(frame: .zero)
     private let viewModel = MasterViewModel()
     private var cancellables = Set<AnyCancellable>()
+    let locationManager = CLLocationManager()
     
-    override func viewDidLoad() {
+    override func viewDidLoad()  {
         super.viewDidLoad()
         setupContainerView()
         setupBottomAppBar()
         constraint()
-        setupBinder()
+        setupBindScroll()
+        setupBindFetchData()
+        setupCurrentLocation()
     }
     
     
-    private func setupBinder(){
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+       
+    }
+    
+    private func setupCurrentLocation()  {
+                self.locationManager.requestAlwaysAuthorization()
+                // For use in foreground
+                self.locationManager.requestWhenInUseAuthorization()
+                DispatchQueue.global().async {[weak self] in
+                    if CLLocationManager.locationServicesEnabled() {
+                        self!.locationManager.delegate = self
+                        self!.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+                        self!.locationManager.startUpdatingLocation()
+                    }
+                }
+    }
+    
+    private func setupBindFetchData(){
+//        event
+        let outputDataWeather = viewModel.transform(input: event.eraseToAnyPublisher())
+        
+        outputDataWeather.sink { outputFetchData in
+            switch outputFetchData{
+           
+            case .fetchDataDidFail:
+                print("fail fetch data")
+       
+            }
+        }.store(in: &cancellables)
+    }
+    
+    private func setupBindScroll(){
         viewModel.numberSubviews.sink {[weak self] num in
             for i in 0..<num{
                 let view = ContentView(frame: CGRectMake(CGFloat(i) * self!.viewModel.contentSize.width, 0, self!.viewModel.contentSize.width, self!.viewModel.contentSize.height), title: "view\(i)")
@@ -55,8 +94,20 @@ class MasterViewController: UIViewController {
     
     private func setupBottomAppBar(){
         bottomAppBarView.numberPageControll =  viewModel.numberSubviews.value
-        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(navToSearchView))
+        bottomAppBarView.showLstContentBtn.isUserInteractionEnabled = true
+        bottomAppBarView.showLstContentBtn.addGestureRecognizer(tapGestureRecognizer)
     }
+    
+    @objc func navToSearchView(){
+         let searchView = SearchViewController()
+//        searchView.modalPresentationStyle = .overCurrentContext
+        let navController = UINavigationController(rootViewController: searchView)
+        navController.modalPresentationStyle = .fullScreen
+//        searchView.modalPresentationCapturesStatusBarAppearance = false
+        navigationController?.present(navController, animated: true)
+        
+     }
     
     private func constraint(){
         
@@ -103,4 +154,18 @@ extension MasterViewController: UIScrollViewDelegate{
     }
     
 
+}
+
+// MARK: - Location delegate
+
+extension MasterViewController: CLLocationManagerDelegate{
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let first = locations.first else{
+            return
+        }
+
+        
+        event.send(.getCurrentLocationDataWeather(lat: first.coordinate.latitude, lon: first.coordinate.longitude))
+        
+    }
 }

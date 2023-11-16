@@ -77,7 +77,7 @@ class ContentView: UIView{
         
         
         let cardView1 = CardViewItem(title: "Hourly Forecast", icon: UIImage(systemName: "timer"), content: HourlyForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 180.VAdapted)), widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
-        let cardView2 = CardViewItem(title: "Ten day Forecast", icon: UIImage(systemName: "calendar.circle.fill"), content: TenDayForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 550.VAdapted)), widthSeparator: (self.frame.width * 90/100) - 20.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
+        let cardView2 = CardViewItem(title: "Ten day Forecast", icon: UIImage(systemName: "calendar.circle.fill"), content: TenDayForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 600.VAdapted)), widthSeparator: (self.frame.width * 90/100) - 20.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
         let cardView3 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
@@ -91,6 +91,10 @@ class ContentView: UIView{
         
         bodyContent.lstCardViewItem = lstCardViewItem
         heightBodyContent = bodyContent.heightContent + CGFloat(bodyContent.lstCardViewItem.count) * bodyContent.spacingItem
+    }
+    
+    func configHourlyForecastView(){
+        
     }
     
     private func constraint(){

@@ -63,7 +63,7 @@ extension TenDayForecastView: UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TenDayForecastViewCell.identifier, for: indexPath) as! TenDayForecastViewCell
-        let item =  TenDayForecastItem(iconCondition: UIImage(systemName: "cloud.sun.rain.fill")!.withRenderingMode(.alwaysTemplate), lowDegree: "24°", highDegree: "30°", time: "Mon", subCondtion: "15%")
+        let item =  TenDayForecastItem(iconCondition: UIImage(named: "377")!.withRenderingMode(.alwaysTemplate), lowDegree: "24°", highDegree: "30°", time: "Mon", subCondtion: "15%")
         cell.config(item: item)
         cell.backgroundColor = .clear
         return cell
