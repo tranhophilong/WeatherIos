@@ -61,5 +61,5 @@ class CardViewModel{
         
     }
     
-   
+
 }

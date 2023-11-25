@@ -8,6 +8,12 @@
 
 import Foundation
 
+
+struct Coordinate{
+    let lat: Double
+    let lon: Double
+}
+
 // MARK: - Forecast
 struct Weather: Decodable {
     let location: LocationWeather
@@ -33,6 +39,7 @@ struct CurrentWeather: Decodable {
     let windDir: String
     let pressureMB: Double
     let pressureIn: Double
+    let precipMn: Double
     let humidity, cloud: Double
     let feelslikeC, feelslikeF: Double
     let visKM, visMiles, uv: Double
@@ -49,6 +56,7 @@ struct CurrentWeather: Decodable {
         case windDir = "wind_dir"
         case pressureMB = "pressure_mb"
         case pressureIn = "pressure_in"
+        case precipMn = "precip_mm"
         case humidity, cloud
         case feelslikeC = "feelslike_c"
         case feelslikeF = "feelslike_f"
@@ -106,6 +114,7 @@ struct Astro: Decodable {
 struct ForecastDayDetail: Decodable {
     let maxtempC, maxtempF, mintempC, mintempF: Double
     let avgtempC, avgtempF, maxwindMph, maxwindKph: Double
+    let dailyChanceOfRain: Int
     let avgvisKM: Double
     let avgvisMiles, avghumidity: Double
 
@@ -121,6 +130,7 @@ struct ForecastDayDetail: Decodable {
         case avgtempF = "avgtemp_f"
         case maxwindMph = "maxwind_mph"
         case maxwindKph = "maxwind_kph"
+        case dailyChanceOfRain = "daily_chance_of_rain"
         case avgvisKM = "avgvis_km"
         case avgvisMiles = "avgvis_miles"
         case avghumidity
@@ -139,8 +149,10 @@ struct ForecastHour: Decodable {
     let windDir: String
     let pressureMB: Int
     let pressureIn: Double
+    let precipMn: Double
     let humidity, cloud: Double
     let feelslikeC, feelslikeF: Double
+    let chanceOfRain: Int
     let visKM, visMiles: Double
     let uv: Int
 
@@ -156,12 +168,15 @@ struct ForecastHour: Decodable {
         case windDir = "wind_dir"
         case pressureMB = "pressure_mb"
         case pressureIn = "pressure_in"
+        case precipMn = "precip_mm"
+        case chanceOfRain = "will_it_rain"
         case humidity, cloud
         case feelslikeC = "feelslike_c"
         case feelslikeF = "feelslike_f"
         case visKM = "vis_km"
         case visMiles = "vis_miles"
         case uv
+        
     }
 }
 

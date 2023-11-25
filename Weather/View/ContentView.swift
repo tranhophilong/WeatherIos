@@ -14,22 +14,32 @@ class ContentView: UIView{
     private lazy var containerView = UIScrollView(frame: .zero)
     private lazy var headerContent = HeaderContentView(frame: .zero)
     private lazy var bodyContent = BodyContentView(frame: .zero)
+    private lazy var uvBar = TempBarGradientColorView(frame: .zero)
     private var heightHeaderContentConstraint: Constraint?
     private var heightBodyContent: CGFloat = 0
     private var contentOffSetDidScroll: CGFloat = 0
     private var didGetContentOffSetDidScroll: Bool = false
-    let title : String
+    private var cardViewItems: [CardViewItem] = []
+    private lazy var hourlyForecastView = HourlyForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 180.VAdapted))
+    private lazy var tenDayForecastView =  TenDayForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 600.VAdapted))
+    let event = PassthroughSubject<ContentViewModel.EventInput, Never>()
     private let viewModel = ContentViewModel()
     private var cancellables = Set<AnyCancellable>()
     
     
-    public init(frame: CGRect, title: String) {
-        self.title = title
+    public  init(frame: CGRect, coor: Coordinate?, nameLocation: String) {
         super.init(frame: frame)
-        setupBody()
+        setupHourlyForecastTenDayForecastView()
         setupContainerView()
         constraint()
-        setupBinder()
+        setupBinderChangeView()
+        setupBinderGetData()
+        
+        if let coor = coor{
+            event.send(.initViewWithCoor(coor: coor))
+        }else{
+            event.send(.initViewWithNameLocation(nameLocation: nameLocation))
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -41,16 +51,52 @@ class ContentView: UIView{
         containerView.backgroundColor = .white.withAlphaComponent(0)
         containerView.isPagingEnabled = false
         containerView.showsVerticalScrollIndicator = false
-        containerView.contentSize = CGSize(width: self.frame.width, height: heightBodyContent + heightHeaderContent)
         containerView.delegate = self
         
     }
     
-    private func setupHeader(){
-        
-    }
+    private func setupBinderGetData(){
+        viewModel.transform(input: event.eraseToAnyPublisher())
+            .receive(on: DispatchQueue.main)
+            .sink {[weak self] output in
+                switch output{
+                case .fetchDataDidFail:
+                    print("neeed to prelace view")
+                case .fetchSuccesHourlyForecastItem(forecastData: let forecastData):
+                    self!.hourlyForecastView.hourlyForcastItems = forecastData
+                case .fetchSuccessTendayForecastItem(forecastData: let forecastData):
+                    self!.tenDayForecastView.tenDayForcastItems = forecastData
+                case .fetchSuccessForecastItem(forecastData: let forecastData):
+                    forecastData.forEach { forecastItem in
+                        let titleCardView = forecastItem.title
+                        let iconCardView = forecastItem.icon
+                        let forecastView =  ForecastView(frame: CGRect(x: 0, y: 0, width: (self!.frame.width * 45/100) - 5.HAdapted  , height: self!.frame.width * 45/100))
+                        forecastView.config(item: forecastItem)
+                        
+                        if forecastItem.typeForecast == .uv{
+                            self!.uvBar.frame = CGRect(x: 0, y: 0, width: 0, height: 5.VAdapted)
+                            forecastView.configDescriptionView(view: self!.uvBar)
+                        }
+                        
+                        let cardViewItem = CardViewItem(title: titleCardView, icon: iconCardView, content: forecastView, widthSeparator: 0, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
+                        self!.cardViewItems.append(cardViewItem)
+                    }
+                case .fetchSuccessHeaderWeatherItem(headerWeather: let headerWeather):
+                    self!.headerContent.config(item: headerWeather)
+                    
+                case .fetchDataFinished:
+                    //                    layout cardView when set lstCardViewItem
+                    self!.bodyContent.lstCardViewItem = self!.cardViewItems
+                    self!.heightBodyContent = self!.bodyContent.heightContent + CGFloat(self!.bodyContent.lstCardViewItem.count) * self!.bodyContent.spacingItem
+                    self!.containerView.contentSize = CGSize(width: self!.frame.width, height: self!.heightBodyContent + heightHeaderContent)
+                case .fetchSuccessUVBar(uvBarItem: let uvBarItem):
+                    self!.uvBar.config(tempBarItem: uvBarItem, widthTempBar: (self!.frame.width * 45/100) - 25.HAdapted )
+                }
+            }.store(in: &cancellables)
     
-    private func setupBinder(){
+    }
+   
+    private func setupBinderChangeView(){
         viewModel.bodyContentState.sink { [weak self] (state, offsetDidScroll) in
             switch state{
             case .refreshHeaderSubview:
@@ -71,32 +117,24 @@ class ContentView: UIView{
                 self!.headerContent.changeColorLbl(contentOffSet: offSet)
             }
         }.store(in: &cancellables)
+        
+       
     }
     
-    private func setupBody(){
+    private func setupHourlyForecastTenDayForecastView(){
         
         
-        let cardView1 = CardViewItem(title: "Hourly Forecast", icon: UIImage(systemName: "timer"), content: HourlyForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 180.VAdapted)), widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
-        let cardView2 = CardViewItem(title: "Ten day Forecast", icon: UIImage(systemName: "calendar.circle.fill"), content: TenDayForecastView(frame: CGRect(x: 0, y: 0, width: self.frame.width * 90/100 , height: 600.VAdapted)), widthSeparator: (self.frame.width * 90/100) - 20.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
+        let cardView1 = CardViewItem(title: "HOURLY FORECAST", icon: UIImage(systemName: "timer"), content: hourlyForecastView, widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
-        let cardView3 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
+        let cardView2 = CardViewItem(title: "10-DAY FORECAST", icon: UIImage(systemName: "calendar"), content: tenDayForecastView, widthSeparator: 0, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
+      
+       
         
-        let cardView4 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
-        
-        let cardView5 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
-     
-        let cardView6 = CardViewItem(title: "UV", icon: UIImage(systemName: "calendar.circle.fill"), content: ForecastView(frame: CGRect(x: 0, y: 0, width: (self.frame.width * 45/100) - 5.HAdapted  , height: self.frame.width * 45/100)), widthSeparator: 360.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
-        
-        let lstCardViewItem: [CardViewItem] = [cardView1, cardView2, cardView3, cardView4, cardView5, cardView6]
-        
-        bodyContent.lstCardViewItem = lstCardViewItem
-        heightBodyContent = bodyContent.heightContent + CGFloat(bodyContent.lstCardViewItem.count) * bodyContent.spacingItem
-    }
-    
-    func configHourlyForecastView(){
+        cardViewItems.append(cardView1)
+        cardViewItems.append(cardView2)
         
     }
-    
+ 
     private func constraint(){
         
         addSubview(containerView)

@@ -55,7 +55,7 @@ class CardView: UIView {
         header.clipsToBounds = true
         header.backgroundColor = .clear
         header.layer.cornerRadius = 15.HAdapted
-        titleLbl.font = AdaptiveFont.bold(size: 16)
+        titleLbl.font = AdaptiveFont.bold(size: 13.HAdapted)
         titleLbl.numberOfLines = 0
         titleLbl.textAlignment = .left
         iconView.contentMode = .scaleAspectFit

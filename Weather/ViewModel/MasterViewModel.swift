@@ -12,15 +12,14 @@ import CoreLocation
 
 class MasterViewModel: NSObject{
     
-    
     enum EventMasterView{
-        case getCurrentLocationDataWeather(lat: CGFloat, lon: CGFloat )
+       
     }
     
     enum FetchDataOutput{
-        case fetchDataDidFail
+      
+      
     }
-    
     
     let currentPageControl = CurrentValueSubject<Int, Never>(0)
     private var currentXContainer: CGFloat = 0
@@ -47,19 +46,16 @@ class MasterViewModel: NSObject{
     
     func transform(input: AnyPublisher<EventMasterView, Never>) -> AnyPublisher<FetchDataOutput, Never>{
         input.sink {  [weak self]  event  in
-            switch event{
-            case .getCurrentLocationDataWeather(lat: let lat, lon: let lon):
-                self?.getCurrentLocationDataWeather(lat: lat, lon: lon)
-            }
+        
             
         }.store(in: &cancellabels)
         
         return outputFetchData.eraseToAnyPublisher()
     }
-
-   private func getCurrentLocationDataWeather(lat: CGFloat, lon: CGFloat){
-       
-    }
+    
+    
+    
+   
 
 }
 

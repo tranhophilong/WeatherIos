@@ -15,12 +15,11 @@ class ForecastView: ViewForCardView {
     private lazy var  descriptionLbl = UILabel(frame: .zero)
     private lazy  var descriptionView = UIView(frame: .zero)
     private lazy var subDescription = UILabel(frame: .zero)
-    private lazy var stackViewVer = UIStackView(frame: .zero)
     
     
-    private let indexLblFont = AdaptiveFont.bold(size: 17.HAdapted)
+    private let indexLblFont = AdaptiveFont.bold(size: 25.HAdapted)
     private let desLblFont = AdaptiveFont.bold(size: 17.HAdapted)
-    private let subDesFont = AdaptiveFont.regular(size: 15.HAdapted)
+    private let subDesFont = AdaptiveFont.medium(size: 15.HAdapted)
     
     private let lblColor: UIColor = .white
     
@@ -34,20 +33,16 @@ class ForecastView: ViewForCardView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func config(item: ForecastItem){
+        indexLbl.text = item.index
+        descriptionLbl.text = item.description
+        subDescription.text =  item.subdescription
+    }
+    
     private func layout(){
-        
-        indexLbl.text = "8"
-        descriptionLbl.text = "Low"
-        subDescription.text = " Use sun protection 12:00 - 14:00"
-        
-        
+
         backgroundColor = .clear
-//        stackViewVer
-        stackViewVer.backgroundColor = .clear
-        stackViewVer.axis = .vertical
-        stackViewVer.distribution = .fillProportionally
-        stackViewVer.alignment = .fill
-        
+ 
         
 //        font
         indexLbl.font = indexLblFont
@@ -70,47 +65,48 @@ class ForecastView: ViewForCardView {
         subDescription.numberOfLines = 0
         subDescription.lineBreakMode = .byWordWrapping
         
-        let stackVerHeader = UIStackView()
-        stackVerHeader.axis = .vertical
-        stackVerHeader.spacing = -10.VAdapted
-        stackVerHeader.distribution = .fillProportionally
         
-        stackVerHeader.addArrangedSubview(indexLbl)
-        stackVerHeader.addArrangedSubview(descriptionLbl)
+//        descriptionView
+        descriptionView.backgroundColor = .clear
         
         
-        
-        stackViewVer.addArrangedSubview(stackVerHeader)
-//        stackViewVer.addArrangedSubview(descriptionLbl)
-//        stackViewVer.addArrangedSubview(descriptionView)
-        stackViewVer.addArrangedSubview(subDescription)
-        
-        
-//        subDescription.snp.makeConstraints { [weak self] make in
-//            var height: CGFloat =  0
-//            
-//            for view in self!.stackViewVer.arrangedSubviews{
-//                height =  self!.stackViewVer.frame.height -  view.frame.height
-//            }
-//            print(height)
-//            make.height.equalTo(1.VAdapted)
-//            make.width.equalTo(self!.frame.width)
-            
-//        }
-//        descriptionView.backgroundColor = .orange
-        
-//        indexLbl.sizeToFit()
 
     }
     
+    func configDescriptionView(view: UIView){
+        print(view.frame)
+        descriptionView.addSubview(view)
+    }
+    
     private func constraint(){
-        addSubview(stackViewVer)
-        stackViewVer.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+//        addSubview(stackViewVer)
+        addSubview(indexLbl)
+        addSubview(descriptionLbl)
+        addSubview(subDescription)
+        addSubview(descriptionView)
+
+        indexLbl.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(10.VAdapted)
             make.left.equalToSuperview().offset(10.HAdapted)
-            make.right.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-10.HAdapted)
         }
+        
+        descriptionLbl.snp.makeConstraints {[weak self] make in
+            make.top.equalTo(self!.indexLbl.snp.bottom).offset(5.VAdapted)
+            make.left.equalToSuperview().offset(10.HAdapted)
+        }
+        
+        descriptionView.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(10.HAdapted)
+            make.right.equalToSuperview().offset(-15.HAdapted)
+            make.top.equalTo(descriptionLbl.snp.bottom).offset(10.VAdapted)
+            make.bottom.equalTo(subDescription.snp.top)
+        }
+        
+        subDescription.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().offset(-10.VAdapted)
+            make.left.equalToSuperview().offset(10.HAdapted)
+        }
+
     }
     
 }

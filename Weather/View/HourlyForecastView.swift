@@ -8,17 +8,16 @@
 import UIKit
 import SnapKit
 
-struct HourlyForecastItem{
-    let time: String
-    let imgCondtion: UIImage
-    let subCondtion: String
-    let degree: String
-}
 
 class HourlyForecastView: ViewForCardView {
 
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
-    private let numItems  = 24
+    
+    var hourlyForcastItems: [HourlyForecastItem] = []{
+        didSet{
+            collectionView.reloadData()
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -72,12 +71,12 @@ extension HourlyForecastView: UICollectionViewDataSource{
         return 1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return numItems
+        return hourlyForcastItems.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HourlyForecastViewCell.identifier, for: indexPath) as! HourlyForecastViewCell
-        let hourlyForeCastItem = HourlyForecastItem(time: "Now", imgCondtion: UIImage(named: "113")!.withRenderingMode(.alwaysOriginal), subCondtion: "22%", degree: "33°")
+        let hourlyForeCastItem = hourlyForcastItems[indexPath.item]
         cell.config(hourlyForecastItem: hourlyForeCastItem)
     
         return cell
@@ -88,7 +87,7 @@ extension HourlyForecastView: UICollectionViewDataSource{
 // MARK: - LayoutCell
 extension HourlyForecastView: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: self.frame.width / 7, height: self.frame.height)
+        return CGSize(width: (self.frame.width / 7) + 10.HAdapted, height: self.frame.height)
     }
 }
 
@@ -128,7 +127,7 @@ class HourlyForecastViewCell: UICollectionViewCell{
         backgroundColor = .clear
         stackView.axis = .vertical
         stackView.spacing = 0
-        stackView.distribution = .fillProportionally
+        stackView.distribution = .fill
         stackView.alignment = .center
         timeLbl.font = font
         degreeLbl.font = font
@@ -137,15 +136,23 @@ class HourlyForecastViewCell: UICollectionViewCell{
         degreeLbl.textColor = lblColor
         subCondition.textColor = .subTitle
         subCondition.font = AdaptiveFont.medium(size: 13.VAdapted)
+        
+        var stackVerCondition = UIStackView()
+        stackVerCondition.axis = .vertical
+        stackVerCondition.alignment = .center
+        stackVerCondition.distribution = .fillProportionally
     
         iconCondition.contentMode = .center
         iconCondition.tintColor = .white
+        
+        stackVerCondition.addArrangedSubview(iconCondition)
+        stackVerCondition.addArrangedSubview(subCondition)
+        
         stackView.addArrangedSubview(timeLbl)
-        stackView.addArrangedSubview(iconCondition)
-        stackView.addArrangedSubview(subCondition)
+        stackView.addArrangedSubview(stackVerCondition)
         stackView.addArrangedSubview(degreeLbl)
         
-
+  
     }
     
     private func constraint(){
@@ -157,6 +164,9 @@ class HourlyForecastViewCell: UICollectionViewCell{
             make.bottom.equalToSuperview().offset(-10.VAdapted)
         }
         
+        timeLbl.snp.makeConstraints {[weak self] make in
+            make.height.equalTo(self!.frame.height * 25/100)
+        }
 
     }
     

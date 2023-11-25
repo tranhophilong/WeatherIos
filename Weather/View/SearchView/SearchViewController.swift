@@ -10,7 +10,6 @@ import SnapKit
 import Combine
 
 
-
 class SearchResult: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +26,6 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
     private var cancellables = Set<AnyCancellable>()
     private var heighEditViewConstraint: Constraint?
     private var widthEditViewConstraint: Constraint?
-
     
     private var weatherItems = [WeatherItem(location: "Ho Chi Minh", time: "10:00", condtion: "cloudy", lowDegree: "22", highDegree: "30", currentDegree: "27", background: UIImage(named: "blue-sky2.jpeg")!),
                                 WeatherItem(location: "Ha Noi", time: "10:00", condtion: "Rain", lowDegree: "22", highDegree: "30", currentDegree: "27", background: UIImage(named: "rain-sky.jpeg")!),
@@ -76,23 +74,10 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         mainViewModel.isShowEditView.sink {[weak self] value in
             if value{
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].tintColor = .darkGray
-//                show editView
-//                UIView.animate(withDuration: 0.2) {
-////                    self!.editView.isHidden = false
-//                    self!.widthEditViewConstraint?.update(offset: self!.view.frame.width / 2)
-//                    self!.heighEditViewConstraint?.update(offset: 120.VAdapted)
-//                    self!.navigationController?.navigationBar.layoutIfNeeded()
-//                }
+
             }else{
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].tintColor = .white
-//                hidden editView
-//                UIView.animate(withDuration: 0.2) {
-//                    self!.widthEditViewConstraint?.update(offset: 0)
-//                    self!.heighEditViewConstraint?.update(offset: 0)
-//                    self!.navigationController?.navigationBar.layoutIfNeeded()
-//                }
-                
-                
+    
             }
         }.store(in: &cancellables)
     }

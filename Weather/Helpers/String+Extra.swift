@@ -27,4 +27,12 @@ extension String{
        return somedateString
    }
     
+    
+    static func getYearMonthDay(in localTime: String) -> String{
+        let startIndex = localTime.index(localTime.startIndex, offsetBy: 0)
+        let endIndex = localTime.index(localTime.startIndex, offsetBy: 9)
+        
+        return String(localTime[startIndex...endIndex])
+    }
+    
 }

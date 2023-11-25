@@ -12,12 +12,12 @@ import Combine
 
 class HeaderContentView: UIView{
     
-    private lazy var locationLbl = FittableFontLabel(frame: .zero)
-    private lazy var degreeLbl = FittableFontLabel(frame: .zero)
-    private lazy var conditionWeatherLbl = FittableFontLabel(frame: .zero)
-    private lazy var hightLowDegreeLbl = FittableFontLabel(frame: .zero)
-    private lazy var degreeIcon = FittableFontLabel(frame: .zero)
-    private lazy var  degreeConditionLbl = FittableFontLabel(frame: .zero)
+    private lazy var locationLbl = UILabel(frame: .zero)
+    private lazy var degreeLbl = UILabel(frame: .zero)
+    private lazy var conditionWeatherLbl = UILabel(frame: .zero)
+    private lazy var hightLowDegreeLbl = UILabel(frame: .zero)
+    private lazy var degreeIcon = UILabel(frame: .zero)
+    private lazy var  degreeConditionLbl = UILabel(frame: .zero)
     private let viewModel = HeaderContentViewModel()
     private var cancellables = Set<AnyCancellable>()
     private let lblColor: UIColor = .white
@@ -59,41 +59,43 @@ class HeaderContentView: UIView{
         degreeConditionLbl.textColor = lblColor
         
 //        setText
-        locationLbl.text = "Ho Chi Minh City"
-        degreeLbl.text = "33"
-        conditionWeatherLbl.text = "Mostly Cloudy"
-        hightLowDegreeLbl.text = "H:33° L:24°"
-        degreeConditionLbl.text = "33° | Cloudy"
+        locationLbl.text = ""
+        degreeLbl.text = "--"
+        conditionWeatherLbl.text = ""
+        hightLowDegreeLbl.text = ""
+        degreeConditionLbl.text = ""
+        degreeConditionLbl.isHidden = false
         
+        degreeIcon.isHidden = true
        
 //        config Attribute
-        degreeLbl.autoAdjustFontSize = true
-        degreeLbl.lineBreakMode = .byWordWrapping
-        degreeLbl.topInset = 0
-        degreeLbl.bottomInset = 0
-        
-        
-        locationLbl.autoAdjustFontSize = true
-        locationLbl.lineBreakMode = .byWordWrapping
-        locationLbl.topInset = 0
-        locationLbl.bottomInset = 0
-        
-    
-        conditionWeatherLbl.autoAdjustFontSize = true
-        conditionWeatherLbl.lineBreakMode = .byWordWrapping
-        conditionWeatherLbl.topInset = 0
-        conditionWeatherLbl.bottomInset = 0
-        
-        hightLowDegreeLbl.autoAdjustFontSize = true
-        hightLowDegreeLbl.lineBreakMode = .byWordWrapping
-        hightLowDegreeLbl.topInset = 0
-        hightLowDegreeLbl.bottomInset = 0
-       
-        
-        degreeConditionLbl.autoAdjustFontSize = true
-        degreeConditionLbl.lineBreakMode = .byWordWrapping
-        degreeConditionLbl.topInset = 0
-        degreeConditionLbl.bottomInset = 0
+//        degreeLbl.autoAdjustFontSize = true
+//        degreeLbl.lineBreakMode = .byWordWrapping
+//        degreeLbl.topInset = 0
+//        degreeLbl.bottomInset = 0
+//        
+//        
+//        locationLbl.autoAdjustFontSize = true
+//        locationLbl.lineBreakMode = .byWordWrapping
+//        locationLbl.topInset = 0
+//        locationLbl.bottomInset = 0
+//        
+//    
+//        conditionWeatherLbl.autoAdjustFontSize = true
+//        conditionWeatherLbl.lineBreakMode = .byWordWrapping
+//        conditionWeatherLbl.topInset = 0
+//        conditionWeatherLbl.bottomInset = 0
+//        
+//        hightLowDegreeLbl.autoAdjustFontSize = true
+//        hightLowDegreeLbl.lineBreakMode = .byWordWrapping
+//        hightLowDegreeLbl.topInset = 0
+//        hightLowDegreeLbl.bottomInset = 0
+//       
+//        
+//        degreeConditionLbl.autoAdjustFontSize = true
+//        degreeConditionLbl.lineBreakMode = .byWordWrapping
+//        degreeConditionLbl.topInset = 0
+//        degreeConditionLbl.bottomInset = 0
 
         
 //        Degree Icon
@@ -101,6 +103,21 @@ class HeaderContentView: UIView{
         degreeIcon.textColor  = .white
         degreeIcon.font = fontDegreeLbl
     }
+    
+    func config(item: HeaderWeatherItem){
+        locationLbl.text = item.nameLocation
+        degreeLbl.text = item.degree
+        conditionWeatherLbl.text = item.conditon
+        hightLowDegreeLbl.text = "H:\(item.highDegree)° L:\(item.lowDegree)°"
+        degreeConditionLbl.text = "\(item.degree)° | \(item.conditon)"
+        
+        if degreeLbl.text != "--"{
+            degreeIcon.isHidden = false
+        }
+        
+        
+    }
+    
     
     private func setupBinder(){
         viewModel.alphaColorhightLowDegreeLbl.sink {[weak self] alpha in
@@ -140,13 +157,13 @@ class HeaderContentView: UIView{
             locationLblToTopHeaderConstraint =  make.top.equalToSuperview().offset(disLocationLblAndTopHeaderStart ).constraint
             make.height.equalTo(round(heightHeaderContent * 0.173))
             
-            make.width.equalTo(String.textSize(locationLbl.text, withFont: fontLocationLbl).width.adaptedFontSize)
+//            make.width.equalTo(String.textSize(locationLbl.text, withFont: fontLocationLbl).width.adaptedFontSize)
                 
         }
         
         degreeConditionLbl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.width.equalTo(String.textSize(degreeConditionLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
+//            make.width.equalTo(String.textSize(degreeConditionLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
             make.height.equalTo(round(heightHeaderContent * 0.073))
             make.top.equalTo(locationLbl.snp.bottom).offset(5.VAdapted)
         }
@@ -155,7 +172,7 @@ class HeaderContentView: UIView{
             make.top.equalTo(locationLbl.snp.bottom).offset( didsDegreeLblAndLocationLbl)
             make.centerX.equalToSuperview()
             make.height.equalTo(heightDegreeLbl)
-            make.width.equalTo(String.textSize(degreeLbl.text, withFont: fontDegreeLbl).width.adaptedFontSize)
+//            make.width.equalTo(String.textSize(degreeLbl.text, withFont: fontDegreeLbl).width.adaptedFontSize)
         }
         
         degreeIcon.snp.makeConstraints { make in
@@ -168,14 +185,14 @@ class HeaderContentView: UIView{
             make.top.equalTo(degreeLbl.snp.bottom).offset(disConditionLblAndDegreeLbl)
             make.centerX.equalTo(degreeLbl)
             make.height.equalTo(heightConditionLbl)
-            make.width.equalTo(String.textSize(conditionWeatherLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
+//            make.width.equalTo(String.textSize(conditionWeatherLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
         }
         
         hightLowDegreeLbl.snp.makeConstraints { make in
             make.centerX.equalTo(degreeLbl)
             make.top.equalTo(conditionWeatherLbl.snp.bottom).offset(disHightLowDegreeLblAndConditionWeatherLbl)
             make.height.equalTo(heightHightAndLowDegreeLbl)
-            make.width.equalTo(String.textSize(hightLowDegreeLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
+//            make.width.equalTo(String.textSize(hightLowDegreeLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
         }
             }
    

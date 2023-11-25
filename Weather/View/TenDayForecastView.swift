@@ -8,18 +8,19 @@
 import UIKit
 import SnapKit
 
-struct TenDayForecastItem{
-    let iconCondition: UIImage
-    let lowDegree: String
-    let highDegree: String
-    let time: String
-    let subCondtion: String
-}
+
 
 class TenDayForecastView: ViewForCardView {
-
+    
     private let tableView = UITableView(frame: .zero)
     private let numItems = 10
+    var tenDayForcastItems: ([TenDayForecastItem], [TempBarItem]) = ([],[]){
+        didSet{
+            tableView.reloadData()
+        }
+    }
+    
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,8 +38,7 @@ class TenDayForecastView: ViewForCardView {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isScrollEnabled = false
-        tableView.separatorColor = .white
-        tableView.separatorInset = UIEdgeInsets(top: 0, left: 10.HAdapted, bottom: 0, right: 10.HAdapted)
+        tableView.separatorStyle = .none
         tableView.register(TenDayForecastViewCell.self, forCellReuseIdentifier: TenDayForecastViewCell.identifier)
         
     }
@@ -58,13 +58,14 @@ class TenDayForecastView: ViewForCardView {
 extension TenDayForecastView: UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return numItems
+        return tenDayForcastItems.0.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TenDayForecastViewCell.identifier, for: indexPath) as! TenDayForecastViewCell
-        let item =  TenDayForecastItem(iconCondition: UIImage(named: "377")!.withRenderingMode(.alwaysTemplate), lowDegree: "24°", highDegree: "30°", time: "Mon", subCondtion: "15%")
-        cell.config(item: item)
+        let item =  tenDayForcastItems.0[indexPath.row]
+        let tempBarItem = tenDayForcastItems.1[indexPath.row]
+        cell.config(item: item, tempBarItem: tempBarItem)
         cell.backgroundColor = .clear
         return cell
     }
@@ -90,9 +91,9 @@ class TenDayForecastViewCell: UITableViewCell{
     private lazy var lowDegreeLbl = UILabel(frame: .zero)
     private lazy var highDegreeLbl = UILabel(frame: .zero)
     private lazy var stackViewHorizontal = UIStackView(frame: .zero)
-    private lazy var barTemp = UIView(frame: .zero)
-    private lazy var pointCurrentDegree = CALayer()
+    private lazy var tempBar = TempBarGradientColorView(frame: .zero)
     
+    private lazy var widthTempBar = (frame.width - 25.HAdapted) * 35/100
     private let fontLbl = AdaptiveFont.bold(size: 17.HAdapted)
     private let fontSubCondition = AdaptiveFont.bold(size: 13.HAdapted)
     private let timeColor: UIColor = .white
@@ -104,8 +105,6 @@ class TenDayForecastViewCell: UITableViewCell{
         constraint()
         layout()
     }
-    
-
     
     override var frame: CGRect{
         get {
@@ -120,17 +119,19 @@ class TenDayForecastViewCell: UITableViewCell{
             frame.origin.x += space
             super.frame = frame
             
-            
         }
     }
     
-    
-    func config(item: TenDayForecastItem){
+    func config(item: TenDayForecastItem, tempBarItem: TempBarItem){
         timeLbl.text = item.time
         iconCondtion.image =  item.iconCondition
-        lowDegreeLbl.text = item.lowDegree
-        highDegreeLbl.text = item.highDegree
-        subCondition.text = item.subCondtion
+        lowDegreeLbl.text =  item.lowDegree + "°"
+        highDegreeLbl.text = item.highDegree + "°"
+        subCondition.text = item.subCondtion 
+        
+        tempBar.config(tempBarItem: tempBarItem, widthTempBar: widthTempBar)
+       
+        
     }
     
     required init?(coder: NSCoder) {
@@ -138,6 +139,9 @@ class TenDayForecastViewCell: UITableViewCell{
     }
     
     private func layout(){
+        
+        let _ =  addSeparator(width: SCREEN_WIDTH() - 80.HAdapted, x: 10.HAdapted, y: 0, to: self)
+        
         selectionStyle = .none
         backgroundColor = .clear
         stackViewHorizontal.backgroundColor = .clear
@@ -175,46 +179,27 @@ class TenDayForecastViewCell: UITableViewCell{
         stackViewVer.addArrangedSubview(iconCondtion)
         stackViewVer.addArrangedSubview(subCondition)
         
-//        bar temp
-        
-        barTemp.backgroundColor = .darkGray
-        barTemp.layer.cornerRadius =  5.HAdapted / 2
-        
-        let cAGradient = CAGradientLayer()
-        cAGradient.frame = CGRect(x: 0, y: 0, width: 70.HAdapted , height: 5.VAdapted)
-        cAGradient.colors = [UIColor.orangeGradentL.cgColor, UIColor.orangeGradientR.cgColor]
-        cAGradient.locations = [0,1]
-        cAGradient.cornerRadius = 5.HAdapted/2
-        
-//        point current degree
-        
-        pointCurrentDegree.backgroundColor = UIColor.white.cgColor
-        pointCurrentDegree.frame = CGRect(x: 20.HAdapted, y: 0, width: 5.HAdapted, height: 5.VAdapted)
-        pointCurrentDegree.cornerRadius = 5.HAdapted/2
-        pointCurrentDegree.borderColor = UIColor.brightBlue.cgColor
-//        pointCurrentDegree.borderWidth = 0.5
-        
         
 //        add sub view to stack view horizontal
         stackViewHorizontal.addArrangedSubview(timeLbl)
         stackViewHorizontal.addArrangedSubview(stackViewVer)
         stackViewHorizontal.addArrangedSubview(lowDegreeLbl)
-        stackViewHorizontal.addArrangedSubview(barTemp)
+        stackViewHorizontal.addArrangedSubview(tempBar)
         stackViewHorizontal.addArrangedSubview(highDegreeLbl)
         
-        barTemp.snp.makeConstraints {[weak self] make in
-            make.width.equalTo((self!.frame.width - 20.HAdapted) * 35/100)
-            make.height.equalTo(5.VAdapted)
+        timeLbl.snp.makeConstraints { make in
+            make.width.equalTo(50.HAdapted)
         }
         
-        stackViewVer.snp.makeConstraints {[weak self] make in
-            make.width.equalTo((self!.frame.width - 20) * 40/100)
+        tempBar.snp.makeConstraints {[weak self] make in
+            make.width.equalTo(self!.widthTempBar)
+            make.height.equalTo(5.VAdapted)
         }
-        barTemp.layer.insertSublayer(cAGradient, at: 0)
-        barTemp.layer.insertSublayer(pointCurrentDegree, at: 1)
+   
+        stackViewVer.snp.makeConstraints {[weak self] make in
+            make.width.equalTo((self!.frame.width - 20.HAdapted) * 35/100)
+        }
 
-//
-    
     }
     
     private func constraint(){
@@ -225,9 +210,6 @@ class TenDayForecastViewCell: UITableViewCell{
             make.right.equalToSuperview()
             make.bottom.equalToSuperview()
         }
-        
     }
-    
-    
-    
+  
 }

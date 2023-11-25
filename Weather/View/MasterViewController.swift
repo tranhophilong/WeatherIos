@@ -18,7 +18,7 @@ class MasterViewController: UIViewController {
     private lazy var containerView  = UIScrollView(frame: .zero)
     private lazy var bottomAppBarView = BottomAppBarView(frame: .zero)
     private lazy var backGroundImg = UIImageView(frame: .zero)
-    private let viewModel = MasterViewModel()
+    private  let viewModel = MasterViewModel()
     private var cancellables = Set<AnyCancellable>()
     let locationManager = CLLocationManager()
     
@@ -58,9 +58,6 @@ class MasterViewController: UIViewController {
         outputDataWeather.sink { outputFetchData in
             switch outputFetchData{
            
-            case .fetchDataDidFail:
-                print("fail fetch data")
-       
             }
         }.store(in: &cancellables)
     }
@@ -68,7 +65,7 @@ class MasterViewController: UIViewController {
     private func setupBindScroll(){
         viewModel.numberSubviews.sink {[weak self] num in
             for i in 0..<num{
-                let view = ContentView(frame: CGRectMake(CGFloat(i) * self!.viewModel.contentSize.width, 0, self!.viewModel.contentSize.width, self!.viewModel.contentSize.height), title: "view\(i)")
+                let view = ContentView(frame: CGRectMake(CGFloat(i) * self!.viewModel.contentSize.width, 0, self!.viewModel.contentSize.width, self!.viewModel.contentSize.height), coor: nil, nameLocation: "Ho Chi Minh")
                 self!.containerView.addSubview(view)
             }
         }.store(in: &cancellables)
@@ -128,11 +125,11 @@ class MasterViewController: UIViewController {
             make.right.equalToSuperview()
             make.bottom.equalToSuperview()
         }
-         
+            
         backGroundImg.image = UIImage(named: "blue-sky2.jpeg")
         backGroundImg.contentMode = .scaleAspectFill
         backGroundImg.clipsToBounds = true
-        
+                                
         backGroundImg.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.left.equalToSuperview()
@@ -163,9 +160,10 @@ extension MasterViewController: CLLocationManagerDelegate{
         guard let first = locations.first else{
             return
         }
-
         
-        event.send(.getCurrentLocationDataWeather(lat: first.coordinate.latitude, lon: first.coordinate.longitude))
+        print(first.coordinate.latitude, first.coordinate.longitude)
+        
+       
         
     }
 }

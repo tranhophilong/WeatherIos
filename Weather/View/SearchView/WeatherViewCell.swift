@@ -9,16 +9,6 @@ import UIKit
 import SnapKit
 import Combine
 
-struct WeatherItem{
-    let location: String
-    let time: String
-    let condtion: String
-    let lowDegree: String
-    let highDegree: String
-    let currentDegree: String
-    let background: UIImage
-    
-}
 
 class WeatherViewCell: UITableViewCell {
 
