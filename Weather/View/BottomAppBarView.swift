@@ -35,14 +35,8 @@ class BottomAppBarView: UIView {
         setupShowLstContentBtn()
         contrain()
         
-        
-       
-        
-        
     }
-    
   
-    
     required init?(coder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
@@ -58,8 +52,12 @@ class BottomAppBarView: UIView {
         pageControl.isUserInteractionEnabled = false
         pageControl.numberOfPages = 1
         pageControl.currentPage = 0
-        pageControl.setIndicatorImage(UIImage(systemName: "location.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), forPage: 0)
         
+    }
+    
+    func setIndicatorLocationAtFirst(){
+        pageControl.setIndicatorImage(UIImage(systemName: "location.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), forPage: 0)
+
     }
     
     private func setupShowLstContentBtn(){
@@ -85,7 +83,6 @@ class BottomAppBarView: UIView {
         pageControl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.top.equalToSuperview().offset(10.VAdapted)
-            
         }
         
         showLstContentBtn.snp.makeConstraints { make in
@@ -99,7 +96,6 @@ class BottomAppBarView: UIView {
             make.left.equalToSuperview().offset(20.HAdapted)
             make.size.equalTo([30,30].HResized)
         }
-        
         
     }
 

@@ -19,7 +19,8 @@ class HeaderContentViewModel{
     
 
     func changeColorLbl(with contentOffset: CGFloat){
-        
+    
+  
         let alpha1 =   ( disHightLowDegreeLblAndBottomHeader  + heightHightAndLowDegreeLbl + contentOffset ) / (disHightLowDegreeLblAndBottomHeader / 2)
         alphaColorhightLowDegreeLbl.value = alpha1
         
@@ -31,8 +32,11 @@ class HeaderContentViewModel{
         alphaColorDegreeLbl.value = alpha3
         
         let alpha4 = (disDegreeConditionAndBottomHeader + contentOffset) / (heightDegreeLbl / 2 - heightConditionLbl)
+        
 //  DegreeConditionLbl will show
         alphaColorDegreeConditionLbl.value = 1 - alpha4
+        
+      
     }
     
     func changeDisLblAndTopHeaderDidScroll(with contentOffset: CGFloat){

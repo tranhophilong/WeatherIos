@@ -32,6 +32,7 @@ class ContentViewModel{
         case fetchSuccessForecastItem(forecastData: [ForecastItem])
         case fetchSuccessHeaderWeatherItem(headerWeather: HeaderWeatherItem)
         case fetchSuccessUVBar(uvBarItem: TempBarItem)
+        case fetchSuccessWeatherItem(weatherItem: WeatherItem)
       
     }
     
@@ -60,7 +61,7 @@ class ContentViewModel{
 //    MARK: - Scroll Action
     func scrollAction(with contentOffset: CGFloat, bodyContentOffsetIsZero: Bool){
         let offset = -contentOffset - STATUS_BAR_HEIGHT()
-        if heightHeaderContent + offset - 35.VAdapted >= heightHeaderContent/5 && bodyContentOffsetIsZero == true{
+        if heightHeaderContent + offset - 35.VAdapted > heightHeaderContent/5 && bodyContentOffsetIsZero == true{
             heightHeader.value = heightHeaderContent + offset
             changeLblHeader.send((true, offset))
             if didGetContentOffSetDidScroll{
@@ -88,9 +89,11 @@ class ContentViewModel{
                 case .failure(_):
                     self!.fetchDataOutput.send(.fetchDataDidFail)
                 }
-            } receiveValue: {[weak self] (forecastDays, nameLocation) in
+            } receiveValue: {[weak self] (forecastDays, locationWeather) in
               
                 Task{[weak self] in
+                   
+                    
                     do{
                         var urlCurrentWeather = WeatherService.currentWeatherEndpoint
 //                        current forecast
@@ -106,19 +109,23 @@ class ContentViewModel{
                         
 //                        Header weather
                         let forecastDayDetail = forecastDays[0].forecastday[0].day
-                        let headerWeatherItem = self!.getHeaderWeatherItem(currentWeather: currentWeather, forecastDayDetail: forecastDayDetail, nameLocation: nameLocation)
+                        let headerWeatherItem = self!.getHeaderWeatherItem(currentWeather: currentWeather, forecastDayDetail: forecastDayDetail, nameLocation: locationWeather.name)
                         
 //                        hourly forecast
                         let currentHour = self!.getHour(in: currentWeather.lastUpdated)
                         let hourForecastItems = self!.get24NextHourForecastItem(forecastData: forecastDays, currentHour: Int(currentHour) ?? 0)
                             
                         //      ten day forecast
-                        let tendayForecast = self!.getTenDayForecastItem(forecastData: forecastDays, currentWeather: currentWeather)
+                        let tendayForecastItem = self!.getTenDayForecastItem(forecastData: forecastDays, currentWeather: currentWeather)
                         
+//                        weatherItem
+                        let weatherItem = self!.getWeatherItem(locationWeather: locationWeather, forecastDayDetail: forecastDayDetail, currentWeather: currentWeather)
+                        
+                        self?.fetchDataOutput.send(.fetchSuccessWeatherItem(weatherItem: weatherItem))
                         self!.fetchDataOutput.send(.fetchSuccessHeaderWeatherItem(headerWeather: headerWeatherItem))
                         self!.fetchDataOutput.send(.fetchSuccessForecastItem(forecastData: forecastItems))
                         self!.fetchDataOutput.send(.fetchSuccesHourlyForecastItem(forecastData: hourForecastItems))
-                        self!.fetchDataOutput.send(.fetchSuccessTendayForecastItem(forecastData: tendayForecast))
+                        self!.fetchDataOutput.send(.fetchSuccessTendayForecastItem(forecastData: tendayForecastItem))
                         self!.fetchDataOutput.send(.fetchDataFinished)
                         
                     }catch{
@@ -133,7 +140,7 @@ class ContentViewModel{
    
     
     private func getHeaderWeatherItem(currentWeather: CurrentWeather, forecastDayDetail: ForecastDayDetail, nameLocation: String) -> HeaderWeatherItem{
-        let currentDegree = String(Int(currentWeather.tempC))
+        let currentDegree = String(Int(round(currentWeather.tempC)))
         let condition = currentWeather.condition.text
         let highDegree = String(Int(forecastDayDetail.maxtempC))
         let lowDegree = String(Int(forecastDayDetail.mintempC))
@@ -216,7 +223,7 @@ class ContentViewModel{
             for forecastHour in forecastDay.hour{
                     let hour = getHour(in: forecastHour.time)
                     let urlIcon = forecastHour.condition.icon
-                    let degree = (String(Int(forecastHour.tempC)), String(Int(forecastHour.tempF)))
+                    let degree = (String(Int(round(forecastHour.tempC))), String(Int(round(forecastHour.tempF))))
                     let icon = urlIcon.lowercased().contains("day") ? getNameIcon(of: urlIcon, isday: true) : getNameIcon(of: urlIcon, isday: false)
                     let chanceOffRain = forecastHour.chanceOfRain
                     var subCondition = ""
@@ -286,8 +293,8 @@ class ContentViewModel{
             if dailyChanceOfRain != 0{
                 subDes = String(dailyChanceOfRain) + "%"
             }
-          
-            let item = TenDayForecastItem(iconCondition: UIImage(named: icon)!, lowDegree: lowDegree.0, highDegree: highDegree.0, time: time, subCondtion: subDes)
+
+            let item = TenDayForecastItem(iconCondition: (UIImage(named: icon) ?? UIImage(systemName: "square.and.arrow.up"))!, lowDegree: lowDegree.0, highDegree: highDegree.0, time: time, subCondtion: subDes)
           
             minTempTenDay = min(minTempTenDay, Double(item.lowDegree)!)
             maxTempTenDay = max(maxTempTenDay, Double(item.highDegree)!)
@@ -302,222 +309,33 @@ class ContentViewModel{
             let currentTemp = currentWeather.tempC
             let mintempC = forecastDay.mintempC
             let maxtempC = forecastDay.maxtempC
-//            print(minTempTenDay)
-//            print(maxTempTenDay)
-//            
-            if isFirst{
-                let tempBarItem = self!.infoTempBar(minTempDay: round(mintempC), maxTempDay: round(maxtempC), minTempTenDay: round(minTempTenDay), maxTempTenDay: round(maxTempTenDay), currentTemp: round(currentTemp), isShowCurrentTemp: true)
-                tempBarItems.append(tempBarItem)
-                isFirst = false
-            }else{
-                let tempBarItem = self!.infoTempBar(minTempDay: round(mintempC), maxTempDay: round(maxtempC), minTempTenDay: round(minTempTenDay), maxTempTenDay: round(maxTempTenDay), currentTemp: round(currentTemp), isShowCurrentTemp: false)
-                tempBarItems.append(tempBarItem)
-            }
+
+//            if isFirst{
+//                let tempBarItem = self!.infoTempBar(minTempDay: round(mintempC), maxTempDay: round(maxtempC), minTempTenDay: round(minTempTenDay), maxTempTenDay: round(maxTempTenDay), currentTemp: round(currentTemp), isShowCurrentTemp: f)
+//                tempBarItems.append(tempBarItem)
+//                isFirst = false
+//            }else{
+//                let tempBarItem = self!.infoTempBar(minTempDay: round(mintempC), maxTempDay: round(maxtempC), minTempTenDay: round(minTempTenDay), maxTempTenDay: round(maxTempTenDay), currentTemp: round(currentTemp), isShowCurrentTemp: false)
+//                tempBarItems.append(tempBarItem)
+//            }
             
-            
+            let tempBarItem = self!.infoTempBar(minTempDay: round(mintempC), maxTempDay: round(maxtempC), minTempTenDay: round(minTempTenDay), maxTempTenDay: round(maxTempTenDay), currentTemp: round(currentTemp), isShowCurrentTemp: false)
+                            tempBarItems.append(tempBarItem)
+           
         }
         
         return (tenDayForecastItems, tempBarItems)
+    
     }
     
     
-//   MARK: - Helper func
-    
-    private func infoUVBar(uvIndex: Int) -> TempBarItem{
-        let gradientColors: [UIColor] = [UIColor.green5, UIColor.green4, UIColor.green3, UIColor.yellow3, UIColor.yellow4, UIColor.yellow5, UIColor.orange4, UIColor.orange5, UIColor.red3, UIColor.red4, UIColor.red5, UIColor.purple]
+    private func getWeatherItem(locationWeather: LocationWeather, forecastDayDetail: ForecastDayDetail, currentWeather: CurrentWeather) -> WeatherItem{
+        let weatherItem = WeatherItem(location: locationWeather.name, time: getTime(in: locationWeather.localtime), condtion: currentWeather.condition.text, lowDegree: String(Int(round(forecastDayDetail.mintempC))), highDegree: String(Int(round(forecastDayDetail.maxtempC))), currentDegree: String(Int(round(currentWeather.tempC))) + "°", background: UIImage(named: "sky3.jpeg")!)
         
-        let gradientLocations = (0..<gradientColors.count).map {  NSNumber(value: Float($0) / Float(gradientColors.count - 1)) }
-        let startPerUVBar = 0
-        let widthPerUVBar = 1
-        
-        let xPerPointCurrentUV =  CGFloat(uvIndex) / CGFloat(gradientColors.count - 1)
-        
-        let uvBar = TempBarItem(isShowCurrentTemp: true, startPer: CGFloat(startPerUVBar), widthPer: CGFloat(widthPerUVBar), startPerPoint: CGFloat(xPerPointCurrentUV), gradientColors: gradientColors, gradientLocations: gradientLocations)
-        return uvBar
+        return weatherItem
     }
     
-    private func infoTempBar(minTempDay: Double, maxTempDay: Double, minTempTenDay: Double, maxTempTenDay: Double, currentTemp: Double, isShowCurrentTemp: Bool) -> TempBarItem{
-       var gradientColors: [UIColor] = []
-       
-        let rangeTenDayTemp =  maxTempTenDay - minTempTenDay
-        
-        for temp in Int(minTempDay)...Int(maxTempDay){
-            let colorTemp = converTempToColor(temp: CGFloat(temp))
-            gradientColors.append(colorTemp)
-        }
-        
-        gradientColors = gradientColors.reduce(into: [], { result, element in
-            if !result.contains(element){
-                result.append(element)
-            }
-        })
-        
-        gradientColors.append(gradientColors.last!)
-        let gradientLocations = (0..<gradientColors.count).map {  NSNumber(value: Float($0) / Float(gradientColors.count - 1)) }
+    
+    
 
-
-        let startPerTempBar = 1 - ((maxTempTenDay - minTempDay) / rangeTenDayTemp)
-       let widthPerTempBar = (maxTempDay - minTempDay) / rangeTenDayTemp
-       let xPerPointCurrentTemp = 1 - ((maxTempTenDay - currentTemp) / rangeTenDayTemp)
-        
-        let tempBarItem = TempBarItem(isShowCurrentTemp: isShowCurrentTemp, startPer: CGFloat(startPerTempBar), widthPer: CGFloat(widthPerTempBar), startPerPoint: CGFloat(xPerPointCurrentTemp), gradientColors: gradientColors, gradientLocations: gradientLocations)
-        return tempBarItem
-    }
-    
-    private func converTempToColor(temp: CGFloat) -> UIColor{
-        if temp < -15{
-            return .darkBlue1
-        }
-        else if temp < -10{
-            return .darkBlue2
-        }else if temp < -5{
-            return .darkBlue3
-        }
-        else if temp < 0{
-            return .lightBlue4
-        }else if temp < 15{
-            return .lightBlue3
-        }
-        else if  temp < 16{
-            return .green1
-        }else if temp < 17{
-            return .green2
-        }else if temp < 18{
-            return .green3
-        }else if temp < 19{
-            return .green4
-        }else if temp < 20{
-            return .green5
-        }
-        else if  temp < 21{
-            return .yellow1
-        }else if temp < 22{
-            return .yellow2
-        }else if temp < 23{
-            return .yellow3
-        }else if temp < 24{
-            return .yellow4
-        }else if temp < 25{
-            return .yellow5
-        }else if temp < 26{
-            return .orange1
-        }else if temp < 27{
-            return .orange2
-        }else if temp < 28{
-            return .orange3
-        }else if temp < 29{
-            return .orange4
-        }
-        else if  temp < 30{
-            return .orange5
-        }else if temp < 31{
-            return .red4
-        }else {
-            return .red5
-        }
-    }
-    
-    private func getLevelUV(of index: Int) -> String{
-        var level = ""
-        if index >= 0 && index < 3{
-            level = "Low"
-        }else if index < 6{
-            level = "Moderate"
-        }else if index < 8{
-            level = "High"
-        }else if index < 11{
-            level = "Very high"
-        }else{
-            level = "Extreme violet"
-        }
-        
-        return level
-    }
-    
-    private func getWeekDay(of string: String) -> String{
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let date = dateFormatter.date(from: string) // Replace with your desired date
-        if let unwrappedDate = date {
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.weekday], from: unwrappedDate)
-            if let weekday = components.weekday {
-                if weekday == 2{
-                    return "Mon"
-                }else if weekday == 3{
-                    return "Tue"
-                }else if weekday == 4{
-                    return "Wed"
-                }else if weekday == 5{
-                    return "Thu"
-                }else if weekday == 6{
-                    return "Fri"
-                }else if  weekday == 7{
-                    return "Sat"
-                }else {
-                    return "Sun"
-                }
-            }
-        } else {
-            return "Today"
-        }
-        return ""
-    }
-    
-    private  func getNameIcon(of urlIcon: String, isday: Bool) -> String{
-      let pattern = #"(\d+)\.png"#
-      let nameIcon = matches(for: pattern, in: urlIcon)
-        return isday ? nameIcon.replacingOccurrences(of: ".png", with: "") : nameIcon.replacingOccurrences(of: ".png", with: "N")
-    }
-    
-  private func matches(for regex: String, in text: String) -> String {
-        do {
-            let regex = try NSRegularExpression(pattern: regex)
-            let results = regex.matches(in: text,
-                                        range: NSRange(text.startIndex..., in: text))
-            return results.map {
-                String(text[Range($0.range, in: text)!])
-            }[0]
-        } catch let error {
-            print("invalid regex: \(error.localizedDescription)")
-            return ""
-        }
-    }
-
-    
-   private func getDay(in localTime: String) -> String{
-       let startIndex = localTime.index(localTime.startIndex, offsetBy: 8)
-       let endIndex = localTime.index(localTime.startIndex, offsetBy: 9)
-       
-       return String(localTime[startIndex...endIndex])
-   }
-   
-   private func getHour(in localTime: String) -> String{
-       let startIndex = localTime.index(localTime.startIndex, offsetBy: 11)
-       let endIndex = localTime.index(localTime.startIndex, offsetBy: 12)
-       
-       return String(localTime[startIndex...endIndex])
-   }
-   
-    private func getIndexAstro(in time: String) -> Int{
-        
-       let time24 = timeConversion24(time12: time)
-        
-        let startIndex = time24.index(time24.startIndex, offsetBy: 0)
-        let endIndex = time24.index(time24.startIndex, offsetBy: 1)
-        
-        return Int(String(time24[startIndex...endIndex])) ?? 0
-    }
-    
-   private func timeConversion24(time12: String) -> String {
-        let dateAsString = time12
-        let df = DateFormatter()
-        df.dateFormat = "hh:mm a"
-
-        let date = df.date(from: dateAsString)
-        df.dateFormat = "HH:mm"
-
-        let time24 = df.string(from: date!)
-        return time24
-    }
 }

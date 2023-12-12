@@ -74,7 +74,6 @@ class ForecastView: ViewForCardView {
     }
     
     func configDescriptionView(view: UIView){
-        print(view.frame)
         descriptionView.addSubview(view)
     }
     

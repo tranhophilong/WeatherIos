@@ -2,7 +2,7 @@
 //  Location+CoreDataClass.swift
 //  
 //
-//  Created by Long Tran on 12/11/2023.
+//  Created by Long Tran on 28/11/2023.
 //
 //
 

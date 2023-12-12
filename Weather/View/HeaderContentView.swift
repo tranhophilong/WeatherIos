@@ -67,35 +67,6 @@ class HeaderContentView: UIView{
         degreeConditionLbl.isHidden = false
         
         degreeIcon.isHidden = true
-       
-//        config Attribute
-//        degreeLbl.autoAdjustFontSize = true
-//        degreeLbl.lineBreakMode = .byWordWrapping
-//        degreeLbl.topInset = 0
-//        degreeLbl.bottomInset = 0
-//        
-//        
-//        locationLbl.autoAdjustFontSize = true
-//        locationLbl.lineBreakMode = .byWordWrapping
-//        locationLbl.topInset = 0
-//        locationLbl.bottomInset = 0
-//        
-//    
-//        conditionWeatherLbl.autoAdjustFontSize = true
-//        conditionWeatherLbl.lineBreakMode = .byWordWrapping
-//        conditionWeatherLbl.topInset = 0
-//        conditionWeatherLbl.bottomInset = 0
-//        
-//        hightLowDegreeLbl.autoAdjustFontSize = true
-//        hightLowDegreeLbl.lineBreakMode = .byWordWrapping
-//        hightLowDegreeLbl.topInset = 0
-//        hightLowDegreeLbl.bottomInset = 0
-//       
-//        
-//        degreeConditionLbl.autoAdjustFontSize = true
-//        degreeConditionLbl.lineBreakMode = .byWordWrapping
-//        degreeConditionLbl.topInset = 0
-//        degreeConditionLbl.bottomInset = 0
 
         
 //        Degree Icon
@@ -121,18 +92,22 @@ class HeaderContentView: UIView{
     
     private func setupBinder(){
         viewModel.alphaColorhightLowDegreeLbl.sink {[weak self] alpha in
+//            print(alpha)
             self!.hightLowDegreeLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
         
         viewModel.alphaColorConditionWeatherLbl.sink {[weak self] alpha in
+//            print(alpha)
             self!.conditionWeatherLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
         
         viewModel.alphaColorDegreeConditionLbl.sink { [weak self] alpha in
+//            print(alpha)
             self!.degreeConditionLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
         
         viewModel.alphaColorDegreeLbl.sink {[weak self] alpha in
+//            print(alpha)
             self!.degreeLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
             self!.degreeIcon.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
@@ -205,9 +180,7 @@ extension HeaderContentView{
     }
     
     func changeColorLbl(contentOffSet: CGFloat){
-        
         viewModel.changeColorLbl(with: contentOffSet)
     }
-    
-   
+  
 }

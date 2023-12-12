@@ -12,7 +12,6 @@ import Combine
 
 class WeatherViewCell: UITableViewCell {
 
-    
     static let identifier = "WeatherViewCell"
     
     private lazy var titleLbl = UILabel(frame: .zero)
@@ -20,14 +19,14 @@ class WeatherViewCell: UITableViewCell {
     private lazy var conditionLbl = UILabel(frame: .zero)
     private lazy var degreeLbl = UILabel(frame: .zero)
     private lazy var highLowDegreeLbl = UILabel(frame: .zero)
-    private  lazy var backgroundImg = UIImageView(frame: .zero)
+    private  lazy var backgroundImgView = UIImageView(frame: .zero)
     private  var heightConstraint : Constraint?
+    private var backgroundImg: UIImage?
     
     private let font1 = AdaptiveFont.bold(size: 20.HAdapted)
     private let font2 = AdaptiveFont.bold(size: 15.HAdapted)
     private let font3 = AdaptiveFont.medium(size: 40.HAdapted)
     private let lblColor: UIColor = .white
-    
     
     
     override func layoutSubviews() {
@@ -46,14 +45,28 @@ class WeatherViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func setBackgroundClear( is isClear: Bool){
+//        self.backgroundImg.alpha = alpha
+        if isClear{
+            self.backgroundImgView.image = nil
+            self.backgroundImgView.backgroundColor = .clear
+        }
+        
+    }
+    
+    func refreshBackground(){
+        self.backgroundImgView.image = backgroundImg
+        
+    }
     
     func config(item: WeatherItem){
         titleLbl.text = item.location
         subtileLbl.text = item.time
         highLowDegreeLbl.text = "H:\(item.highDegree)° L:\(item.lowDegree)°"
         conditionLbl.text = item.condtion
-        degreeLbl.text = item.currentDegree + "°"
-        backgroundImg.image = item.background
+        degreeLbl.text = item.currentDegree 
+        backgroundImgView.image = item.background
+        self.backgroundImg = item.background
     }
     
     
@@ -69,6 +82,7 @@ class WeatherViewCell: UITableViewCell {
         contentView.layer.cornerRadius = 15.HAdapted
         contentView.clipsToBounds = true
         contentView.backgroundColor = .clear
+        
 //        font
         titleLbl.font = font1
         subtileLbl.font = font2
@@ -85,18 +99,14 @@ class WeatherViewCell: UITableViewCell {
         
 //        backgroundImg
         
-        backgroundImg.contentMode = .scaleAspectFill
-        backgroundImg.clipsToBounds = true
-        backgroundImg.layer.cornerRadius = 20.HAdapted
-        backgroundImg.backgroundColor = .red
-        
+        backgroundImgView.contentMode = .scaleAspectFill
+        backgroundImgView.clipsToBounds = true
+        backgroundImgView.layer.cornerRadius = 20.HAdapted
+        backgroundImgView.backgroundColor = .red
         
 //        delete Btn
-        
   
     }
-    
-
     
     func makeConditionLblHighLowDegreeLblHidden(is hidden: Bool){
         conditionLbl.isHidden = hidden
@@ -105,24 +115,20 @@ class WeatherViewCell: UITableViewCell {
 
     
     private func constraint(){
-        contentView.addSubview(backgroundImg)
-        backgroundImg.addSubview(titleLbl)
-        backgroundImg.addSubview(subtileLbl)
-        backgroundImg.addSubview(conditionLbl)
-        backgroundImg.addSubview(degreeLbl)
-        backgroundImg.addSubview(highLowDegreeLbl)
+        contentView.addSubview(backgroundImgView)
+        backgroundImgView.addSubview(titleLbl)
+        backgroundImgView.addSubview(subtileLbl)
+        backgroundImgView.addSubview(conditionLbl)
+        backgroundImgView.addSubview(degreeLbl)
+        backgroundImgView.addSubview(highLowDegreeLbl)
         
-       
-        
-        backgroundImg.snp.makeConstraints { make in
+        backgroundImgView.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.left.equalToSuperview().offset(5.HAdapted)
             make.right.equalToSuperview().offset(-5.HAdapted)
             make.bottom.equalToSuperview().offset(-15)
         }
-        
-     
-        
+          
         titleLbl.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(15.VAdapted)
             make.left.equalToSuperview().offset(15.HAdapted)

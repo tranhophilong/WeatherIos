@@ -8,38 +8,37 @@
 import UIKit
 import Combine
 import CoreData
+import CoreLocation
 
 class SearchViewModel{
     
     enum EventInput{
-        case viewDidLoad
-        case addLocation(nameLocation: String)
-        case removeLocation(object: NSManagedObject)
+        case addWeatherItem
+        case removeLocation(location: String)
+        case reorderLocation(sourcePosition: Int16, destinationPosition: Int16, isForecastCurrentWeather: Bool)
     }
     
     enum DataOutput{
         case fetchDataFail
-        case fetchSuccessWeatherItem(weatherItems: [WeatherItem])
+        case addSuccessWeatherItem(weatherItem: WeatherItem)
     }
     
     let isEditDataWeather = CurrentValueSubject<Bool, Never>(false)
     let isShowEditView = CurrentValueSubject<Bool, Never>(false)
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     private var cancellabels = Set<AnyCancellable>()
     let outputFetchData = PassthroughSubject<DataOutput, Never>()
     
     func transform(input: AnyPublisher<EventInput, Never>) -> AnyPublisher<DataOutput, Never>{
         input.sink {  [weak self]  event  in
             switch event{
-
-            case .viewDidLoad:
-                self!.getWeatherItems()
-            case .addLocation(let nameLocation):
-                self!.addNameLocationCoredata(locationName: nameLocation)
-            case .removeLocation(let object):
-                self!.deleteNameLocationCoreData(object: object)
+            case .removeLocation(let location):
+                self!.deleteNameLocationCoreData(location: location)
+            case .addWeatherItem:
+                self!.getLastWeatherItem()
+            case .reorderLocation(sourcePosition: let sourcePosition, destinationPosition: let destinationPosition, isForecastCurrentWeather: let isForecastCurrentWeather):
+                self!.reorderLocationCoreData(sourcePosition: sourcePosition, destinationPostion: destinationPosition, isForcastCurrentWeather: isForecastCurrentWeather)
             }
-            
         }.store(in: &cancellabels)
         
         return outputFetchData.eraseToAnyPublisher()
@@ -47,82 +46,73 @@ class SearchViewModel{
     
     //    MARK: - Data
     
-    
-    private func getWeatherItems(){
+    private func getLastWeatherItem(){
         
-        let nameLocations = getNameLocationsCoreData()
-        
+        let location = CoreDataHelper.shared.getNameLocationsCoreData().last!
         Task{[weak self] in
             do{
-                var weatherItems: [WeatherItem] = []
-                
-                for name in nameLocations{
-                      let forecastDay = try await WeatherService.shared.getDayForecastWeather(with: name).async()
-                    let currentWeather = try await WeatherService.shared.getCurrentWeather(with: name).async()
-                    
-                    let forecastDayDetail = forecastDay.forecastday[0].day
-                    let weatherItem = WeatherItem(location: name, time: String.getYearMonthDay(in: forecastDay.forecastday[0].date), condtion: forecastDayDetail.condition.text, lowDegree: String(Int(forecastDayDetail.mintempC)), highDegree:String(Int(forecastDayDetail.maxtempC)), currentDegree: String(Int(currentWeather.tempC)), background: UIImage(named: "blue-sky2.jpeg")!)
-                    
-                    weatherItems.append(weatherItem)
-                    
-                    self!.outputFetchData.send(.fetchSuccessWeatherItem(weatherItems: weatherItems))
-                    
-                   
-                }
-                
-                
+                let weatherItem = try await self!.getWeatherItem(with: location)
+                self!.outputFetchData.send(.addSuccessWeatherItem(weatherItem: weatherItem))
             }catch{
-                print("fail")
+                self!.outputFetchData.send(.fetchDataFail)
             }
         }
+    }
+    
+    private func getWeatherItem(with location: String) async throws -> WeatherItem   {
         
-      
+            async let forecastDay = WeatherService.shared.getDayForecastWeather(with: location).async()
+            async let currentWeather =  WeatherService.shared.getCurrentWeather(with: location).async()
+            let forecastDayDetail = try await forecastDay.forecastday[0].day
+            let weatherItem =  try await WeatherItem(location: location, time: String.getYearMonthDay(in: forecastDay.forecastday[0].date), condtion: forecastDayDetail.condition.text, lowDegree: String(Int(forecastDayDetail.mintempC)) , highDegree:String(Int(forecastDayDetail.maxtempC)), currentDegree: String(Int(currentWeather.tempC)) + "°", background: UIImage(named: "sky4.jpeg")!)
+            return weatherItem
+  
+    }
+    
+    private func deleteNameLocationCoreData(location: String){
         
+        let fetchRequest: NSFetchRequest<Location> = Location.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", location)
+        
+        do {
+            let object = try context.fetch(fetchRequest).first
+            context.delete(object!)
+            try context.save()
+        } catch _ {
+            print("error delete coreData")
+            // error handling
+        }
+        
+//        update position
+        
+        let fetchAllLocation: NSFetchRequest<Location> = Location.fetchRequest()
+        
+        do{
+            let objects = try context.fetch(fetchAllLocation)
+            var i: Int16 = 0
+            for object in objects{
+                object.idOrder = i
+                i += 1
+                try context.save()
+            }
+            
+        }catch{
+            print("error update position")
+        }
+    }
+    
+    private func reorderLocationCoreData(sourcePosition: Int16, destinationPostion: Int16, isForcastCurrentWeather: Bool){
+        
+        var sourcePos = sourcePosition
+        var desPos = destinationPostion
+        if isForcastCurrentWeather{
+            sourcePos = sourcePos - 1
+            desPos = desPos - 1
+        }
+        CoreDataHelper.shared.reorderLocationCoreData(sourcePosition: sourcePos, destinationPostion: desPos)
        
     }
     
-    private func addNameLocationCoredata(locationName: String){
-        let entity = NSEntityDescription.entity(forEntityName: "Location", in: context)
-        let newLocation = NSManagedObject(entity: entity!, insertInto: context)
-        
-        newLocation.setValue(locationName, forKey: "name")
-        
-        do{
-            try context.save()
-        }catch{
-            print("error saving")
-        }
-    }
     
-    private func getNameLocationsCoreData() -> [String]{
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Location")
-        request.returnsDistinctResults  = true
-        var nameLocations: [String] = []
-        
-        do{
-            let result = try context.fetch(request)
 
-            for data in result as! [NSManagedObject]{
-                nameLocations.append(data.value(forKey: "name") as! String)
-            }
-        }catch{
-            print("faild get data")
-        }
-        
-        return nameLocations
-        
-    }
-    
-    private func deleteNameLocationCoreData(object: NSManagedObject){
-        context.delete(object)
-        
-        do{
-           try context.save()
-        }catch{
-            print("fail delete")
-        }
-        
-    }
-    
-    
 }

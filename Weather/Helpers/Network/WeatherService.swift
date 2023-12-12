@@ -41,7 +41,7 @@ class WeatherService{
     static let forecastWeatherEndpoint = "http://api.weatherapi.com/v1/forecast.json?key=22e2d2eefe404b6c87c81352231609"
     static let currentWeatherEndpoint = "http://api.weatherapi.com/v1/current.json?key=22e2d2eefe404b6c87c81352231609";
         
-    func get10NextDayForecastWeather(with coor: Coordinate?, nameLocation: String)  -> Future<([Forecast], String), Error>{
+    func get10NextDayForecastWeather(with coor: Coordinate?, nameLocation: String) -> Future<([Forecast], LocationWeather), Error> {
             var urlLocationWeather = WeatherService.currentWeatherEndpoint
             var urlDayForecastWeather = WeatherService.forecastWeatherEndpoint
             
@@ -53,7 +53,9 @@ class WeatherService{
                 urlDayForecastWeather = urlDayForecastWeather + "&q=\(nameLocation)"
               
             }
-              return  fetch10NextDayForecastWeather(urlLocationWeather: urlLocationWeather, urlDayForecastWeather: urlDayForecastWeather)
+        return fetch10NextDayForecastWeather(urlLocationWeather: urlLocationWeather, urlDayForecastWeather: urlDayForecastWeather)
+        
+        
    
     }
     
@@ -64,14 +66,12 @@ class WeatherService{
     
     func getLocationWeather(with coor: Coordinate) -> AnyPublisher<LocationWeather, Error>{
         let endPoint = WeatherService.currentWeatherEndpoint + "&q=\(coor.lat),\(coor.lon)"
-        
         return fetchLocationWeather(with: endPoint)
         
     }
     
     func getLocationWeather(with nameLocation: String) -> AnyPublisher<LocationWeather, Error>{
         let endPoint = WeatherService.currentWeatherEndpoint + "&q=\(nameLocation)"
-        
         return fetchLocationWeather(with: endPoint)
     }
     
@@ -120,41 +120,67 @@ class WeatherService{
             }.eraseToAnyPublisher()
     }
     
-    private func fetch10NextDayForecastWeather(urlLocationWeather: String, urlDayForecastWeather: String) -> Future<([Forecast], String), Error>{
+    private func fetch10NextDayForecastWeather(urlLocationWeather: String, urlDayForecastWeather: String) -> Future<([Forecast], LocationWeather), Error> {
         
-        return  Future<([Forecast], String), Error>{ [weak self] promise in
-            self!.fetchLocationWeather(with: urlLocationWeather)
-                .sink { completion in
-                    if case let .failure(error) = completion {
-                        switch error{
-                        case let apiError as NetworkError:
-                            promise(.failure(apiError))
+        return
+            Future<([Forecast], LocationWeather), Error>{ [weak self] promise in
+                self!.fetchLocationWeather(with: urlLocationWeather)
+                    .sink { completion in
+                        if case let .failure(error) = completion {
+                            switch error{
+                            case let apiError as NetworkError:
+                                promise(.failure(apiError))
 
-                        default:
-                            promise(.failure(NetworkError.unknown))
-                        }
-                    }
-                } receiveValue: {   [weak self] location  in
-                    Task{ [weak self] in
-                        do{
-                            var lstForecast : [Forecast] = []
-                            var time = String.getYearMonthDay(in: location.localtime)
-                              for   _ in 1...10{
-//                                  print(time)
-                                  let dayForecast = time
-                                  let urlForecast = urlDayForecastWeather + "&dt=\(dayForecast)"
-                                  let forcast = try await self!.fetchDayForecastWeather(with: urlForecast).async()
-                                  time = String.convertNextDate(dateString: time)
-                                  lstForecast.append(forcast)
+                            default:
+                                promise(.failure(NetworkError.unknown))
                             }
-                            promise(.success((lstForecast, location.name)))
-                        }catch{
-                            promise(.failure(NetworkError.failDecode))
                         }
-                    }
-                }.store(in: &self!.cancellables)
+                    } receiveValue: {   [weak self] location  in
+                          Task{ [weak self] in
+                            do{
+                                 let forecasts = try  await withThrowingTaskGroup(of: Forecast.self, returning: [Forecast].self) {[weak self] taskGroup in
+                                    let urls =  self!.getUrlForecasts10NextDay(of: location.localtime, urlDayForecastWeather: urlDayForecastWeather)
+                                    for url in urls{
+                                        taskGroup.addTask { [weak self] in
+                                            return try await self!.fetchDayForecastWeather(with: url).async()
+                                        }
+                                    }
+                                    var forecasts: [Forecast] = []
+                                    
+                                    while let forecast = try await taskGroup.next(){
+                                        forecasts.append(forecast)
+                                    }
+                                    
+                                    forecasts.sort { forecast1, forecast2 in
+                                    let dateFormatter = DateFormatter()
+                                    dateFormatter.dateFormat = "yyyy-MM-dd"
+                                         let date1 = dateFormatter.date(from: forecast1.forecastday[0].date)!
+                                        let date2 = dateFormatter.date(from: forecast2.forecastday[0].date)!
+                                        return date1 < date2
+                                    }
+                                    return forecasts
+                                }
+                                promise(.success((forecasts, location)))
+                                
+                            }catch{
+                                promise(.failure(NetworkError.failDecode))
+                            }
+                       }
+                 
+                    }.store(in: &self!.cancellables)
+            }
+        
+    }
+ 
+    private func getUrlForecasts10NextDay(of currentTime: String, urlDayForecastWeather: String) -> [String]{
+        var urls : [String] = []
+        var time = String.getYearMonthDay(in: currentTime)
+        for _ in 1...10{
+            let urlForecast = urlDayForecastWeather + "&dt=\(time)"
+            urls.append(urlForecast)
+            time = String.convertNextDate(dateString: time)
         }
-            
+        return urls
     }
     
     private func fetchLocationWeather(with url: String) -> AnyPublisher<LocationWeather, Error>{
@@ -185,7 +211,7 @@ class WeatherService{
               }
               return result.data
           }
-          .receive(on: DispatchQueue.global(qos: .background))
+          .subscribe(on: DispatchQueue.global(qos: .background))
           .decode(type: Weather.self, decoder: JSONDecoder())
           .eraseToAnyPublisher()
     }

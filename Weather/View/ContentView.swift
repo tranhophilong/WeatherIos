@@ -25,6 +25,7 @@ class ContentView: UIView{
     let event = PassthroughSubject<ContentViewModel.EventInput, Never>()
     private let viewModel = ContentViewModel()
     private var cancellables = Set<AnyCancellable>()
+     var weatherItem = PassthroughSubject<WeatherItem, Error>()
     
     
     public  init(frame: CGRect, coor: Coordinate?, nameLocation: String) {
@@ -61,7 +62,7 @@ class ContentView: UIView{
             .sink {[weak self] output in
                 switch output{
                 case .fetchDataDidFail:
-                    print("neeed to prelace view")
+                    print("neeed to replace view")
                 case .fetchSuccesHourlyForecastItem(forecastData: let forecastData):
                     self!.hourlyForecastView.hourlyForcastItems = forecastData
                 case .fetchSuccessTendayForecastItem(forecastData: let forecastData):
@@ -86,11 +87,15 @@ class ContentView: UIView{
                     
                 case .fetchDataFinished:
                     //                    layout cardView when set lstCardViewItem
+                    
                     self!.bodyContent.lstCardViewItem = self!.cardViewItems
                     self!.heightBodyContent = self!.bodyContent.heightContent + CGFloat(self!.bodyContent.lstCardViewItem.count) * self!.bodyContent.spacingItem
                     self!.containerView.contentSize = CGSize(width: self!.frame.width, height: self!.heightBodyContent + heightHeaderContent)
                 case .fetchSuccessUVBar(uvBarItem: let uvBarItem):
                     self!.uvBar.config(tempBarItem: uvBarItem, widthTempBar: (self!.frame.width * 45/100) - 25.HAdapted )
+                case .fetchSuccessWeatherItem(weatherItem: let weatherItem):
+                    self!.weatherItem.send(weatherItem)
+                    
                 }
             }.store(in: &cancellables)
     
@@ -127,9 +132,7 @@ class ContentView: UIView{
         let cardView1 = CardViewItem(title: "HOURLY FORECAST", icon: UIImage(systemName: "timer"), content: hourlyForecastView, widthSeparator: 400.HAdapted, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
         
         let cardView2 = CardViewItem(title: "10-DAY FORECAST", icon: UIImage(systemName: "calendar"), content: tenDayForecastView, widthSeparator: 0, titleColor: .white, iconColor: .white, heightHeader: Int(40.VAdapted))
-      
-       
-        
+    
         cardViewItems.append(cardView1)
         cardViewItems.append(cardView2)
         
@@ -156,6 +159,8 @@ class ContentView: UIView{
             self!.heightHeaderContentConstraint =  make.height.equalTo(heightHeaderContent).constraint
         }
         
+       
+        
         bodyContent.snp.makeConstraints { [weak self] make in
             make.top.equalTo(self!.headerContent.snp.bottom).offset(5.VAdapted)
             make.width.equalTo(self!.frame.width * 90/100)
@@ -169,9 +174,8 @@ extension ContentView: UIScrollViewDelegate{
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let contentOffset = scrollView.contentOffset.y
         viewModel.scrollAction(with: contentOffset, bodyContentOffsetIsZero: bodyContent.checkContentOffSetIsZero())
-            
     }
-    
+ 
 }
 
 

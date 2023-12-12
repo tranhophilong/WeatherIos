@@ -11,8 +11,22 @@ import Combine
 import CoreLocation
 
 
-class MasterViewController: UIViewController {
-
+class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
+    
+    func removeContentView(at index: Int) {
+        print(index)
+    }
+    
+    func reorderContentView(sourceIndex: Int, desIndex: Int) {
+        print(sourceIndex)
+    }
+    
+    
+    func addContentView(contentView: ContentView) {
+        
+       print(contentView)
+        
+    }
     
     private let event = PassthroughSubject<MasterViewModel.EventMasterView, Never>()
     private lazy var containerView  = UIScrollView(frame: .zero)
@@ -21,89 +35,106 @@ class MasterViewController: UIViewController {
     private  let viewModel = MasterViewModel()
     private var cancellables = Set<AnyCancellable>()
     let locationManager = CLLocationManager()
+    var weatherItems: [WeatherItem?] = []
+    let searchView = SearchViewController()
+    
     
     override func viewDidLoad()  {
         super.viewDidLoad()
         setupContainerView()
         setupBottomAppBar()
         constraint()
-        setupBindScroll()
         setupBindFetchData()
-        setupCurrentLocation()
+        setupLocationManager()
+        searchView.delegate = self
+        
+        switch locationManager.authorizationStatus{
+        case .notDetermined, .restricted, .denied:
+            event.send(.viewDidLoad(currentCoordinateLocation: nil))
+        case .authorizedAlways, .authorizedWhenInUse:
+            searchView.isForecastCurrentWeather = true
+            locationManager.startUpdatingLocation()
+        @unknown default:
+            break
+        }
     }
-    
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-       
-    }
-    
-    private func setupCurrentLocation()  {
-                self.locationManager.requestAlwaysAuthorization()
-                // For use in foreground
-                self.locationManager.requestWhenInUseAuthorization()
-                DispatchQueue.global().async {[weak self] in
-                    if CLLocationManager.locationServicesEnabled() {
-                        self!.locationManager.delegate = self
-                        self!.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-                        self!.locationManager.startUpdatingLocation()
-                    }
-                }
+ 
+    private func setupLocationManager()  {
+        
+        self.locationManager.requestAlwaysAuthorization()
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+        DispatchQueue.global().async {[weak self] in
+            if CLLocationManager.locationServicesEnabled() {
+                self!.locationManager.delegate = self
+                self!.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            }
+        }
     }
     
     private func setupBindFetchData(){
+        
+        
 //        event
         let outputDataWeather = viewModel.transform(input: event.eraseToAnyPublisher())
-        
-        outputDataWeather.sink { outputFetchData in
+        outputDataWeather.sink {[weak self] outputFetchData in
             switch outputFetchData{
-           
+            case .fetchSuccsessContentViews(contentViews: let contentViews, isForecastCurrentWeather: let isForecastCurrentWeather):
+                self!.addWeatherContentViews(contentViews: contentViews)
+                if isForecastCurrentWeather{
+                    self!.bottomAppBarView.setIndicatorLocationAtFirst()
+                }
+            case .fetchSuccsessWeatherItems(weatherItems: let weatherItems):
+                self!.searchView.setWeatherItems(weatherItems: weatherItems)
+            case .layoutContainerView(contentSize: let contentSize):
+                self!.containerView.contentSize = contentSize
+            case .layoutCurrentPageControl(currentPageControl: let currentPageControl):
+                self!.bottomAppBarView.currentPage = currentPageControl
+                self!.searchView.animationCellIndex = currentPageControl
+            case .layoutNumberPageControl(numberPageControl: let numberPageControl):
+                self!.bottomAppBarView.numberPageControll = numberPageControl
+            case .imgContentViews(imgs: let imgs):
+                self!.searchView.setImgContentView(imgContentViews: imgs)
             }
         }.store(in: &cancellables)
     }
     
-    private func setupBindScroll(){
-        viewModel.numberSubviews.sink {[weak self] num in
-            for i in 0..<num{
-                let view = ContentView(frame: CGRectMake(CGFloat(i) * self!.viewModel.contentSize.width, 0, self!.viewModel.contentSize.width, self!.viewModel.contentSize.height), coor: nil, nameLocation: "Ho Chi Minh")
-                self!.containerView.addSubview(view)
-            }
-        }.store(in: &cancellables)
-        
-        
-        
-        viewModel.currentPageControl.sink {[weak self] index in
-            self!.bottomAppBarView.currentPage = index
-        }.store(in: &cancellables)
-        
-    }
+  
     
+    private func addWeatherContentViews(contentViews: [ContentView]){
+        
+        for subview in containerView.subviews{
+            subview.removeFromSuperview()
+        }
+        
+        for contentView in contentViews{
+            containerView.addSubview(contentView)
+        }
+    }
     
     private func setupContainerView(){
+        
         containerView.backgroundColor = .clear
-        containerView.contentSize = CGSize(width: viewModel.contentSize.width * CGFloat(viewModel.numberSubviews.value), height: viewModel.contentSize.height)
         containerView.isPagingEnabled = true
         containerView.showsHorizontalScrollIndicator = false
         containerView.delegate = self
-        
 
     }
     
     private func setupBottomAppBar(){
-        bottomAppBarView.numberPageControll =  viewModel.numberSubviews.value
+        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(navToSearchView))
         bottomAppBarView.showLstContentBtn.isUserInteractionEnabled = true
         bottomAppBarView.showLstContentBtn.addGestureRecognizer(tapGestureRecognizer)
     }
     
     @objc func navToSearchView(){
-         let searchView = SearchViewController()
-//        searchView.modalPresentationStyle = .overCurrentContext
+        
         let navController = UINavigationController(rootViewController: searchView)
         navController.modalPresentationStyle = .fullScreen
-//        searchView.modalPresentationCapturesStatusBarAppearance = false
+        navController.modalTransitionStyle = .crossDissolve
         navigationController?.present(navController, animated: true)
-        
+     
      }
     
     private func constraint(){
@@ -126,7 +157,7 @@ class MasterViewController: UIViewController {
             make.bottom.equalToSuperview()
         }
             
-        backGroundImg.image = UIImage(named: "blue-sky2.jpeg")
+        backGroundImg.image = UIImage(named: "sky3.jpeg")
         backGroundImg.contentMode = .scaleAspectFill
         backGroundImg.clipsToBounds = true
                                 
@@ -149,7 +180,6 @@ extension MasterViewController: UIScrollViewDelegate{
 
         viewModel.changePageControl(with: scrollView.contentOffset.x)
     }
-    
 
 }
 
@@ -157,13 +187,11 @@ extension MasterViewController: UIScrollViewDelegate{
 
 extension MasterViewController: CLLocationManagerDelegate{
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
         guard let first = locations.first else{
             return
         }
-        
-        print(first.coordinate.latitude, first.coordinate.longitude)
-        
-       
-        
+        event.send(.viewDidLoad(currentCoordinateLocation: "\(first.coordinate.latitude),\(first.coordinate.longitude)"))
     }
 }
+

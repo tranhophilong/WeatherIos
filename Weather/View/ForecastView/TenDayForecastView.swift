@@ -75,7 +75,7 @@ extension TenDayForecastView: UITableViewDataSource{
 // MARK: - TableView Delegate
 extension TenDayForecastView: UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return self.frame.height / 10
+        return self.frame.height / CGFloat(tenDayForcastItems.0.count)
     }
 }
 

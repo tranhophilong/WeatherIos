@@ -2,7 +2,7 @@
 //  Location+CoreDataProperties.swift
 //  
 //
-//  Created by Long Tran on 12/11/2023.
+//  Created by Long Tran on 28/11/2023.
 //
 //
 
@@ -17,5 +17,6 @@ extension Location {
     }
 
     @NSManaged public var name: String?
+    @NSManaged public var idOrder: Int16
 
 }

@@ -54,15 +54,14 @@ struct HeaderWeatherItem{
 
 struct WeatherItem{
     let location: String
-    let time: String
-    let condtion: String
-    let lowDegree: String
-    let highDegree: String
-    let currentDegree: String
+    var time: String
+    var condtion: String
+    var lowDegree: String
+    var highDegree: String
+    var currentDegree: String
     let background: UIImage
     
 }
-
 
 struct TempBarItem{
     let isShowCurrentTemp: Bool

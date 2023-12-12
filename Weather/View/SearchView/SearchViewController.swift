@@ -8,58 +8,125 @@
 import UIKit
 import SnapKit
 import Combine
+import GooglePlaces
+import CoreData
+import CoreLocation
 
 
-class SearchResult: UIViewController{
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .blue
-    }
+protocol SearchViewcontrollerDelegate: AnyObject{
+    
+    func addContentView(contentView: ContentView)
+    func removeContentView(at index: Int)
+    func reorderContentView(sourceIndex: Int, desIndex: Int)
+    
 }
 
 class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFieldDelegate {
-    
-    
-    
+
+    private let event = PassthroughSubject<SearchViewModel.EventInput, Never>()
+    private let locationManager = CLLocationManager()
     private lazy var editView = EditView(frame: .zero)
-    private let mainViewModel = SearchViewModel()
-    private var cancellables = Set<AnyCancellable>()
+    private let viewModel = SearchViewModel()
+    private var cancellabels = Set<AnyCancellable>()
     private var heighEditViewConstraint: Constraint?
     private var widthEditViewConstraint: Constraint?
-    
-    private var weatherItems = [WeatherItem(location: "Ho Chi Minh", time: "10:00", condtion: "cloudy", lowDegree: "22", highDegree: "30", currentDegree: "27", background: UIImage(named: "blue-sky2.jpeg")!),
-                                WeatherItem(location: "Ha Noi", time: "10:00", condtion: "Rain", lowDegree: "22", highDegree: "30", currentDegree: "27", background: UIImage(named: "rain-sky.jpeg")!),
-                                WeatherItem(location: "Da Nang", time: "10:00", condtion: "Rain", lowDegree: "22", highDegree: "30", currentDegree: "27", background: UIImage(named: "rain-sky.jpeg")!),
-                                WeatherItem(location: "Da Nang", time: "10:00", condtion: "Rain", lowDegree: "22", highDegree: "30", currentDegree: "27", background: UIImage(named: "rain-sky.jpeg")!)]
-    
+    private var imgContents: [UIImage]?
+    var animationCellIndex: Int?
+    var isForecastCurrentWeather: Bool = false
+    weak var delegate: SearchViewcontrollerDelegate?
+    private var searchResult = SearchResult()
+    private var weatherItems: [WeatherItem] = []
     private lazy var largeTitle = UILabel(frame: .zero)
     private lazy var tableView = UITableView(frame: .zero)
+    private var animatedView : UIView!
+    private var imgAnimatedContentView: UIImageView!
+    private lazy var blurView: UIView = {
+        let containerView = UIView()
+        let dimmedView = UIView()
+        dimmedView.backgroundColor = .black.withAlphaComponent(0.3)
+        dimmedView.frame = self.view.bounds
+        containerView.addSubview(dimmedView)
+        view.addSubview(containerView)
+        
+        return containerView
+    }()
     
-    
-    override class func awakeFromNib() {
-        super.awakeFromNib()
-    }
-   
     override func viewDidLoad() {
         super.viewDidLoad()
+       
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         self.navigationController?.isNavigationBarHidden = false
         setupNavigationController()
         setupSearchBar()
-        constraint()
-        layout()
-        setupTableView()
-        setupBinderToChangeSateView()
-        editView.delegate = self
-        
+         setupNavigationController()
+         setupSearchBar()
+         constraint()
+         layout()
+         setupTableView()
+         setupBinderToChangeSateView()
+         setupBinderGetWeatherItems()
+         editView.delegate = self
+         view.backgroundColor = .black
+       
+        setupAnimatedView()
     }
     
+ 
+    func setupAnimatedView(){
+        
+        guard  let animationCellIndex = animationCellIndex, let imgContent = imgContents?[animationCellIndex] else{
+            return
+        }
+        
+        
+        animatedView  = UIView()
+        animatedView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        animatedView.layer.cornerRadius = 15.HAdapted
+        animatedView?.backgroundColor = .brightBlue
+        
+        imgAnimatedContentView = UIImageView()
+        imgAnimatedContentView.contentMode = .center
+        imgAnimatedContentView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height )
+        imgAnimatedContentView.layer.cornerRadius = 15.HAdapted
+        imgAnimatedContentView.image = imgContent
+     
+        animatedView.addSubview(imgAnimatedContentView)
+        self.navigationController?.view.addSubview(animatedView)
+    }
+    
+    func setImgContentView(imgContentViews: [UIImage]){
+        self.imgContents = imgContentViews
+        self.tableView.reloadData()
+    }
+    
+    func setWeatherItems(weatherItems: [WeatherItem]){
+        self.weatherItems  = weatherItems
+        tableView.reloadData()
+    }
+    
+    private func setupBinderGetWeatherItems(){
+        viewModel.transform(input: event.eraseToAnyPublisher())
+            .receive(on: DispatchQueue.main)
+            .sink {[weak self] output in
+            switch output{
+            case .fetchDataFail:
+                print("fail")
+            case .addSuccessWeatherItem(weatherItem: let weatherItem):
+                self!.weatherItems.append(weatherItem)
+                self!.tableView.reloadData()
+            }
+        }.store(in: &cancellabels)
+    }
+ 
    
     private func setupBinderToChangeSateView(){
         
 //        Change state right bar button items
-        mainViewModel.isEditDataWeather.sink {[weak self] value in
+        viewModel.isEditDataWeather.sink {[weak self] value in
             if value{
-                
                 self!.tableView.isEditing = true
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![0].isHidden = false
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].isHidden = true
@@ -69,18 +136,17 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].isHidden = false
             }
     
-        }.store(in: &cancellables)
+        }.store(in: &cancellabels)
         
-        mainViewModel.isShowEditView.sink {[weak self] value in
+        viewModel.isShowEditView.sink {[weak self] value in
             if value{
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].tintColor = .darkGray
-
             }else{
                 self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].tintColor = .white
-    
             }
-        }.store(in: &cancellables)
+        }.store(in: &cancellabels)
     }
+    
     
     private func setupTableView(){
         tableView.dropDelegate = self
@@ -97,9 +163,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         tableView.register(WeatherViewCell.self, forCellReuseIdentifier: WeatherViewCell.identifier)
 //        tableView.edit = UIEditingInteractionConfiguration
         
-        
     }
-    
     
     private func setupNavigationController(){
         
@@ -117,7 +181,9 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         appearanceScroll.backgroundColor = .black
         navigationController?.navigationBar.scrollEdgeAppearance =  appearanceScroll
         
-        let searchController = UISearchController(searchResultsController: SearchResult())
+        let searchController = UISearchController(searchResultsController: searchResult)
+        searchResult.delegate = self
+        searchController.delegate = self
         let editItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.automatic), style: .plain, target: self, action: #selector(showEditView))
          
         editItem.tintColor = .white
@@ -134,9 +200,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         self.definesPresentationContext = true
         
     }
-    
-   
-    
+ 
     private func setupSearchBar(){
         navigationItem.searchController?.searchBar.searchTextField.backgroundColor = .gray2
         navigationItem.searchController?.searchResultsUpdater = self
@@ -146,11 +210,11 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         navigationItem.searchController?.searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: "Search for a city or airport", attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray])
         navigationItem.searchController?.searchBar.searchTextField.leftView?.tintColor = .lightGray
         navigationItem.searchController?.searchBar.searchTextField.rightView?.tintColor = .lightGray
+
         navigationItem.searchController?.searchBar.searchTextField.delegate = self
         navigationItem.searchController?.hidesNavigationBarDuringPresentation = true
         navigationItem.hidesSearchBarWhenScrolling = false
     }
-    
     
     private func layout(){
         tableView.backgroundColor = .black
@@ -158,44 +222,83 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         editView.backgroundColor = .red
         editView.clipsToBounds = true
         editView.isHidden = true
-        
     }
-    
    
     private func constraint(){
-       
-        self.navigationController?.navigationBar.addSubview(editView)
+
         view.addSubview(tableView)
-              
+        self.navigationController?.view.addSubview(editView)
+        
         editView.snp.makeConstraints {[weak self] make in
-            make.top.equalToSuperview().offset(50.VAdapted)
+            make.top.equalToSuperview().offset(80.VAdapted)
             make.right.equalToSuperview().offset(-20.HAdapted)
             make.width.equalTo(self!.view.frame.width / 2)
             make.height.equalTo(120.VAdapted)
         }
         
         tableView.snp.makeConstraints {  make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(100.VAdapted)
             make.left.equalToSuperview().offset(15.HAdapted)
             make.right.equalToSuperview().offset(-15.HAdapted)
             make.bottom.equalToSuperview()
         }
-        
-       
+      
     }
     
+//    MARK: - Event search
+    
     func updateSearchResults(for searchController: UISearchController) {
-//        guard let text = searchController.searchBar.text else{
-//            return
-//        }
+        
+        self.view.addSubview(blurView)
+
+        
+        guard let text = searchController.searchBar.text else{
+            return
+        }
+        
+        guard !text.trimmingCharacters(in: .whitespaces).isEmpty else{
+            return
+        }
+        searchResult.updateSearch(text: text)
+
     }
+    
     
 
 }
-// MARK: -  datasource
+
+
+// MARK: - Search result delegate
+
+extension SearchViewController: SearchResulDelegate{
+    
+    func deactiveSearch() {
+        navigationItem.searchController?.isActive = false
+        event.send(.addWeatherItem)
+    }
+    
+    func addContentView(contentView: ContentView) {
+        let imgContent = contentView.ts_toImage()
+        imgContents?.append(imgContent)
+        delegate?.addContentView(contentView: contentView)
+//        contentViewDidAdds?.append(contentView)
+    }
+}
+
+
+//    MARK: - Search controller delegate
+
+extension SearchViewController: UISearchControllerDelegate{
+    func didDismissSearchController(_ searchController: UISearchController) {
+        blurView.removeFromSuperview()
+    }
+ 
+}
+
+
+// MARK: -  Datasource
 
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
-    
   
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return weatherItems.count
@@ -221,17 +324,25 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if indexPath.row == 0{
-            return false
+        if isForecastCurrentWeather{
+            if indexPath.row == 0{
+                return false
+            }else{
+                return true
+            }
         }else{
             return true
         }
+        
     }
     
-    
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        if indexPath.row == 0{
-            return false
+        if isForecastCurrentWeather{
+            if indexPath.row == 0{
+                return false
+            }else{
+                return true
+            }
         }else{
             return true
         }
@@ -239,6 +350,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         let selectedItem = weatherItems[sourceIndexPath.row]
+        event.send(.reorderLocation(sourcePosition: Int16(sourceIndexPath.row), destinationPosition: Int16(destinationIndexPath.row), isForecastCurrentWeather: isForecastCurrentWeather))
         weatherItems.remove(at: sourceIndexPath.row)
         weatherItems.insert(selectedItem, at: destinationIndexPath.row)
     }
@@ -246,8 +358,10 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var actions = [UIContextualAction]()
         let delete = UIContextualAction(style: .normal, title: nil) { [weak self] (contextualAction, view, completion) in
+            self!.event.send(.removeLocation(location: self!.weatherItems[indexPath.row].location))
             self!.weatherItems.remove(at: indexPath.row)
             self!.tableView.deleteRows(at: [indexPath], with: .bottom)
+            
             self!.tableView.reloadData()
 
             completion(true)
@@ -275,8 +389,93 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
         tableView.endUpdates()
     }
     
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        setupAnimatedView()
+       
+        
+        guard animatedView != nil else{
+            dismiss(animated: true)
+            return
+        }
+        
+        let rectCell = tableView.ts_rectFromParent(at: indexPath)
+        animatedView.frame = rectCell
+        animatedView.backgroundColor = .clear
+        
+        imgAnimatedContentView.image = imgContents?[indexPath.row]
+        imgAnimatedContentView.frame = CGRect(x: 0, y: 0, width: rectCell.width, height: rectCell.height)
+        imgAnimatedContentView.contentMode = .scaleAspectFit
+        imgAnimatedContentView.alpha = 0
+        
+        
+        let backgroundImgView = UIImageView()
+        backgroundImgView.frame = CGRect(x: 0, y: 0, width: rectCell.width, height: rectCell.height)
+        backgroundImgView.contentMode = .scaleAspectFit
+        backgroundImgView.image = UIImage(named: "sky3.jpeg")
+        backgroundImgView.layer.cornerRadius = 15.HAdapted
+        backgroundImgView.alpha = 0
+        animatedView.insertSubview(backgroundImgView, belowSubview: imgAnimatedContentView)
+        self.navigationController?.view.addSubview(animatedView)
+        
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) { [weak self] in
+            self!.animatedView.frame = CGRect(x: 0, y: 0, width: self!.view.frame.width, height: self!.view.frame.height)
+            self!.imgAnimatedContentView.frame = CGRect(x: 0, y: 0, width: self!.view.frame.width, height: self!.view.frame.height)
+            backgroundImgView.frame = CGRect(x: 0, y: 0, width: self!.animatedView.frame.width, height: self!.animatedView.frame.height)
+            backgroundImgView.alpha = 1
+            self!.imgAnimatedContentView.alpha = 1
+            
+        }completion: {[weak self]  _ in
+          
+            self!.dismiss(animated: false)
+        }
+        
+       
+    }
+    
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 
-
+        guard  animatedView != nil, imgAnimatedContentView != nil else{
+            return
+        }
+        
+        guard let cell = cell as? WeatherViewCell else{
+            return
+        }
+     
+        
+        if indexPath.row == animationCellIndex && indexPath.section == 0{
+            let rectCell = tableView.ts_rectFromParent(at: indexPath)
+            animatedView.addSubview(cell.contentView)
+            cell.setBackgroundClear(is: true)
+            
+//            UIView.animate(withDuration: 0.1) {[weak self] in
+//                self!.imgAnimatedContentView.alpha = 0
+//
+//            }completion: { _ in
+//                UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {[weak self] in
+////                    self?.collapsedView.layoutSubviews()
+//                    self?.animatedView.frame.size = rectCell.size
+//                    self?.animatedView.frame.origin = rectCell.origin
+//                    self?.animatedView.alpha = 0.8
+//                }completion: { [weak self] finished in
+//                    if finished{
+//                        
+//                        cell.refreshBackground()
+//                        cell.addSubview(cell.contentView)
+//                        self?.animatedView.removeFromSuperview()
+//                        self?.animatedView = nil
+//                    }
+//                }
+//            }
+            
+        }
+    }
+    
+    
+  
 }
 // MARK: - Drag and drop Delegate
 
@@ -323,10 +522,10 @@ extension SearchViewController: UITableViewDropDelegate{
 // MARK: - EditView
 extension SearchViewController: EditViewDelegate{
     func editData() {
-        mainViewModel.isShowEditView.value = false
+        viewModel.isShowEditView.value = false
         tableView.reloadData()
         tableView.layoutSubviews()
-        mainViewModel.isEditDataWeather.value = true
+        viewModel.isEditDataWeather.value = true
         changeHeightCell()
         for i in 0..<weatherItems.count{
             let cell =  tableView.cellForRow(at: IndexPath(row: i, section: 0)) as! WeatherViewCell
@@ -336,8 +535,8 @@ extension SearchViewController: EditViewDelegate{
     
     
     @objc private func doneEdit(){
-        mainViewModel.isShowEditView.value = false
-        mainViewModel.isEditDataWeather.value = false
+        viewModel.isShowEditView.value = false
+        viewModel.isEditDataWeather.value = false
         changeHeightCell()
         tableView.reloadData()
         for i in 0..<weatherItems.count{
@@ -348,16 +547,11 @@ extension SearchViewController: EditViewDelegate{
     }
     
     @objc private func showEditView(){
-        mainViewModel.isShowEditView.value = !mainViewModel.isShowEditView.value
+        viewModel.isShowEditView.value = !viewModel.isShowEditView.value
         UIView.animate(withDuration: 0.3) {[weak self] in
             self!.editView.isHidden = !self!.editView.isHidden
         }
-        
-     
     }
-   
-    
-    
 }
 
 
