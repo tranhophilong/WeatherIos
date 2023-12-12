@@ -21,6 +21,7 @@ The implemented feature includes the following functionalities:
 7. Manage Weather Forecast Locations: The app allows users to add, delete, and reorder weather forecast locations. This functionality is implemented using Core Data, providing a seamless and persistent experience for managing weather forecast locations.
 
 ## Demo 
+![Screen-Recording-2023-12-12-at-17 03 39](https://github.com/tranhophilong/WeatherIos/assets/73411366/b97c7998-6fa1-429e-bea9-daf23ff0a8d3)
 
 
 ## Task List
