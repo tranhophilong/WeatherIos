@@ -57,6 +57,7 @@ class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
         @unknown default:
             break
         }
+        print("Testing commiting after deleting the Podfile")
     }
  
     private func setupLocationManager()  {
