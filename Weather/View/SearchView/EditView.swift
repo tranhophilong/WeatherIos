@@ -9,43 +9,26 @@ import UIKit
 import SnapKit
 import Combine
 
-struct EditButton{
-    let title: String
-    let icon: UIImage?
-    let showSymbolCell: Bool
-    let showSymbollFeh: Bool
-    let editFunc: EditFunc
-}
 
-enum EditFunc{
-    case editList
-    case changeToCel
-    case changToFah
-}
-
-protocol EditViewDelegate: AnyObject{
-    func editData()
-}
 
 class EditView: UIView, UITableViewDataSource, UITableViewDelegate{
         
-    
-    let items = [EditButton(title: "Edit", icon: UIImage(systemName: "pencil"), showSymbolCell: false, showSymbollFeh: false, editFunc: .editList),
-                 EditButton(title: "Celsius", icon: nil, showSymbolCell: true, showSymbollFeh: false, editFunc: .changeToCel),
-                 EditButton(title: "Fehrenheit", icon: nil, showSymbolCell: false, showSymbollFeh: true, editFunc: .changToFah)]
     private lazy var tableView = UITableView(frame: .zero)
-    private let mainviewModel = SearchViewModel()
-    
-    var delegate: EditViewDelegate?
-    
-    override init(frame: CGRect) {
+    private let viewModel: EditViewModel
+    private var editCellViewModels = [EditCellViewModelProtocol]()
+    private var cancellables = Set<AnyCancellable>()
+        
+    public init(frame: CGRect, viewModel: EditViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
         setupTableView()
         constraint()
+        setupBinder()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+        
     }
     
     
@@ -68,60 +51,68 @@ class EditView: UIView, UITableViewDataSource, UITableViewDelegate{
         }
     }
     
+    private func setupBinder(){
+        viewModel.editCellViewModels.sink {[weak self] editCellViewModels in
+            self?.editCellViewModels = editCellViewModels
+            self?.tableView.reloadData()
+        }.store(in: &cancellables)
+    }
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return editCellViewModels.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: EditCell.identifier, for: indexPath) as! EditCell
-        
-        cell.config(item: items[indexPath.row])
+        cell.viewModel = editCellViewModels[indexPath.row]
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return (self.frame.height / CGFloat(items.count)) + 1
+        return (self.frame.height / CGFloat(editCellViewModels.count)) + 1
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = items[indexPath.row]
-        switch item.editFunc{
-        case .editList:
-            delegate?.editData()
-            isHidden = true
-        case .changeToCel:
-            print("cel")
-        case .changToFah:
-            print("fah")
+        let editCellViewModel = editCellViewModels[indexPath.row]
+        
+        if let editCellViewModel = editCellViewModel as? EditCellCelsiusViewModel{
+            viewModel.delegate?.changeToCel()
+        }
+        
+        if let editCellViewModel = editCellViewModel as? EditCellFahrenheitViewModel{
+            viewModel.delegate?.changeToFah()
+        }
+        
+        if let editCellViewModel = editCellViewModel as? EditCellEditListWeatherCellViewModel{
+            viewModel.delegate?.editListWeatherCell()
         }
     }
     
-    
-    
-    
 }
- 
-
 
 //MARK: - EDIT CELL
 
-class EditCell : UITableViewCell{
+fileprivate class EditCell : UITableViewCell{
     static let identifier = "EditCell"
     
     private lazy var titleLbl = UILabel(frame: .zero)
-    private lazy var icon = UIImageView(frame: .zero)
-    private let symbolCel = UILabel(frame: .zero)
-    private let symbolFeh = UILabel(frame: .zero)
-    
-    
+    private lazy var symbolImg = UIImageView(frame: .zero)
+    private lazy var symbolText = UILabel(frame: .zero)
     private let lblFont = AdaptiveFont.medium(size: 17)
     private let lblColor: UIColor = .white
+    var viewModel: EditCellViewModelProtocol!{
+        didSet{
+            titleLbl.text = viewModel.title
+            symbolText.text = viewModel.symbolText
+            symbolImg.image = UIImage(systemName: viewModel.nameIcon ?? "")
+        }
+    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        layout()
+        setupViews()
         constraint()
     }
     
@@ -129,67 +120,40 @@ class EditCell : UITableViewCell{
         fatalError("init(coder:) has not been implemented")
     }
     
-    func config(item: EditButton){
-        icon.image = item.icon
-        if item.showSymbolCell{
-            symbolCel.isHidden = false
-            icon.isHidden = true
-            symbolFeh.isHidden = true
-        }else if item.showSymbollFeh{
-            symbolCel.isHidden = true
-            icon.isHidden = true
-            symbolFeh.isHidden = false
-        }else{
-            symbolCel.isHidden = true
-            icon.isHidden = false
-            symbolFeh.isHidden = true
-        }
-        titleLbl.text = item.title
-    }
     
-    
-    private func layout(){
+    private func setupViews(){
         selectionStyle = .none
         backgroundColor = .darkGray
         titleLbl.font  = lblFont
         titleLbl.textColor = lblColor
+    
+        symbolImg.tintColor = .white
+        symbolImg.contentMode = .scaleAspectFit
         
-        symbolCel.text  = "°C"
-        symbolFeh.text = "°F"
-        symbolCel.font = AdaptiveFont.bold(size: 17.HAdapted)
-        symbolFeh.font = AdaptiveFont.bold(size: 17.HAdapted)
-        symbolCel.textColor = .white
-        symbolFeh.textColor  = .white
-        
-        icon.tintColor = .white
-        icon.contentMode = .scaleAspectFit
+        symbolText.font = AdaptiveFont.bold(size: 17.HAdapted)
+        symbolText.textColor = .white
         
     }
     private func constraint(){
         addSubview(titleLbl)
-        addSubview(icon)
-        addSubview(symbolCel)
-        addSubview(symbolFeh)
+        addSubview(symbolImg)
+        addSubview(symbolText)
         
         titleLbl.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(10.VAdapted)
             make.left.equalToSuperview().offset(20.HAdapted)
         }
         
-        icon.snp.makeConstraints { make in
+        symbolImg.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(10.VAdapted)
             make.right.equalToSuperview().offset(-15.HAdapted)
         }
         
-        symbolCel.snp.makeConstraints { make in
+        symbolText.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(10.VAdapted)
             make.right.equalToSuperview().offset(-15.HAdapted)
         }
         
-        symbolFeh.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(10.VAdapted)
-            make.right.equalToSuperview().offset(-15.HAdapted)
-        }
     }
 }
 

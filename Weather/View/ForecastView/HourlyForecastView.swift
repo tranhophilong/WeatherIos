@@ -7,22 +7,34 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 
-class HourlyForecastView: ViewForCardView {
-
+class HourlyForecastView: UIView {
+        
+    private let viewModel: HourlyForecastViewModel
+    
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
     
-    var hourlyForcastItems: [HourlyForecastItem] = []{
-        didSet{
-            collectionView.reloadData()
-        }
-    }
+    private var hourlyForcastCellViewModels: [HourlyForecastCellViewModel] = []
+//    private let viewModel: HourlyForecastViewModel
+    private var cancellables = Set<AnyCancellable>()
     
-    override init(frame: CGRect) {
+    public init(frame: CGRect, viewModel: HourlyForecastViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
         setupCollectionView()
         constraint()
+        setupBinder()
+        viewModel.createHourlyForecastCellViewModels()
+        
+    }
+    
+    private func setupBinder(){
+
+        viewModel.cellViewModels.sink {[weak self] cellViewModels in
+            self?.hourlyForcastCellViewModels = cellViewModels
+        }.store(in: &cancellables)
     }
     
     required init?(coder: NSCoder) {
@@ -53,8 +65,6 @@ class HourlyForecastView: ViewForCardView {
         }
     }
     
-    
-
 }
 
 
@@ -71,14 +81,13 @@ extension HourlyForecastView: UICollectionViewDataSource{
         return 1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return hourlyForcastItems.count
+        return hourlyForcastCellViewModels.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HourlyForecastViewCell.identifier, for: indexPath) as! HourlyForecastViewCell
-        let hourlyForeCastItem = hourlyForcastItems[indexPath.item]
-        cell.config(hourlyForecastItem: hourlyForeCastItem)
-    
+        let hourlyForeCastViewModel = hourlyForcastCellViewModels[indexPath.item]
+        cell.viewModel = hourlyForeCastViewModel
         return cell
     }
     
@@ -92,7 +101,7 @@ extension HourlyForecastView: UICollectionViewDelegateFlowLayout{
 }
 
 // MARK: - HourlyforecastCell
-class HourlyForecastViewCell: UICollectionViewCell{
+fileprivate class HourlyForecastViewCell: UICollectionViewCell{
     
     static let identifier = "HourlyForecastViewCell"
     private lazy var timeLbl = UILabel(frame: .zero)
@@ -104,25 +113,26 @@ class HourlyForecastViewCell: UICollectionViewCell{
     private let font = AdaptiveFont.bold(size: 17.VAdapted)
     private let lblColor: UIColor = .white
     private let subColor: UIColor = .subTitle
+    var viewModel : HourlyForecastCellViewModel?{
+        didSet{
+            timeLbl.text = viewModel?.time
+            iconCondition.image  = viewModel?.imgCondition
+            subCondition.text = viewModel?.subCondition
+            degreeLbl.text = viewModel?.degree
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        layout()
+        setupViews()
         constraint()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    func config(hourlyForecastItem: HourlyForecastItem){
-        timeLbl.text = hourlyForecastItem.time
-        iconCondition.image  = hourlyForecastItem.imgCondtion
-        subCondition.text = hourlyForecastItem.subCondtion
-        degreeLbl.text = hourlyForecastItem.degree
-    }
-    
-    private func layout(){
+     
+    private func setupViews(){
         
         backgroundColor = .clear
         stackView.axis = .vertical
@@ -137,7 +147,7 @@ class HourlyForecastViewCell: UICollectionViewCell{
         subCondition.textColor = .subTitle
         subCondition.font = AdaptiveFont.medium(size: 13.VAdapted)
         
-        var stackVerCondition = UIStackView()
+        let stackVerCondition = UIStackView()
         stackVerCondition.axis = .vertical
         stackVerCondition.alignment = .center
         stackVerCondition.distribution = .fillProportionally

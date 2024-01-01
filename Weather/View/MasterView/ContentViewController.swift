@@ -21,27 +21,38 @@ class ContentViewController: UIViewController {
     private lazy var imgBackground = UIImageView(frame: .zero)
     private let viewModel = ContentViewControllerViewModel()
     weak var delegate: ContentViewViewControllerDelegate?
-    private  var contentView : ContentView!
+    private let contentViewModel: ContentViewModel
+    private  lazy var contentView = ContentView(frame: .zero, viewModel: contentViewModel)
+    
+    init(contentViewModel: ContentViewModel){
+        self.contentViewModel = contentViewModel
+        super.init()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        layout()
+        setupViews()
+        setupContentView()
         constraint()
+
+        btnAdd.addTarget(self, action: #selector(addLocation), for: .touchUpInside)
+        btnCancel.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
         
-        
-//        init content view weather
-        contentView = ContentView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height), coor: nil, nameLocation: title!)
+    }
+    
+    private func setupContentView(){
         view.addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(20.VAdapted)
             make.left.equalToSuperview()
             make.right.equalToSuperview()
             make.bottom.equalToSuperview()
+            
         }
-        
-        btnAdd.addTarget(self, action: #selector(addLocation), for: .touchUpInside)
-        btnCancel.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
-        
     }
     
     @objc private func addLocation(){
@@ -57,7 +68,7 @@ class ContentViewController: UIViewController {
     }
     
     
-    private func layout(){
+    private func setupViews(){
         btnAdd.setTitle("Add", for: .normal)
         btnAdd.setTitleColor(.white, for: .normal)
         btnAdd.titleLabel?.font = AdaptiveFont.bold(size: 16)

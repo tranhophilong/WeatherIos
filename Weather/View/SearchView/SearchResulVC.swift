@@ -18,12 +18,22 @@ protocol SearchResulDelegate: AnyObject{
 class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource{
     
     private var cancellabels = Set<AnyCancellable>()
-    private var places: [String] = []
-    private let viewModel = SearchResultViewModel()
+    private var searchResultCellViewModels: [SearchResulCellViewModel] = []
+    private let viewModel: SearchResultViewModel
     private var textSearching: String = ""
     var delegate: SearchResulDelegate?
     private let tableView = UITableView(frame: .zero)
-    private lazy var alterView = AlternativeView(frame: .zero)
+    private let alternativeViewModel = AlternativeViewModel(imgName: "magnifyingglass", title: "No Results")
+    private lazy var alterView = AlternativeView(frame: .zero, viewModel: alternativeViewModel)
+    
+    init(viewModel: SearchResultViewModel){
+        self.viewModel = viewModel
+        super.init()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,16 +52,13 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
      
     private func setupAlterView(){
         alterView.bounds = view.bounds
-        alterView.setImage(img: UIImage(systemName: "magnifyingglass")?.withRenderingMode(.alwaysTemplate))
-        alterView.setTitle(text: "No Result")
     }
-    
     
     private func setupBinderShowAlterView(){
         viewModel.showAlterView.sink {[weak self] value in
             if value{
-                self!.alterView.isHidden = false
-                self!.alterView.setSubTitle(text: "No results for \"\(self!.textSearching)\"")
+                self?.alterView.isHidden = false
+                self?.alternativeViewModel.changeSubtitle(text: "No results for \"\(self!.textSearching)\"")
             }else{
                 self!.alterView.isHidden =  true
 
@@ -60,15 +67,14 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
     }
     
     private func setupBinderChangeData(){
-        viewModel.places.sink {[weak self] value in
-            self!.places = value
+        viewModel.searchResultCellViewModels.sink {[weak self] value in
+            self!.searchResultCellViewModels = value
             self!.tableView.reloadData()
         }.store(in: &cancellabels)
-    }
-    
-    func updateSearch(text: String){
-        viewModel.getPlaces(query: text)
-        textSearching = text
+        
+        viewModel.textSearching.sink {[weak self] value in
+            self?.textSearching = value
+        }.store(in: &cancellabels)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -76,22 +82,21 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        places.count
+        searchResultCellViewModels.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchResultCell.identifier, for: indexPath) as! SearchResultCell
-        let text = places[indexPath.row]
-        cell.setText(text: text)
-        cell.highlightSearch(searchString: textSearching, resultString: text)
+        let searchResultCellViewModel = searchResultCellViewModels[indexPath.row]
+        cell.viewModel = searchResultCellViewModel
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       let contentVC = ContentViewController()
-        contentVC.title = places[indexPath.row]
-        contentVC.delegate = self
-        present(contentVC, animated: true)
+//       let contentVC = ContentViewController()
+//       contentVC.title = places[indexPath.row]
+//       contentVC.delegate = self
+//       present(contentVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -129,14 +134,21 @@ extension SearchResult: ContentViewViewControllerDelegate{
  
 }
 
-class SearchResultCell: UITableViewCell{
+
+fileprivate class SearchResultCell: UITableViewCell{
     
     private lazy var label = UILabel(frame: .zero)
     static let identifier = "SearchResultCell"
+    private var cancellables = Set<AnyCancellable>()
+    var viewModel: SearchResulCellViewModel!{
+        didSet{
+            setupBinder()
+        }
+    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: "SearchResultCell")
-        layout()
+        setupView()
         constraint()
     }
     
@@ -144,18 +156,25 @@ class SearchResultCell: UITableViewCell{
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setText(text: String){
-        label.text = text
+    private func setupBinder(){
+        viewModel.place.sink {[weak self] value in
+            self?.label.text = value
+        }.store(in: &cancellables)
+        
+        viewModel.placeSearching.sink {[weak self] value in
+            self?.highlightSearch(searchString: value, resultString: self!.label.text ?? "")
+        }.store(in: &cancellables)
+        
     }
     
-    private func layout(){
+    private func setupView(){
         selectionStyle = .none
         backgroundColor = .black
         label.font = AdaptiveFont.medium(size: 16.HAdapted)
         label.textColor = .white.withAlphaComponent(0.7)
     }
     
-    func highlightSearch(searchString: String, resultString: String)   {
+   private func highlightSearch(searchString: String, resultString: String)   {
         let attributedString: NSMutableAttributedString = NSMutableAttributedString(string: resultString)
         let Desiredpattern = searchString.lowercased()
         let range: NSRange = NSMakeRange(0, resultString.count)

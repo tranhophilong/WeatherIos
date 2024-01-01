@@ -7,25 +7,33 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 
-
-class TenDayForecastView: ViewForCardView {
+class TenDayForecastView: UIView {
     
     private let tableView = UITableView(frame: .zero)
-    private let numItems = 10
-    var tenDayForcastItems: ([TenDayForecastItem], [TempBarItem]) = ([],[]){
-        didSet{
-            tableView.reloadData()
-        }
-    }
+    private let viewModel: TenDayForecastViewModel
+    private var tendayForecastCellViewModels: [TenDayForecastCellViewModel] = []
+    private var tempBarViewModels: [GradientColorViewModel] = []
+    private var cancellables = Set<AnyCancellable>()
     
     
-    
-    override init(frame: CGRect) {
+    public init(frame: CGRect, viewModel: TenDayForecastViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
         setupTableview()
         constraints()
+        setupBinder()
+        viewModel.createCellViewModels()
+    }
+    
+    private func setupBinder(){
+        viewModel.cellViewModels.sink {[weak self] (tendayForecastCellViewModels, tempBarViewModels) in
+            self!.tendayForecastCellViewModels = tendayForecastCellViewModels
+            self!.tempBarViewModels = tempBarViewModels
+            self!.tableView.reloadData()
+        }.store(in: &cancellables)
     }
     
     required init?(coder: NSCoder) {
@@ -58,15 +66,14 @@ class TenDayForecastView: ViewForCardView {
 extension TenDayForecastView: UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tenDayForcastItems.0.count
+        return tendayForecastCellViewModels.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TenDayForecastViewCell.identifier, for: indexPath) as! TenDayForecastViewCell
-        let item =  tenDayForcastItems.0[indexPath.row]
-        let tempBarItem = tenDayForcastItems.1[indexPath.row]
-        cell.config(item: item, tempBarItem: tempBarItem)
-        cell.backgroundColor = .clear
+        cell.viewModel = tendayForecastCellViewModels[indexPath.row]
+        cell.tempBarViewModel = tempBarViewModels[indexPath.row]
+
         return cell
     }
     
@@ -75,13 +82,13 @@ extension TenDayForecastView: UITableViewDataSource{
 // MARK: - TableView Delegate
 extension TenDayForecastView: UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return self.frame.height / CGFloat(tenDayForcastItems.0.count)
+        return self.frame.height / CGFloat(tendayForecastCellViewModels.count)
     }
 }
 
 //MARK: - Ten day Forecast Cell
 
-class TenDayForecastViewCell: UITableViewCell{
+fileprivate class TenDayForecastViewCell: UITableViewCell{
     
     static let identifier = "TenDayForecastViewCell"
         
@@ -91,7 +98,7 @@ class TenDayForecastViewCell: UITableViewCell{
     private lazy var lowDegreeLbl = UILabel(frame: .zero)
     private lazy var highDegreeLbl = UILabel(frame: .zero)
     private lazy var stackViewHorizontal = UIStackView(frame: .zero)
-    private lazy var tempBar = TempBarGradientColorView(frame: .zero)
+    private lazy var tempBar = GradientColorView(frame: .zero)
     
     private lazy var widthTempBar = (frame.width - 25.HAdapted) * 35/100
     private let fontLbl = AdaptiveFont.bold(size: 17.HAdapted)
@@ -103,12 +110,12 @@ class TenDayForecastViewCell: UITableViewCell{
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: TenDayForecastViewCell.identifier)
         constraint()
-        layout()
+        setupViews()
     }
     
     override var frame: CGRect{
         get {
-                    return super.frame
+                return super.frame
             }
                 
         set (newFrame) {
@@ -122,23 +129,30 @@ class TenDayForecastViewCell: UITableViewCell{
         }
     }
     
-    func config(item: TenDayForecastItem, tempBarItem: TempBarItem){
-        timeLbl.text = item.time
-        iconCondtion.image =  item.iconCondition
-        lowDegreeLbl.text =  item.lowDegree + "°"
-        highDegreeLbl.text = item.highDegree + "°"
-        subCondition.text = item.subCondtion 
-        
-        tempBar.config(tempBarItem: tempBarItem, widthTempBar: widthTempBar)
-       
-        
+    var viewModel: TenDayForecastCellViewModel!{
+        didSet{
+            timeLbl.text = viewModel.time
+            iconCondtion.image =  viewModel.iconCondition
+            lowDegreeLbl.text =  viewModel.lowDegree + "°"
+            highDegreeLbl.text = viewModel.highDegree + "°"
+            subCondition.text = viewModel.subCondtion
+        }
+    }
+    
+    var tempBarViewModel: GradientColorViewModel!{
+        didSet{
+            tempBar.viewModel = tempBarViewModel
+           
+        }
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func layout(){
+    
+    
+    private func setupViews(){
         
         let _ =  addSeparator(width: SCREEN_WIDTH() - 80.HAdapted, x: 10.HAdapted, y: 0, to: self)
         
@@ -163,12 +177,9 @@ class TenDayForecastViewCell: UITableViewCell{
         subCondition.textColor = .subTitle
         iconCondtion.tintColor = .white
         
-        
 //        label
         
         lowDegreeLbl.textAlignment = .right
-
-        
 //        ConditioniconView
         
         let stackViewVer = UIStackView()
@@ -178,7 +189,6 @@ class TenDayForecastViewCell: UITableViewCell{
         stackViewVer.alignment = .center
         stackViewVer.addArrangedSubview(iconCondtion)
         stackViewVer.addArrangedSubview(subCondition)
-        
         
 //        add sub view to stack view horizontal
         stackViewHorizontal.addArrangedSubview(timeLbl)

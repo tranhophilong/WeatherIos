@@ -15,26 +15,40 @@ class HeaderContentView: UIView{
     private lazy var locationLbl = UILabel(frame: .zero)
     private lazy var degreeLbl = UILabel(frame: .zero)
     private lazy var conditionWeatherLbl = UILabel(frame: .zero)
-    private lazy var hightLowDegreeLbl = UILabel(frame: .zero)
+    private lazy var highLowDegreeLbl = UILabel(frame: .zero)
     private lazy var degreeIcon = UILabel(frame: .zero)
     private lazy var  degreeConditionLbl = UILabel(frame: .zero)
-    private let viewModel = HeaderContentViewModel()
+    private let viewModel: HeaderContentViewModel
     private var cancellables = Set<AnyCancellable>()
     private let lblColor: UIColor = .white
-    
-    
     private var locationLblToTopHeaderConstraint: Constraint?
-        
-    private let fontDegreeLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.27), weight: .thin)
-    private let fontConditionLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.054), weight: .bold)
-    private let fontLocationLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.108), weight: .regular)
     
-   
+    private var heightHeaderContent: CGFloat = 350.VAdapted
+    private lazy var disConditionLblAndDegreeLbl: CGFloat = round(heightHeaderContent * 0.027)
+    private lazy var disHightLowDegreeLblAndConditionWeatherLbl: CGFloat = round(heightHeaderContent * 0.027)
+    private lazy var didsDegreeLblAndLocationLbl: CGFloat = round(heightHeaderContent * 0.027)
 
-    override init(frame: CGRect) {
+    private lazy var disLocationLblAndTopHeaderStart: CGFloat = 350.VAdapted / 5
+    private lazy var disDegreeLblAndBottomHeader: CGFloat = heightHeaderContent * 2/5
+    private lazy var disConditionWeatherLblAndBottomHeader: CGFloat = round(heightHeaderContent * 0.3)
+    private lazy var disDegreeConditionAndBottomHeader: CGFloat = round(heightHeaderContent * 0.627)
+    private lazy var disHighLowDegreeLblAndBottomHeader: CGFloat = heightHeaderContent/5
+
+    private lazy var heightHighAndLowDegreeLbl: CGFloat = round(heightHeaderContent * 0.073)
+    private lazy var heightConditionLbl: CGFloat = round(heightHeaderContent * 0.073)
+    private lazy var heightDegreeLbl: CGFloat = heightHeaderContent/5
+        
+    private lazy var fontDegreeLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.27), weight: .thin)
+    private lazy var fontConditionLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.054), weight: .bold)
+    private lazy var fontLocationLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.108), weight: .regular)
+    
+
+    public init(frame: CGRect, viewModel: HeaderContentViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
-        layout()
+        setupViews()
         constraint()
+        setupBinderChangeAlphaColorLbls()
         setupBinder()
     }
     
@@ -42,12 +56,51 @@ class HeaderContentView: UIView{
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func layout(){
+    override func layoutSubviews() {
+        super.layoutSubviews()
+//        print("///////////")
+//        print(self.frame.height)
+//        heightHeaderContent = 350.VAdapted
+//        disLocationLblAndTopHeaderStart = 350.VAdapted / 5
+    }
+    
+    
+    private func setupBinder(){
+        
+        viewModel.nameLocation.sink {[weak self] value in
+            self?.locationLbl.text = value
+
+        }.store(in: &cancellables)
+        
+        viewModel.currentDegree.sink {[weak self] value in
+            self?.degreeLbl.text = value
+            
+        }.store(in: &cancellables)
+        
+        viewModel.highLowDegree.sink {[weak self] value in
+            self?.highLowDegreeLbl.text = value
+        }.store(in: &cancellables)
+        
+        
+        viewModel.condition.sink {[weak self] value in
+            self?.conditionWeatherLbl.text = value
+        }.store(in: &cancellables)
+        
+        viewModel.conditionDegree.sink { [weak self] value in
+            self?.degreeConditionLbl.text = value
+        }.store(in: &cancellables)
+        
+        viewModel.isHiddenDegreeIcon.sink { [weak self] isHidden in
+            self?.degreeIcon.isHidden = isHidden
+        }.store(in: &cancellables)
+    }
+    
+    private func setupViews(){
         
 //        font
         degreeLbl.font = fontDegreeLbl
         conditionWeatherLbl.font = fontConditionLbl
-        hightLowDegreeLbl.font = fontConditionLbl
+        highLowDegreeLbl.font = fontConditionLbl
         degreeConditionLbl.font = fontConditionLbl
         locationLbl.font = fontLocationLbl
         
@@ -55,59 +108,32 @@ class HeaderContentView: UIView{
         locationLbl.textColor = lblColor
         degreeLbl.textColor = lblColor
         conditionWeatherLbl.textColor = lblColor
-        hightLowDegreeLbl.textColor = lblColor
+        highLowDegreeLbl.textColor = lblColor
         degreeConditionLbl.textColor = lblColor
         
-//        setText
-        locationLbl.text = ""
-        degreeLbl.text = "--"
-        conditionWeatherLbl.text = ""
-        hightLowDegreeLbl.text = ""
-        degreeConditionLbl.text = ""
         degreeConditionLbl.isHidden = false
-        
         degreeIcon.isHidden = true
-
         
 //        Degree Icon
         degreeIcon.text = "°"
         degreeIcon.textColor  = .white
         degreeIcon.font = fontDegreeLbl
     }
-    
-    func config(item: HeaderWeatherItem){
-        locationLbl.text = item.nameLocation
-        degreeLbl.text = item.degree
-        conditionWeatherLbl.text = item.conditon
-        hightLowDegreeLbl.text = "H:\(item.highDegree)° L:\(item.lowDegree)°"
-        degreeConditionLbl.text = "\(item.degree)° | \(item.conditon)"
-        
-        if degreeLbl.text != "--"{
-            degreeIcon.isHidden = false
-        }
-        
-        
-    }
-    
-    
-    private func setupBinder(){
+      
+    private func setupBinderChangeAlphaColorLbls(){
         viewModel.alphaColorhightLowDegreeLbl.sink {[weak self] alpha in
-//            print(alpha)
-            self!.hightLowDegreeLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
+            self!.highLowDegreeLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
         
         viewModel.alphaColorConditionWeatherLbl.sink {[weak self] alpha in
-//            print(alpha)
             self!.conditionWeatherLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
         
         viewModel.alphaColorDegreeConditionLbl.sink { [weak self] alpha in
-//            print(alpha)
             self!.degreeConditionLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
         
         viewModel.alphaColorDegreeLbl.sink {[weak self] alpha in
-//            print(alpha)
             self!.degreeLbl.textColor = self!.lblColor.withAlphaComponent(alpha)
             self!.degreeIcon.textColor = self!.lblColor.withAlphaComponent(alpha)
         }.store(in: &cancellables)
@@ -122,7 +148,7 @@ class HeaderContentView: UIView{
         addSubview(locationLbl)
         addSubview(degreeLbl)
         addSubview(conditionWeatherLbl)
-        addSubview(hightLowDegreeLbl)
+        addSubview(highLowDegreeLbl)
         addSubview(degreeIcon)
         addSubview(degreeConditionLbl)
         
@@ -131,14 +157,10 @@ class HeaderContentView: UIView{
             make.centerX.equalTo(degreeLbl)
             locationLblToTopHeaderConstraint =  make.top.equalToSuperview().offset(disLocationLblAndTopHeaderStart ).constraint
             make.height.equalTo(round(heightHeaderContent * 0.173))
-            
-//            make.width.equalTo(String.textSize(locationLbl.text, withFont: fontLocationLbl).width.adaptedFontSize)
-                
         }
         
         degreeConditionLbl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-//            make.width.equalTo(String.textSize(degreeConditionLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
             make.height.equalTo(round(heightHeaderContent * 0.073))
             make.top.equalTo(locationLbl.snp.bottom).offset(5.VAdapted)
         }
@@ -147,7 +169,6 @@ class HeaderContentView: UIView{
             make.top.equalTo(locationLbl.snp.bottom).offset( didsDegreeLblAndLocationLbl)
             make.centerX.equalToSuperview()
             make.height.equalTo(heightDegreeLbl)
-//            make.width.equalTo(String.textSize(degreeLbl.text, withFont: fontDegreeLbl).width.adaptedFontSize)
         }
         
         degreeIcon.snp.makeConstraints { make in
@@ -160,27 +181,26 @@ class HeaderContentView: UIView{
             make.top.equalTo(degreeLbl.snp.bottom).offset(disConditionLblAndDegreeLbl)
             make.centerX.equalTo(degreeLbl)
             make.height.equalTo(heightConditionLbl)
-//            make.width.equalTo(String.textSize(conditionWeatherLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
         }
         
-        hightLowDegreeLbl.snp.makeConstraints { make in
+        highLowDegreeLbl.snp.makeConstraints { make in
             make.centerX.equalTo(degreeLbl)
             make.top.equalTo(conditionWeatherLbl.snp.bottom).offset(disHightLowDegreeLblAndConditionWeatherLbl)
-            make.height.equalTo(heightHightAndLowDegreeLbl)
-//            make.width.equalTo(String.textSize(hightLowDegreeLbl.text, withFont: fontConditionLbl).width.adaptedFontSize)
+            make.height.equalTo(heightHighAndLowDegreeLbl)
         }
-            }
+        
+    }
    
 }
 //MARK: - Animation Scroll
 
 extension HeaderContentView{
     func changeDisLblAndTopHeaderDidScroll(contentOffset: CGFloat){
-        viewModel.changeDisLblAndTopHeaderDidScroll(with: contentOffset)
+        viewModel.changeDisLblAndTopHeaderDidScroll(with: contentOffset, heightHeaderStart: disLocationLblAndTopHeaderStart, heightHightAndLowDegreeLbl: heightHighAndLowDegreeLbl)
     }
     
     func changeColorLbl(contentOffSet: CGFloat){
-        viewModel.changeColorLbl(with: contentOffSet)
+        viewModel.changeColorLbl(with: contentOffSet, disHighLowDegreeLblAndBottomHeader: disHighLowDegreeLblAndBottomHeader, disConditionWeatherLblAndBottomHeader: disConditionWeatherLblAndBottomHeader, disDegreeLblAndBottomHeader: disDegreeLblAndBottomHeader, disDegreeConditionAndBottomHeader: disDegreeConditionAndBottomHeader, heightDegreeLbl: heightDegreeLbl, heightHighAndLowDegreeLbl: heightHighAndLowDegreeLbl, heightConditionLbl: heightConditionLbl)
     }
   
 }

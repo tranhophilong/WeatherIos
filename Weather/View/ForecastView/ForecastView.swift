@@ -7,74 +7,80 @@
 
 import UIKit
 import SnapKit
+import Combine
 
-class ForecastView: ViewForCardView {
-    
+class ForecastView: UIView {
    
     private lazy var  indexLbl = UILabel(frame: .zero)
     private lazy var  descriptionLbl = UILabel(frame: .zero)
     private lazy  var descriptionView = UIView(frame: .zero)
     private lazy var subDescription = UILabel(frame: .zero)
     
-    
     private let indexLblFont = AdaptiveFont.bold(size: 25.HAdapted)
     private let desLblFont = AdaptiveFont.bold(size: 17.HAdapted)
     private let subDesFont = AdaptiveFont.medium(size: 15.HAdapted)
     
     private let lblColor: UIColor = .white
+    private let viewModel: ForecastViewModel
+    private var cancellabels = Set<AnyCancellable>()
     
-    override init(frame: CGRect) {
+    public init(frame: CGRect, viewModel: ForecastViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
-        layout()
+        setupIndexLbl()
+        setupDescriptionLbl()
+        setupSubDescription()
+        setupDescriptionView()
+        setupBinder()
         constraint()
+        viewModel.getData()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func config(item: ForecastItem){
-        indexLbl.text = item.index
-        descriptionLbl.text = item.description
-        subDescription.text =  item.subdescription
+    private func setupBinder(){
+        
+        viewModel.description.sink {[weak self] value in
+            self?.descriptionLbl.text = value
+        }.store(in: &cancellabels)
+        
+        viewModel.index.sink {[weak self] value in
+            self?.indexLbl.text = value
+        }.store(in: &cancellabels)
+        
+        viewModel.subDescription.sink {[weak self] value in
+            self?.subDescription.text = value
+        }.store(in: &cancellabels)
+        
+        viewModel.subDescriptionViewModel.sink {[weak self] viewModel in
+            
+        }.store(in: &cancellabels)
     }
     
-    private func layout(){
-
-        backgroundColor = .clear
- 
-        
-//        font
+    private func setupIndexLbl(){
         indexLbl.font = indexLblFont
-        descriptionLbl.font = desLblFont
-        subDescription.font = subDesFont
-        
-//        text color
         indexLbl.textColor = lblColor
-        descriptionLbl.textColor = lblColor
-        subDescription.textColor = lblColor
-        
-        
-//       align text
         indexLbl.textAlignment = .left
+    }
+
+    private func setupDescriptionLbl(){
+        descriptionLbl.font = desLblFont
+        descriptionLbl.textColor = lblColor
         descriptionLbl.textAlignment = .left
+    }
+    
+    private func setupSubDescription(){
+        subDescription.font = subDesFont
+        subDescription.textColor = lblColor
         subDescription.textAlignment = .left
-        
-        
-//        subDesLbl
         subDescription.numberOfLines = 0
         subDescription.lineBreakMode = .byWordWrapping
-        
-        
-//        descriptionView
-        descriptionView.backgroundColor = .clear
-        
-        
-
     }
     
-    func configDescriptionView(view: UIView){
-        descriptionView.addSubview(view)
+    private func setupDescriptionView(){
+        descriptionView.backgroundColor = .clear
     }
     
     private func constraint(){

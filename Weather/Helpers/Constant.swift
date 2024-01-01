@@ -7,20 +7,7 @@
 
 import UIKit
 
-let heightHeaderContent: CGFloat = 350.VAdapted
-let disConditionLblAndDegreeLbl: CGFloat = round(heightHeaderContent * 0.027)
-let disHightLowDegreeLblAndConditionWeatherLbl: CGFloat = round(heightHeaderContent * 0.027)
-let didsDegreeLblAndLocationLbl: CGFloat = round(heightHeaderContent * 0.027)
 
-let disLocationLblAndTopHeaderStart: CGFloat = heightHeaderContent/5
-let disDegreeLblAndBottomHeader: CGFloat = heightHeaderContent * 2/5
-let disConditionWeatherLblAndBottomHeader: CGFloat = round(heightHeaderContent * 0.3)
-let disDegreeConditionAndBottomHeader: CGFloat = round(heightHeaderContent * 0.627)
-let disHightLowDegreeLblAndBottomHeader: CGFloat = heightHeaderContent/5
-
-let heightHightAndLowDegreeLbl: CGFloat = round(heightHeaderContent * 0.073)
-let heightConditionLbl: CGFloat = round(heightHeaderContent * 0.073)
-let heightDegreeLbl: CGFloat = heightHeaderContent/5
 
 func SCREEN_BOUNDS() -> CGRect {
     return UIScreen.main.bounds

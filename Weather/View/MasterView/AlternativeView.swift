@@ -7,18 +7,21 @@
 
 import UIKit
 import SnapKit
-
+import Combine
 
 class AlternativeView: UIView {
     
     private lazy var image = UIImageView(frame: .zero)
     private lazy var title = UILabel(frame: .zero)
     private lazy var subTitle = UILabel(frame: .zero)
-    
+    private let viewModel: AlternativeViewModel
+    private var cancellables = Set<AnyCancellable>()
 
-    override init(frame: CGRect) {
+    public init(frame: CGRect, viewModel: AlternativeViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
-        layout()
+        setupViews()
+        setupBinder()
         constraint()
     }
     
@@ -26,22 +29,26 @@ class AlternativeView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setImage(img: UIImage?){
-        image.image = img
+
+    private func setupBinder(){
+        
+        viewModel.imageName.sink {[weak self] imgName in
+            self?.image.image = UIImage(systemName: imgName)?.withRenderingMode(.alwaysTemplate)
+        }.store(in: &cancellables)
+        
+        viewModel.title.sink {[weak self] title in
+            self?.title.text = title
+        }.store(in: &cancellables)
+        
+        viewModel.subTitle.sink { [weak self] subTitle in
+            self?.subTitle.text = subTitle
+        }.store(in: &cancellables)
     }
     
-    func setTitle(text: String){
-        title.text = text
-    }
-    
-    func setSubTitle(text: String){
-        subTitle.text = text
-    }
-    
-    
-    private func layout(){
+    private func setupViews(){
         image.contentMode = .scaleAspectFill
         image.tintColor = .gray
+        
         
         title.textColor = .white
         subTitle.textColor = .gray

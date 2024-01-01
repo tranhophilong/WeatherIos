@@ -18,23 +18,4 @@ extension String{
         return textSize
     }
     
-   static func convertNextDate(dateString : String) -> String{
-       let dateFormatter = DateFormatter()
-       dateFormatter.dateFormat = "yyyy-MM-dd"
-       let myDate = dateFormatter.date(from: dateString)!
-       let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: myDate)
-       let somedateString = dateFormatter.string(from: tomorrow!)
-       return somedateString
-   }
-    
-    
-    static func getYearMonthDay(in localTime: String) -> String{
-        let startIndex = localTime.index(localTime.startIndex, offsetBy: 0)
-        let endIndex = localTime.index(localTime.startIndex, offsetBy: 9)
-        
-        return String(localTime[startIndex...endIndex])
-    }
-    
-   
-    
 }

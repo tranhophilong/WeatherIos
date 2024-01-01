@@ -7,28 +7,20 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 class BottomAppBarView: UIView {
     
-    var numberPageControll : Int?{
-        didSet{
-            pageControl.numberOfPages = numberPageControll!
-        }
-    }
-    
-    var currentPage : Int?{
-        didSet{
-            pageControl.currentPage = currentPage!
-        }
-    }
     
     private lazy var pageControl  = UIPageControl(frame: .zero)
-     lazy var showLstContentBtn = UIImageView(frame: .zero)
+    lazy var showLstContentBtn = UIImageView(frame: .zero)
     private lazy var showMapBtn = UIImageView(frame: .zero)
+    private let viewModel: BottomAppBarViewModel
+    private var cancellables = Set<AnyCancellable>()
     
-    override init(frame: CGRect) {
+    public init(frame: CGRect, viewModel: BottomAppBarViewModel) {
+        self.viewModel = viewModel
         super.init(frame: frame)
-        
         setupView()
         setupPageControl()
         setupShowMapBtn()
@@ -43,21 +35,36 @@ class BottomAppBarView: UIView {
     }
     
     private func setupView(){
+        
         backgroundColor = .brightBlue.withAlphaComponent(1)
         var separate  =  addSeparator(width: SCREEN_WIDTH(), x: 0, y: 0, to: self)
     }
 
     
     private func setupPageControl(){
-        pageControl.isUserInteractionEnabled = false
-        pageControl.numberOfPages = 1
-        pageControl.currentPage = 0
         
+        pageControl.isUserInteractionEnabled = false
+        
+        viewModel.currentPageControl.sink {[weak self] value in
+            self?.pageControl.currentPage = value
+        }.store(in: &cancellables)
+        
+        viewModel.numberPageControl.sink {[weak self] value in
+            print(value)
+            self?.pageControl.numberOfPages = value
+        }.store(in: &cancellables)
+        
+        viewModel.isIndicatorLocationFirst.sink {[weak self] value in
+            if value{
+                self?.setIndicatorLocationAtFirst()
+            }
+        }.store(in: &cancellables)
     }
     
-    func setIndicatorLocationAtFirst(){
+    private func setIndicatorLocationAtFirst(){
         pageControl.setIndicatorImage(UIImage(systemName: "location.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), forPage: 0)
 
+        
     }
     
     private func setupShowLstContentBtn(){
@@ -86,13 +93,13 @@ class BottomAppBarView: UIView {
         }
         
         showLstContentBtn.snp.makeConstraints { make in
-            make.centerY.equalTo(pageControl)
+            make.top.equalToSuperview().offset(10.VAdapted)
             make.right.equalToSuperview().offset(-20.HAdapted)
             make.size.equalTo([30,30].HResized)
         }
         
         showMapBtn.snp.makeConstraints { make in
-            make.centerY.equalTo(pageControl)
+            make.top.equalToSuperview().offset(10.VAdapted)
             make.left.equalToSuperview().offset(20.HAdapted)
             make.size.equalTo([30,30].HResized)
         }

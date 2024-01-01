@@ -174,11 +174,11 @@ class WeatherService{
  
     private func getUrlForecasts10NextDay(of currentTime: String, urlDayForecastWeather: String) -> [String]{
         var urls : [String] = []
-        var time = String.getYearMonthDay(in: currentTime)
+        var time = TimeHandler.getYearMonthDay(in: currentTime)
         for _ in 1...10{
             let urlForecast = urlDayForecastWeather + "&dt=\(time)"
             urls.append(urlForecast)
-            time = String.convertNextDate(dateString: time)
+            time = TimeHandler.convertNextDate(date: time)
         }
         return urls
     }

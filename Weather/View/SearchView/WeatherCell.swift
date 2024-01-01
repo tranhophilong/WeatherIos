@@ -10,7 +10,7 @@ import SnapKit
 import Combine
 
 
-class WeatherViewCell: UITableViewCell {
+class WeatherCell: UITableViewCell {
 
     static let identifier = "WeatherViewCell"
     
@@ -22,12 +22,22 @@ class WeatherViewCell: UITableViewCell {
     private  lazy var backgroundImgView = UIImageView(frame: .zero)
     private  var heightConstraint : Constraint?
     private var backgroundImg: UIImage?
-    
     private let font1 = AdaptiveFont.bold(size: 20.HAdapted)
     private let font2 = AdaptiveFont.bold(size: 15.HAdapted)
     private let font3 = AdaptiveFont.medium(size: 40.HAdapted)
     private let lblColor: UIColor = .white
+    private var cancellales = Set<AnyCancellable>()
+    var viewModel: WeatherCellViewModel!{
+        didSet{
+            setupBinder()
+        }
+    }
     
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        constraint()
+        setupViews()
+    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -35,42 +45,53 @@ class WeatherViewCell: UITableViewCell {
         clipsToBounds = true
     }
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        constraint()
-        layout()
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setBackgroundClear( is isClear: Bool){
-//        self.backgroundImg.alpha = alpha
-        if isClear{
-            self.backgroundImgView.image = nil
-            self.backgroundImgView.backgroundColor = .clear
-        }
+    private func setupBinder(){
+        viewModel.condtion.sink { [weak self] condition in
+            self?.conditionLbl.text = condition
+        }.store(in: &cancellales)
+        
+        viewModel.currentDegree.sink { [weak self] currentDegree in
+            self?.degreeLbl.text = currentDegree
+        }.store(in: &cancellales)
+        
+        viewModel.backgroundName.sink { [weak self] backgroundName in
+            self?.backgroundImg = UIImage(named: backgroundName)
+        }.store(in: &cancellales)
+        
+        viewModel.highLowDegree.sink {[weak self] value in
+            self?.highLowDegreeLbl.text = value
+        }.store(in: &cancellales)
+        
+        viewModel.location.sink { [weak self] location in
+            self?.titleLbl.text = location
+        }.store(in: &cancellales)
+        
+        viewModel.time.sink { [weak self] time in
+            self?.subtileLbl.text = time
+        }.store(in: &cancellales)
+        
+        viewModel.isClearBackground.sink {[weak self] isClear in
+            if isClear{
+                self?.backgroundImgView.image = nil
+                self?.backgroundImgView.backgroundColor = .clear
+            }
+        }.store(in: &cancellales)
+        
+        viewModel.isHiddenConditionLbl.sink { [weak self] isHidden in
+            self?.conditionLbl.isHidden = isHidden
+        }.store(in: &cancellales)
+        
+        viewModel.isHighLowLbl.sink { [weak self] isHidden in
+            self?.highLowDegreeLbl.isHidden = isHidden
+        }.store(in: &cancellales)
         
     }
     
-    func refreshBackground(){
-        self.backgroundImgView.image = backgroundImg
-        
-    }
-    
-    func config(item: WeatherItem){
-        titleLbl.text = item.location
-        subtileLbl.text = item.time
-        highLowDegreeLbl.text = "H:\(item.highDegree)° L:\(item.lowDegree)°"
-        conditionLbl.text = item.condtion
-        degreeLbl.text = item.currentDegree 
-        backgroundImgView.image = item.background
-        self.backgroundImg = item.background
-    }
-    
-    
-    private func layout(){
+    private func setupViews(){
 //        showingDeleteConfirmation = true
         contentView.preservesSuperviewLayoutMargins = true
         layer.cornerRadius = 20.HAdapted
@@ -78,7 +99,6 @@ class WeatherViewCell: UITableViewCell {
         clipsToBounds = true
         selectionStyle = .none
         backgroundColor = .clear
-        
         contentView.layer.cornerRadius = 15.HAdapted
         contentView.clipsToBounds = true
         contentView.backgroundColor = .clear
@@ -104,15 +124,9 @@ class WeatherViewCell: UITableViewCell {
         backgroundImgView.layer.cornerRadius = 20.HAdapted
         backgroundImgView.backgroundColor = .red
         
-//        delete Btn
   
     }
     
-    func makeConditionLblHighLowDegreeLblHidden(is hidden: Bool){
-        conditionLbl.isHidden = hidden
-        highLowDegreeLbl.isHidden = hidden
-    }
-
     
     private func constraint(){
         contentView.addSubview(backgroundImgView)

@@ -11,59 +11,39 @@ import Combine
 import CoreLocation
 
 
-class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
-    
-    func removeContentView(at index: Int) {
-        print(index)
-    }
-    
-    func reorderContentView(sourceIndex: Int, desIndex: Int) {
-        print(sourceIndex)
-    }
-    
-    
-    func addContentView(contentView: ContentView) {
-        
-       print(contentView)
-        
-    }
+class MasterViewController: UIViewController {
     
     private let event = PassthroughSubject<MasterViewModel.EventMasterView, Never>()
     private lazy var containerView  = UIScrollView(frame: .zero)
-    private lazy var bottomAppBarView = BottomAppBarView(frame: .zero)
     private lazy var backGroundImg = UIImageView(frame: .zero)
     private  let viewModel = MasterViewModel()
+    private let bottomAppBarViewModel = BottomAppBarViewModel()
+    private lazy var bottomAppBarView = BottomAppBarView(frame: .zero, viewModel: bottomAppBarViewModel)
     private var cancellables = Set<AnyCancellable>()
-    let locationManager = CLLocationManager()
-    var weatherItems: [WeatherItem?] = []
-    let searchView = SearchViewController()
+    private let locationManager = CLLocationManager()
+    private let sizeContainerView = CGSize(width: SCREEN_WIDTH(), height: SCREEN_HEIGHT())
     
-    
-    override func viewDidLoad()  {
+    override func viewDidLoad() {
         super.viewDidLoad()
         setupContainerView()
         setupBottomAppBar()
         constraint()
         setupBindFetchData()
         setupLocationManager()
-        searchView.delegate = self
-        
         switch locationManager.authorizationStatus{
         case .notDetermined, .restricted, .denied:
             event.send(.viewDidLoad(currentCoordinateLocation: nil))
+            bottomAppBarViewModel.isIndicatorLocationFirst.value = false
         case .authorizedAlways, .authorizedWhenInUse:
-            searchView.isForecastCurrentWeather = true
             locationManager.startUpdatingLocation()
+            bottomAppBarViewModel.isIndicatorLocationFirst.value = true
         @unknown default:
             break
         }
-        print("Testing commiting after deleting the Podfile")
     }
  
-    private func setupLocationManager()  {
-        
+    private func setupLocationManager() {
         self.locationManager.requestAlwaysAuthorization()
-        // For use in foreground
         self.locationManager.requestWhenInUseAuthorization()
         DispatchQueue.global().async {[weak self] in
             if CLLocationManager.locationServicesEnabled() {
@@ -74,47 +54,34 @@ class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
     }
     
     private func setupBindFetchData(){
-        
-        
-//        event
         let outputDataWeather = viewModel.transform(input: event.eraseToAnyPublisher())
         outputDataWeather.sink {[weak self] outputFetchData in
             switch outputFetchData{
-            case .fetchSuccsessContentViews(contentViews: let contentViews, isForecastCurrentWeather: let isForecastCurrentWeather):
-                self!.addWeatherContentViews(contentViews: contentViews)
-                if isForecastCurrentWeather{
-                    self!.bottomAppBarView.setIndicatorLocationAtFirst()
-                }
-            case .fetchSuccsessWeatherItems(weatherItems: let weatherItems):
-                self!.searchView.setWeatherItems(weatherItems: weatherItems)
-            case .layoutContainerView(contentSize: let contentSize):
-                self!.containerView.contentSize = contentSize
             case .layoutCurrentPageControl(currentPageControl: let currentPageControl):
-                self!.bottomAppBarView.currentPage = currentPageControl
-                self!.searchView.animationCellIndex = currentPageControl
+                self!.bottomAppBarViewModel.changeCurrentPageControl(currentPage: currentPageControl)
             case .layoutNumberPageControl(numberPageControl: let numberPageControl):
-                self!.bottomAppBarView.numberPageControll = numberPageControl
-            case .imgContentViews(imgs: let imgs):
-                self!.searchView.setImgContentView(imgContentViews: imgs)
+                self!.bottomAppBarViewModel.changeNumberPageControl(number: numberPageControl)
+            case .fetchSuccessContentViewModels(contentViewModels: let contentViewModels):
+                self?.setupContentViews(contentViewModels: contentViewModels)
             }
         }.store(in: &cancellables)
     }
-    
-  
-    
-    private func addWeatherContentViews(contentViews: [ContentView]){
+      
+    private func setupContentViews(contentViewModels: [ContentViewModel]){
         
         for subview in containerView.subviews{
             subview.removeFromSuperview()
         }
         
-        for contentView in contentViews{
+        containerView.contentSize = CGSize(width: CGFloat(contentViewModels.count) * sizeContainerView.width , height: sizeContainerView.height)
+        
+        for i in 0..<contentViewModels.count{
+            let contentView = ContentView(frame: CGRect(x: CGFloat(i) * sizeContainerView.width, y: 0, width: sizeContainerView.width, height: sizeContainerView.height), viewModel: contentViewModels[i])
             containerView.addSubview(contentView)
         }
     }
     
     private func setupContainerView(){
-        
         containerView.backgroundColor = .clear
         containerView.isPagingEnabled = true
         containerView.showsHorizontalScrollIndicator = false
@@ -123,7 +90,6 @@ class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
     }
     
     private func setupBottomAppBar(){
-        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(navToSearchView))
         bottomAppBarView.showLstContentBtn.isUserInteractionEnabled = true
         bottomAppBarView.showLstContentBtn.addGestureRecognizer(tapGestureRecognizer)
@@ -131,15 +97,9 @@ class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
     
     @objc func navToSearchView(){
         
-        let navController = UINavigationController(rootViewController: searchView)
-        navController.modalPresentationStyle = .fullScreen
-        navController.modalTransitionStyle = .crossDissolve
-        navigationController?.present(navController, animated: true)
-     
-     }
+    }
     
     private func constraint(){
-        
         view.addSubview(backGroundImg)
         view.addSubview(containerView)
         view.addSubview(bottomAppBarView)
@@ -158,7 +118,7 @@ class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
             make.bottom.equalToSuperview()
         }
             
-        backGroundImg.image = UIImage(named: "sky3.jpeg")
+        backGroundImg.image = UIImage(named: "blue-sky2.jpeg")
         backGroundImg.contentMode = .scaleAspectFill
         backGroundImg.clipsToBounds = true
                                 
@@ -169,16 +129,13 @@ class MasterViewController: UIViewController, SearchViewcontrollerDelegate {
             make.bottom.equalToSuperview()
         }
     }
-    
 }
 
 
 //MARK: -scroll action
 
 extension MasterViewController: UIScrollViewDelegate{
-        
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-
         viewModel.changePageControl(with: scrollView.contentOffset.x)
     }
 
@@ -188,7 +145,6 @@ extension MasterViewController: UIScrollViewDelegate{
 
 extension MasterViewController: CLLocationManagerDelegate{
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
         guard let first = locations.first else{
             return
         }
