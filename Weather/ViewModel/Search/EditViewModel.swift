@@ -19,10 +19,12 @@ class EditViewModel{
     weak var delegate: EventEditDelegate?
     let editCellViewModels = PassthroughSubject<[EditCellViewModelProtocol], Never>()
     
-    init(){
+//    init(){
+//        editCellViewModels.send([EditCellEditListWeatherCellViewModel(), EditCellCelsiusViewModel(), EditCellFahrenheitViewModel()])
+//    }
+    
+    func getEditCellViewModels(){
         editCellViewModels.send([EditCellEditListWeatherCellViewModel(), EditCellCelsiusViewModel(), EditCellFahrenheitViewModel()])
     }
-    
-    
     
 }

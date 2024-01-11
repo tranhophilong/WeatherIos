@@ -10,6 +10,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    private var appCoordinator: AppCoordinator!
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -17,14 +18,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScence = (scene as? UIWindowScene) else { return }
-        window = UIWindow(frame: windowScence.coordinateSpace.bounds)
+        window  = UIWindow(frame: windowScence.coordinateSpace.bounds)
         window?.windowScene = windowScence
-        let searchVC = MasterViewController()
-        let nav = UINavigationController(rootViewController: searchVC)
-        nav.isNavigationBarHidden = true
-        let weatherView = nav
-        window?.rootViewController = weatherView
-        window?.makeKeyAndVisible()
+        let appCoordinator = AppCoordinator(window: window!)
+        appCoordinator.start()
+        self.appCoordinator = appCoordinator
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

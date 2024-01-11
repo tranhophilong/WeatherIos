@@ -24,6 +24,7 @@ class EditView: UIView, UITableViewDataSource, UITableViewDelegate{
         setupTableView()
         constraint()
         setupBinder()
+        viewModel.getEditCellViewModels()
     }
     
     required init?(coder: NSCoder) {

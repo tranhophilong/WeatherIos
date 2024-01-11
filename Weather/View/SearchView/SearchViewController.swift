@@ -13,13 +13,7 @@ import CoreData
 import CoreLocation
 
 
-protocol SearchViewcontrollerDelegate: AnyObject{
-    
-    func addContentView(contentView: ContentView)
-    func removeContentView(at index: Int)
-    func reorderContentView(sourceIndex: Int, desIndex: Int)
-    
-}
+
 
 class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFieldDelegate {
     
@@ -41,22 +35,21 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
     }()
     
     private let editViewModel = EditViewModel()
-    private let searchResultViewModel = SearchResultViewModel()
+    let searchResultViewModel = SearchResultViewModel()
     private var imgContents: [UIImage]?
     var animationCellIndex: Int?
     var isForecastCurrentWeather: Bool = false
-    private let viewModel: SearchViewControllerViewModel
+    let viewModel: SearchViewControllerViewModel
     private var cancellabels = Set<AnyCancellable>()
-    private let event = PassthroughSubject<SearchViewControllerViewModel.EventInput, Never>()
+    let event = PassthroughSubject<SearchViewControllerViewModel.EventInput, Never>()
     private let locationManager = CLLocationManager()
-    weak var delegate: SearchViewcontrollerDelegate?
     private var heighEditViewConstraint: Constraint?
     private var widthEditViewConstraint: Constraint?
     private var weatherCellViewModels = [WeatherCellViewModel]()
     
     init(viewModel: SearchViewControllerViewModel){
         self.viewModel = viewModel
-        super.init()
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -65,21 +58,20 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupView()
         setupNavigationController()
-        setupSearchBar()
         setupNavigationController()
         setupSearchBar()
         constraint()
         setupEditView()
         setupTableView()
-        setupBinderGetWeatherItems()
+        setupBinder()
         setupAnimatedView()
+        event.send(.viewDidLoad)
     }
     
     private func setupView(){
@@ -113,7 +105,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         self.tableView.reloadData()
     }
     
-    private func setupBinderGetWeatherItems(){
+    private func setupBinder(){
         viewModel.transform(input: event.eraseToAnyPublisher())
             .receive(on: DispatchQueue.main)
             .sink {[weak self] output in
@@ -144,9 +136,16 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
                         self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![0].isHidden = true
                         self!.navigationController?.navigationBar.topItem?.rightBarButtonItems![1].isHidden = false
                     }
+                    self?.tableView.reloadData()
+                    self?.tableView.layoutSubviews()
                     for weatherCellViewModel in self!.weatherCellViewModels{
                         weatherCellViewModel.hiddenConditionHighLowLbl(is: isEdit)
                     }
+                
+                case .isDeactiveSearch(isDeactive: let isDeactive):
+                    self?.navigationItem.searchController?.isActive = !isDeactive
+                case .isForecastCurrentLocationWeather(isForecast: let isForecast):
+                    self?.isForecastCurrentWeather = isForecast
                 }
             }.store(in: &cancellabels)
     }
@@ -186,7 +185,6 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
         navigationController?.navigationBar.scrollEdgeAppearance =  appearanceScroll
         
         let searchController = UISearchController(searchResultsController: searchResult)
-        searchResult.delegate = self
         searchController.delegate = self
         let editItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.automatic), style: .plain, target: self, action: #selector(changeHiddenStateEditView))
         
@@ -268,22 +266,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
     
 }
 
-// MARK: - Search result delegate
 
-extension SearchViewController: SearchResulDelegate{
-    
-    func deactiveSearch() {
-        navigationItem.searchController?.isActive = false
-        event.send(.addWeatherItem)
-    }
-    
-    func addContentView(contentView: ContentView) {
-        let imgContent = contentView.ts_toImage()
-        imgContents?.append(imgContent)
-        delegate?.addContentView(contentView: contentView)
-//        contentViewDidAdds?.append(contentView)
-    }
-}
 
 
 //    MARK: - Search controller delegate
@@ -386,46 +369,47 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        setupAnimatedView()
+//        setupAnimatedView()
+//       
+//        
+//        guard animationView != nil else{
+//            dismiss(animated: true)
+//            return
+//        }
+//        
+//        let rectCell = tableView.ts_rectFromParent(at: indexPath)
+//        animationView.frame = rectCell
+//        animationView.backgroundColor = .clear
+//        
+//        imgAnimatedContentView.image = imgContents?[indexPath.row]
+//        imgAnimatedContentView.frame = CGRect(x: 0, y: 0, width: rectCell.width, height: rectCell.height)
+//        imgAnimatedContentView.contentMode = .scaleAspectFit
+//        imgAnimatedContentView.alpha = 0
+//        
+//        
+//        let backgroundImgView = UIImageView()
+//        backgroundImgView.frame = CGRect(x: 0, y: 0, width: rectCell.width, height: rectCell.height)
+//        backgroundImgView.contentMode = .scaleAspectFit
+//        backgroundImgView.image = UIImage(named: "sky3.jpeg")
+//        backgroundImgView.layer.cornerRadius = 15.HAdapted
+//        backgroundImgView.alpha = 0
+//        animationView.insertSubview(backgroundImgView, belowSubview: imgAnimatedContentView)
+//        self.navigationController?.view.addSubview(animationView)
+//        
+//        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) { [weak self] in
+//            self!.animationView.frame = CGRect(x: 0, y: 0, width: self!.view.frame.width, height: self!.view.frame.height)
+//            self!.imgAnimatedContentView.frame = CGRect(x: 0, y: 0, width: self!.view.frame.width, height: self!.view.frame.height)
+//            backgroundImgView.frame = CGRect(x: 0, y: 0, width: self!.animationView.frame.width, height: self!.animationView.frame.height)
+//            backgroundImgView.alpha = 1
+//            self!.imgAnimatedContentView.alpha = 1
+//            
+//        }completion: {[weak self]  _ in
+//          
+//            self!.dismiss(animated: false)
+//        }
+//        
        
-        
-        guard animationView != nil else{
-            dismiss(animated: true)
-            return
-        }
-        
-        let rectCell = tableView.ts_rectFromParent(at: indexPath)
-        animationView.frame = rectCell
-        animationView.backgroundColor = .clear
-        
-        imgAnimatedContentView.image = imgContents?[indexPath.row]
-        imgAnimatedContentView.frame = CGRect(x: 0, y: 0, width: rectCell.width, height: rectCell.height)
-        imgAnimatedContentView.contentMode = .scaleAspectFit
-        imgAnimatedContentView.alpha = 0
-        
-        
-        let backgroundImgView = UIImageView()
-        backgroundImgView.frame = CGRect(x: 0, y: 0, width: rectCell.width, height: rectCell.height)
-        backgroundImgView.contentMode = .scaleAspectFit
-        backgroundImgView.image = UIImage(named: "sky3.jpeg")
-        backgroundImgView.layer.cornerRadius = 15.HAdapted
-        backgroundImgView.alpha = 0
-        animationView.insertSubview(backgroundImgView, belowSubview: imgAnimatedContentView)
-        self.navigationController?.view.addSubview(animationView)
-        
-        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) { [weak self] in
-            self!.animationView.frame = CGRect(x: 0, y: 0, width: self!.view.frame.width, height: self!.view.frame.height)
-            self!.imgAnimatedContentView.frame = CGRect(x: 0, y: 0, width: self!.view.frame.width, height: self!.view.frame.height)
-            backgroundImgView.frame = CGRect(x: 0, y: 0, width: self!.animationView.frame.width, height: self!.animationView.frame.height)
-            backgroundImgView.alpha = 1
-            self!.imgAnimatedContentView.alpha = 1
-            
-        }completion: {[weak self]  _ in
-          
-            self!.dismiss(animated: false)
-        }
-        
-       
+        viewModel.backToMasterVC.send(indexPath.row)
     }
     
     

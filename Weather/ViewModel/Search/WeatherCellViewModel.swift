@@ -10,12 +10,12 @@ import Combine
 
 struct WeatherCellViewModel{
     let location = CurrentValueSubject<String, Never>("")
-    let time = PassthroughSubject<String, Never>()
-    let condtion = PassthroughSubject<String, Never>()
-    let highLowDegree = PassthroughSubject<String, Never>()
-    let currentDegree = PassthroughSubject<String, Never>()
-    let backgroundName = PassthroughSubject<String, Never>()
-    let isClearBackground = PassthroughSubject<Bool, Never>()
+    let time = CurrentValueSubject<String, Never>("")
+    let condtion = CurrentValueSubject<String, Never>("")
+    let highLowDegree = CurrentValueSubject<String, Never>("")
+    let currentDegree = CurrentValueSubject<String, Never>("")
+    let backgroundName = CurrentValueSubject<String, Never>("sky3.jpeg")
+    let isClearBackground = CurrentValueSubject<Bool, Never>(false)
     let isHiddenConditionLbl = CurrentValueSubject<Bool, Never>(false)
     let isHighLowLbl = CurrentValueSubject<Bool, Never>(false)
     

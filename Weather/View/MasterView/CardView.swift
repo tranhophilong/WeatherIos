@@ -175,7 +175,7 @@ class CardView: UIView {
             make.left.equalToSuperview().offset(20.HAdapted)
             make.centerY.equalToSuperview()
             make.height.equalTo(30.VAdapted)
-            make.width.equalTo(20.VAdapted)
+            make.width.equalTo(20.HAdapted)
             
         }
         

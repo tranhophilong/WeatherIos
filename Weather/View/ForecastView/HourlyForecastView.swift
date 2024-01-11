@@ -34,6 +34,7 @@ class HourlyForecastView: UIView {
 
         viewModel.cellViewModels.sink {[weak self] cellViewModels in
             self?.hourlyForcastCellViewModels = cellViewModels
+            self?.collectionView.reloadData()
         }.store(in: &cancellables)
     }
     

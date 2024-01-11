@@ -21,7 +21,6 @@ class WeatherCell: UITableViewCell {
     private lazy var highLowDegreeLbl = UILabel(frame: .zero)
     private  lazy var backgroundImgView = UIImageView(frame: .zero)
     private  var heightConstraint : Constraint?
-    private var backgroundImg: UIImage?
     private let font1 = AdaptiveFont.bold(size: 20.HAdapted)
     private let font2 = AdaptiveFont.bold(size: 15.HAdapted)
     private let font3 = AdaptiveFont.medium(size: 40.HAdapted)
@@ -59,7 +58,7 @@ class WeatherCell: UITableViewCell {
         }.store(in: &cancellales)
         
         viewModel.backgroundName.sink { [weak self] backgroundName in
-            self?.backgroundImg = UIImage(named: backgroundName)
+            self?.backgroundImgView.image = UIImage(named: backgroundName)
         }.store(in: &cancellales)
         
         viewModel.highLowDegree.sink {[weak self] value in
@@ -75,10 +74,10 @@ class WeatherCell: UITableViewCell {
         }.store(in: &cancellales)
         
         viewModel.isClearBackground.sink {[weak self] isClear in
-            if isClear{
-                self?.backgroundImgView.image = nil
-                self?.backgroundImgView.backgroundColor = .clear
-            }
+//            if isClear{
+//                self?.backgroundImgView.image = nil
+//                self?.backgroundImgView.backgroundColor = .clear
+//            }
         }.store(in: &cancellales)
         
         viewModel.isHiddenConditionLbl.sink { [weak self] isHidden in
@@ -122,8 +121,6 @@ class WeatherCell: UITableViewCell {
         backgroundImgView.contentMode = .scaleAspectFill
         backgroundImgView.clipsToBounds = true
         backgroundImgView.layer.cornerRadius = 20.HAdapted
-        backgroundImgView.backgroundColor = .red
-        
   
     }
     

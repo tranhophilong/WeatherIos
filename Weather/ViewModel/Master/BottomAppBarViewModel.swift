@@ -10,9 +10,10 @@ import Combine
 
 class BottomAppBarViewModel{
     
-    let numberPageControl = CurrentValueSubject<Int, Never>(1)
-    let currentPageControl = CurrentValueSubject<Int, Never>(1)
+    let numberPageControl = CurrentValueSubject<Int, Never>(0)
+    let currentPageControl = CurrentValueSubject<Int, Never>(0)
     let isIndicatorLocationFirst = CurrentValueSubject<Bool, Never>(false)
+    let navToSearchView = PassthroughSubject<Bool, Never>()
     
     
     func changeNumberPageControl(number: Int){

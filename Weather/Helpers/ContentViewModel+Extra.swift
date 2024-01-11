@@ -11,7 +11,4 @@ extension ContentViewModel{
     
     //   MARK: - Helper func
         
-         
-        
-     
 }

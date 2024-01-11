@@ -81,12 +81,13 @@ class HourlyForecastViewModel: ContentCardViewModel{
                          }
  
                      }
-                 if hourlyForecastCellViewModels.count >= 26{
+                 if hourlyForecastCellViewModels.count >= 26{   
+                     cellViewModels.send(hourlyForecastCellViewModels)
                      return
                  }
              }
              
-             cellViewModels.send(hourlyForecastCellViewModels)
+            
          }
     }
 

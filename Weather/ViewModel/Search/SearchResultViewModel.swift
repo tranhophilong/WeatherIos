@@ -13,6 +13,7 @@ class SearchResultViewModel{
     let searchResultCellViewModels = CurrentValueSubject<[SearchResulCellViewModel], Never>([])
     let showAlterView = CurrentValueSubject<Bool, Never>(false)
     let textSearching = CurrentValueSubject<String, Never>("")
+    let presentContentViewController = PassthroughSubject<ContentViewModel, Never>()
     private var cancellabels = Set<AnyCancellable>()
     
     private func getPlaces(query: String){
@@ -23,6 +24,7 @@ class SearchResultViewModel{
                    break
                 case .failure(_):
                     self!.searchResultCellViewModels.value = []
+                    self!.textSearching.value = query
                     self!.showAlterView.value = true
                 }
             } receiveValue: { [weak self] value in
@@ -38,11 +40,13 @@ class SearchResultViewModel{
     func updateSearch(text: String){
         getPlaces(query: text)
     }
+    
+    
 }
 
 struct SearchResulCellViewModel{
-    let place = PassthroughSubject<String, Never>()
-    let placeSearching = PassthroughSubject<String, Never>()
+    let place = CurrentValueSubject<String, Never>("")
+    let placeSearching = CurrentValueSubject<String, Never>("")
     
     init(place: String, placeSearching: String){
         self.place.send(place)

@@ -13,11 +13,11 @@ import CoreLocation
 
 class MasterViewController: UIViewController {
     
-    private let event = PassthroughSubject<MasterViewModel.EventMasterView, Never>()
+    let event = PassthroughSubject<MasterViewModel.EventMasterView, Never>()
     private lazy var containerView  = UIScrollView(frame: .zero)
     private lazy var backGroundImg = UIImageView(frame: .zero)
-    private  let viewModel = MasterViewModel()
-    private let bottomAppBarViewModel = BottomAppBarViewModel()
+    let viewModel = MasterViewModel()
+    let bottomAppBarViewModel = BottomAppBarViewModel()
     private lazy var bottomAppBarView = BottomAppBarView(frame: .zero, viewModel: bottomAppBarViewModel)
     private var cancellables = Set<AnyCancellable>()
     private let locationManager = CLLocationManager()
@@ -26,31 +26,24 @@ class MasterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupContainerView()
-        setupBottomAppBar()
         constraint()
         setupBindFetchData()
         setupLocationManager()
-        switch locationManager.authorizationStatus{
-        case .notDetermined, .restricted, .denied:
-            event.send(.viewDidLoad(currentCoordinateLocation: nil))
-            bottomAppBarViewModel.isIndicatorLocationFirst.value = false
-        case .authorizedAlways, .authorizedWhenInUse:
-            locationManager.startUpdatingLocation()
-            bottomAppBarViewModel.isIndicatorLocationFirst.value = true
-        @unknown default:
-            break
-        }
+        
     }
  
     private func setupLocationManager() {
         self.locationManager.requestAlwaysAuthorization()
         self.locationManager.requestWhenInUseAuthorization()
-        DispatchQueue.global().async {[weak self] in
-            if CLLocationManager.locationServicesEnabled() {
-                self!.locationManager.delegate = self
-                self!.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            }
-        }
+        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        locationManager.delegate = self
+     
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        containerView.layoutIfNeeded()
+        containerView.layoutSubviews()
     }
     
     private func setupBindFetchData(){
@@ -61,10 +54,50 @@ class MasterViewController: UIViewController {
                 self!.bottomAppBarViewModel.changeCurrentPageControl(currentPage: currentPageControl)
             case .layoutNumberPageControl(numberPageControl: let numberPageControl):
                 self!.bottomAppBarViewModel.changeNumberPageControl(number: numberPageControl)
+                self!.containerView.contentSize = CGSize(width: CGFloat(numberPageControl) * self!.sizeContainerView.width , height: self!.sizeContainerView.height)
             case .fetchSuccessContentViewModels(contentViewModels: let contentViewModels):
                 self?.setupContentViews(contentViewModels: contentViewModels)
+            case .setContentOffSet(index: let index):
+                self?.containerView.setContentOffset(CGPoint(x: Int(self!.sizeContainerView.width) * index, y: 0), animated: true)
+            case .removeContentView(index: let index):
+                self?.removeContentView(at: index)
+            case .reorderContentView(sourcePosition: let sourcePosition, destinationPosition: let destinationPosition):
+                self?.reorderContentView(sourcePosition: sourcePosition, destinationPosition: destinationPosition)
+            case .appendContentView(contentViewModel: let contentViewModel):
+                self?.appendContentView(contentViewModel: contentViewModel)
             }
         }.store(in: &cancellables)
+    }
+    
+    private func appendContentView(contentViewModel: ContentViewModel){
+        let frameX = containerView.subviews.last!.frame.maxX
+        
+        let frameContentView = CGRect(x: frameX , y: 0, width: sizeContainerView.width, height: sizeContainerView.height)
+        let contentView = ContentView(frame: frameContentView, viewModel: contentViewModel)
+     
+        containerView.addSubview(contentView)
+        containerView.layoutSubviews()
+     
+    }
+    
+    private func removeContentView(at index: Int){
+        
+        containerView.subviews[index].removeFromSuperview()
+        
+        for i in 0..<containerView.subviews.count{
+            let frame =  CGRect(x: CGFloat(i) * sizeContainerView.width, y: 0, width: sizeContainerView.width, height: sizeContainerView.height)
+            containerView.subviews[i].frame = frame
+            
+        }
+        
+    }
+    
+    private func reorderContentView(sourcePosition: Int, destinationPosition: Int){
+        let sourceContentViewFrame = containerView.subviews[sourcePosition].frame
+        let destinationContententVivewFrame = containerView.subviews[destinationPosition].frame
+        containerView.subviews[sourcePosition].frame = destinationContententVivewFrame
+        containerView.subviews[destinationPosition].frame = sourceContentViewFrame
+        containerView.exchangeSubview(at: sourcePosition, withSubviewAt: destinationPosition)
     }
       
     private func setupContentViews(contentViewModels: [ContentViewModel]){
@@ -72,9 +105,7 @@ class MasterViewController: UIViewController {
         for subview in containerView.subviews{
             subview.removeFromSuperview()
         }
-        
-        containerView.contentSize = CGSize(width: CGFloat(contentViewModels.count) * sizeContainerView.width , height: sizeContainerView.height)
-        
+                
         for i in 0..<contentViewModels.count{
             let contentView = ContentView(frame: CGRect(x: CGFloat(i) * sizeContainerView.width, y: 0, width: sizeContainerView.width, height: sizeContainerView.height), viewModel: contentViewModels[i])
             containerView.addSubview(contentView)
@@ -86,16 +117,6 @@ class MasterViewController: UIViewController {
         containerView.isPagingEnabled = true
         containerView.showsHorizontalScrollIndicator = false
         containerView.delegate = self
-
-    }
-    
-    private func setupBottomAppBar(){
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(navToSearchView))
-        bottomAppBarView.showLstContentBtn.isUserInteractionEnabled = true
-        bottomAppBarView.showLstContentBtn.addGestureRecognizer(tapGestureRecognizer)
-    }
-    
-    @objc func navToSearchView(){
         
     }
     
@@ -118,7 +139,7 @@ class MasterViewController: UIViewController {
             make.bottom.equalToSuperview()
         }
             
-        backGroundImg.image = UIImage(named: "blue-sky2.jpeg")
+        backGroundImg.image = UIImage(named: "sky3.jpeg")
         backGroundImg.contentMode = .scaleAspectFill
         backGroundImg.clipsToBounds = true
                                 
@@ -149,6 +170,19 @@ extension MasterViewController: CLLocationManagerDelegate{
             return
         }
         event.send(.viewDidLoad(currentCoordinateLocation: "\(first.coordinate.latitude),\(first.coordinate.longitude)"))
+    }
+    
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch locationManager.authorizationStatus{
+        case .notDetermined, .restricted, .denied:
+            event.send(.viewDidLoad(currentCoordinateLocation: nil))
+//            bottomAppBarViewModel.isIndicatorLocationFirst.value = false
+        case .authorizedAlways, .authorizedWhenInUse:
+            locationManager.startUpdatingLocation()
+//            bottomAppBarViewModel.isIndicatorLocationFirst.value = true
+        @unknown default:
+            break
+        }
     }
 }
 

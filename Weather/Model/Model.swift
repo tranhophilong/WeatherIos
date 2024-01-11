@@ -14,6 +14,20 @@ struct Coordinate{
     let lon: Double
 }
 
+//  MARK:  Weather summary
+
+struct WeatherSummary{
+    let location: String
+    let maxTempC: Double?
+    let maxTempF: Double?
+    let minTempC: Double?
+    let minTempF: Double?
+    let time: String?
+    let condition: String?
+    let currentDegreeF: Double?
+    let currentDegreeC: Double?
+}
+
 // MARK: - Forecast
 struct Weather: Decodable {
     let location: LocationWeather

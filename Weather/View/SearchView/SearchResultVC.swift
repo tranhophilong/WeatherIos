@@ -10,10 +10,6 @@ import Combine
 import SnapKit
 
 
-protocol SearchResulDelegate: AnyObject{
-    func deactiveSearch()
-    func addContentView(contentView: ContentView)
-}
 
 class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource{
     
@@ -21,14 +17,13 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
     private var searchResultCellViewModels: [SearchResulCellViewModel] = []
     private let viewModel: SearchResultViewModel
     private var textSearching: String = ""
-    var delegate: SearchResulDelegate?
     private let tableView = UITableView(frame: .zero)
     private let alternativeViewModel = AlternativeViewModel(imgName: "magnifyingglass", title: "No Results")
     private lazy var alterView = AlternativeView(frame: .zero, viewModel: alternativeViewModel)
     
     init(viewModel: SearchResultViewModel){
         self.viewModel = viewModel
-        super.init()
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -73,7 +68,7 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
         }.store(in: &cancellabels)
         
         viewModel.textSearching.sink {[weak self] value in
-            self?.textSearching = value
+            self!.textSearching = value
         }.store(in: &cancellabels)
     }
     
@@ -93,10 +88,10 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//       let contentVC = ContentViewController()
-//       contentVC.title = places[indexPath.row]
-//       contentVC.delegate = self
-//       present(contentVC, animated: true)
+        let nameLocation = searchResultCellViewModels[indexPath.row].place.value
+        let contentViewModel = ContentViewModel(nameLocation: nameLocation, coordinate: nil)
+        viewModel.presentContentViewController.send(contentViewModel)
+        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -120,19 +115,6 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
     }
 }
 
-extension SearchResult: ContentViewViewControllerDelegate{
-    func addContentView(contentView: ContentView) {
-        delegate?.addContentView(contentView: contentView)
-    }
-    
-    func dismissSearchResultView(isDismiss: Bool) {
-        
-        if isDismiss{
-            delegate?.deactiveSearch()
-        }
-    }
- 
-}
 
 
 fileprivate class SearchResultCell: UITableViewCell{
@@ -150,6 +132,7 @@ fileprivate class SearchResultCell: UITableViewCell{
         super.init(style: style, reuseIdentifier: "SearchResultCell")
         setupView()
         constraint()
+        
     }
     
     required init?(coder: NSCoder) {

@@ -7,26 +7,20 @@
 
 import UIKit
 import SnapKit
-
-
-protocol ContentViewViewControllerDelegate: AnyObject{
-    func dismissSearchResultView(isDismiss: Bool)
-    func addContentView(contentView: ContentView)
-}
+import Combine
 
 class ContentViewController: UIViewController {
     
     private lazy var btnAdd = UIButton(frame: .zero)
     private lazy var btnCancel = UIButton(frame: .zero)
     private lazy var imgBackground = UIImageView(frame: .zero)
-    private let viewModel = ContentViewControllerViewModel()
-    weak var delegate: ContentViewViewControllerDelegate?
-    private let contentViewModel: ContentViewModel
-    private  lazy var contentView = ContentView(frame: .zero, viewModel: contentViewModel)
+    private  lazy var contentView = ContentView(frame: .zero, viewModel: viewModel.contentViewModel)
+    let viewModel: ContentViewControllerViewModel
+    private var cancellables = Set<AnyCancellable>()
     
-    init(contentViewModel: ContentViewModel){
-        self.contentViewModel = contentViewModel
-        super.init()
+    init(viewModel: ContentViewControllerViewModel){
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -36,35 +30,37 @@ class ContentViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        setupContentView()
         constraint()
+        setupBinder()
 
         btnAdd.addTarget(self, action: #selector(addLocation), for: .touchUpInside)
         btnCancel.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
         
     }
     
-    private func setupContentView(){
-        view.addSubview(contentView)
-        contentView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(20.VAdapted)
-            make.left.equalToSuperview()
-            make.right.equalToSuperview()
-            make.bottom.equalToSuperview()
-            
-        }
+    private func setupBinder(){
+        viewModel.isHiddenAddBtn
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isHidden in
+            self!.btnAdd.isHidden = isHidden
+        }.store(in: &cancellables)
     }
     
+    
     @objc private func addLocation(){
-        viewModel.addNameLocationCoredata(locationName: title!)
-        delegate?.dismissSearchResultView(isDismiss: true)
-        delegate?.addContentView(contentView: contentView)
-        dismiss(animated: true)
+ 
+        viewModel.addContentWeather.send(true)
+        
     }
     
     @objc private func dismissView(){
-        dismiss(animated: true)
-        delegate?.dismissSearchResultView(isDismiss: false)
+        viewModel.isCancelContentVC.send(true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        viewModel.isCancelContentVC.send(true)
+
     }
     
     
@@ -87,6 +83,7 @@ class ContentViewController: UIViewController {
         view.addSubview(imgBackground)
         view.addSubview(btnAdd)
         view.addSubview(btnCancel)
+        view.addSubview(contentView)
         
         btnAdd.snp.makeConstraints { make in
             make.top.equalToSuperview()
@@ -100,6 +97,13 @@ class ContentViewController: UIViewController {
         
         imgBackground.snp.makeConstraints { make in
             make.top.left.right.bottom.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20.VAdapted)
+            make.left.equalToSuperview()
+            make.right.equalToSuperview()
+            make.bottom.equalToSuperview()
         }
     }
 

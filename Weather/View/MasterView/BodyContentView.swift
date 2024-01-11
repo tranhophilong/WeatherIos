@@ -44,10 +44,11 @@ class BodyContentView: UIView {
         }
         cardViewDisplays.forEach { (cardViewModel, frame) in
             let cardView = CardView(frame: frame, viewModel: cardViewModel)
-            containerView.addSubview(cardView)
-            self.addSubview(cardView.header)
             cardView.setupBindToPinHeader(to: self)
+            self.addSubview(cardView.header)
+            containerView.addSubview(cardView)
             cardView.refreshConstrainHeader()
+
         }
         
     }

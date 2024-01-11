@@ -10,99 +10,139 @@ import Combine
 import CoreData
 import CoreLocation
 
+protocol SearchViewModelDelegate:  AnyObject{
+    
+    func removeContentView(at index: Int)
+    func reorderContentView(sourcePosition: Int, destinationPostion: Int)
+    func appendContentView(contentViewModel: ContentViewModel)
+    func updateWeatherSummarys(weatherSummarys: [Int: WeatherSummary])
+}
+
 class SearchViewControllerViewModel{
     
     enum EventInput{
-        case addWeatherItem
+        case viewDidLoad
+        case addWeatherCellViewModel(weatherSummary: WeatherSummary)
         case removeLocation(index: Int)
         case reorderLocation(sourcePosition: Int16, destinationPosition: Int16)
         case changeHiddenStateEditView
         case hiddenEditView
         case changeStateEditMode(isEdit: Bool)
+        case addContentView(contentViewModel: ContentViewModel)
     }
     
-    enum DataOutput{
+    enum EventOutput{
         case fetchDataFail
         case fetchSuccessWeatherCellViewModels(weatherCellViewModels: [WeatherCellViewModel])
         case isForecastCurrentWeather(isForecast: Bool)
         case isHiddenEditView(isHidden: Bool)
         case isEditMode(isEdit: Bool)
+        case isDeactiveSearch(isDeactive: Bool)
+        case isForecastCurrentLocationWeather(isForecast: Bool)
     }
     
     private var isForecastCurrentLocationWeather = false
     private var weatherCellViewModels = [WeatherCellViewModel]()
     private var isEditMode = false
-    private var isHiddenEditView = false
+    private var isHiddenEditView = true
     private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     private var cancellabels = Set<AnyCancellable>()
-    let outputFetchData = PassthroughSubject<DataOutput, Never>()
+    let eventOutput = PassthroughSubject<EventOutput, Never>()
+    let backToMasterVC = PassthroughSubject<Int, Never>()
+    let weatherSummarys  = CurrentValueSubject<[Int: WeatherSummary], Never>([:])
+    weak var delegate: SearchViewModelDelegate?
     
-    init(weatherCellViewModels: [WeatherCellViewModel]){
-        self.weatherCellViewModels = weatherCellViewModels
-        self.outputFetchData.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: weatherCellViewModels))
-        self.outputFetchData.send(.isHiddenEditView(isHidden: isHiddenEditView))
-        self.outputFetchData.send(.isEditMode(isEdit: isEditMode))
+    init(isForecastCurrentWeather: Bool){
+        self.eventOutput.send(.isHiddenEditView(isHidden: isHiddenEditView))
+        self.eventOutput.send(.isEditMode(isEdit: isEditMode))
+//        self.weatherSummarys = weatherSummarys
+        self.isForecastCurrentLocationWeather = isForecastCurrentWeather
     }
     
-    func transform(input: AnyPublisher<EventInput, Never>) -> AnyPublisher<DataOutput, Never>{
+    func transform(input: AnyPublisher<EventInput, Never>) -> AnyPublisher<EventOutput, Never>{
         input.sink {  [weak self]  event  in
             switch event{
-            case .addWeatherItem:
-                self!.appendLastWeatherCellViewModel()
-                self?.outputFetchData.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: self!.weatherCellViewModels))
             case .reorderLocation(sourcePosition: let sourcePosition, destinationPosition: let destinationPosition):
                 self!.reorderLocationCoreData(sourcePosition: sourcePosition, destinationPostion: destinationPosition)
-                self?.outputFetchData.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: self!.weatherCellViewModels))
+                self?.eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: self!.weatherCellViewModels))
             case .changeHiddenStateEditView:
                 self?.isHiddenEditView = !self!.isHiddenEditView
-                self?.outputFetchData.send(.isHiddenEditView(isHidden: self!.isHiddenEditView))
+                self?.eventOutput.send(.isHiddenEditView(isHidden: self!.isHiddenEditView))
             case .hiddenEditView:
-                self?.isHiddenEditView = false
-                self?.outputFetchData.send(.isHiddenEditView(isHidden: self!.isHiddenEditView))
+                self?.isHiddenEditView = true
+                self?.eventOutput.send(.isHiddenEditView(isHidden: self!.isHiddenEditView))
             case .changeStateEditMode(isEdit: let isEdit):
                 self?.isEditMode = isEdit
-                self?.outputFetchData.send(.isEditMode(isEdit: isEdit))
+                self?.eventOutput.send(.isEditMode(isEdit:  self!.isEditMode))
             case .removeLocation(index: let index):
                 self?.removeNameLocationCoreData(at: index)
-                self?.outputFetchData.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: self!.weatherCellViewModels))
+//                self?.eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: self!.weatherCellViewModels))
+            case .viewDidLoad:
+                self?.isEditMode = false
+                self?.eventOutput.send(.isEditMode(isEdit: self!.isEditMode))
+                self?.setupWeatherCellViewModels()
+                self?.eventOutput.send(.isForecastCurrentLocationWeather(isForecast: self!.isForecastCurrentLocationWeather))
+            case .addWeatherCellViewModel(weatherSummary: let weatherSummary):
+                self?.appendWeatherCellViewModel(weatherSummary: weatherSummary)
+            case .addContentView(contentViewModel: let contentViewModel):
+                self?.delegate?.appendContentView(contentViewModel: contentViewModel)
             }
             
         }.store(in: &cancellabels)
         
-        return outputFetchData.eraseToAnyPublisher()
+        return eventOutput.eraseToAnyPublisher()
     }
     
     //    MARK: - Data
     
-    private func appendLastWeatherCellViewModel(){
-        let location = CoreDataHelper.shared.getNameLocationsCoreData().last!
-        Task{[weak self] in
-            
-            do{
-                try await self!.appendWeatherCellViewModel(with: location)
-            }catch{
-                self?.outputFetchData.send(.fetchDataFail)
+    private func setupWeatherCellViewModels(){
+        
+        weatherSummarys.sink {[weak self] weatherSummarys in
+            let sortedWeatherSummarys = weatherSummarys.sorted{ $0.key < $1.key }.map{ $0.value }
+            var weatherCellViewModels = [WeatherCellViewModel]()
+            for weatherSummary in sortedWeatherSummarys{
+                let weatherCellViewModel = self!.createWeatherCellViewModel(weatherSummary: weatherSummary)
+                weatherCellViewModels.append(weatherCellViewModel)
             }
-        }
+            self!.weatherCellViewModels = weatherCellViewModels
+            self!.eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: weatherCellViewModels))
+        }.store(in: &cancellabels)
+        
     }
     
-    private func appendWeatherCellViewModel(with location: String) async throws{
-            
-        async let forecastDay = WeatherService.shared.getDayForecastWeather(with: location).async()
-        async let currentWeather =  WeatherService.shared.getCurrentWeather(with: location).async()
-        let forecastDayDetail = try await forecastDay.forecastday[0].day
-        let weatherCellViewModel = try await WeatherCellViewModel(location: location, time: TimeHandler.getYearMonthDay(in: forecastDay.forecastday[0].date), condition: forecastDayDetail.condition.text, lowDegree: String(Int(forecastDayDetail.mintempC)), highDegree: String(Int(forecastDayDetail.maxtempC)), currentDegree: String(Int(currentWeather.tempC)), backgroundName: "sky4.jpeg", isClearBackground: false)
-     
-        weatherCellViewModels.append(weatherCellViewModel)
-  
+    private func createWeatherCellViewModel(weatherSummary: WeatherSummary) -> WeatherCellViewModel{
+        let location = weatherSummary.location
+        let time =  weatherSummary.time == nil ? "" : TimeHandler.getTime(in: weatherSummary.time!)
+        let condition = weatherSummary.condition == nil ? "" : weatherSummary.condition!
+        let minTempC =  weatherSummary.minTempC == nil ? "" :  String(Int(round(weatherSummary.minTempC!)))
+        let maxTempC = weatherSummary.maxTempC == nil ? "" : String(Int(round(weatherSummary.maxTempC!)))
+        let currentDegreeC = weatherSummary.currentDegreeC == nil ? "" : String(Int(round(weatherSummary.currentDegreeC!)))
+        let backgroundName = "sky3.jpeg"
+        let isClearBackground = true
+        
+        let weatherCellViewModel = WeatherCellViewModel(location: location, time: time, condition: condition, lowDegree: minTempC, highDegree: maxTempC, currentDegree: currentDegreeC, backgroundName: backgroundName, isClearBackground: isClearBackground)
+        return weatherCellViewModel
     }
+        
+    private func appendWeatherCellViewModel(weatherSummary: WeatherSummary){
+        weatherSummarys.value[weatherSummarys.value.count] = weatherSummary
+        delegate?.updateWeatherSummarys(weatherSummarys: weatherSummarys.value)
+//        let weatherCellViewModel = createWeatherCellViewModel(weatherSummary: weatherSummary)
+//        self.weatherCellViewModels.append(weatherCellViewModel)
+        CoreDataHelper.shared.addNameLocationCoredata(locationName: weatherSummary.location)
+//        eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: weatherCellViewModels))
+        eventOutput.send(.isDeactiveSearch(isDeactive: true))
+    }
+ 
     
     private func removeNameLocationCoreData(at index: Int){
-        weatherCellViewModels.remove(at: index)
         let location = weatherCellViewModels[index].location.value
+        weatherSummarys.value.removeValue(forKey: index)
+        delegate?.updateWeatherSummarys(weatherSummarys: weatherSummarys.value)
+        delegate?.removeContentView(at: index)
+//        weatherCellViewModels.remove(at: index)
         let fetchRequest: NSFetchRequest<Location> = Location.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "name == %@", location)
-        
         do {
             let object = try context.fetch(fetchRequest).first
             context.delete(object!)
@@ -129,9 +169,18 @@ class SearchViewControllerViewModel{
     }
     
     private func reorderLocationCoreData(sourcePosition: Int16, destinationPostion: Int16){
-        let selectedItem = weatherCellViewModels[Int(sourcePosition)]
-        weatherCellViewModels.remove(at: Int(sourcePosition))
-        weatherCellViewModels.insert(selectedItem, at: Int(destinationPostion))
+        
+        if let value1 = weatherSummarys.value[Int(sourcePosition)], let value2 = weatherSummarys.value[Int(destinationPostion)] {
+            weatherSummarys.value[Int(sourcePosition)] = value2
+            weatherSummarys.value[Int(destinationPostion)] = value1
+        }
+        
+        delegate?.updateWeatherSummarys(weatherSummarys: weatherSummarys.value)
+        
+//        let selectedItem = weatherCellViewModels[Int(sourcePosition)]
+//        weatherCellViewModels.remove(at: Int(sourcePosition))
+//        weatherCellViewModels.insert(selectedItem, at: Int(destinationPostion))
+        delegate?.reorderContentView(sourcePosition: Int(sourcePosition), destinationPostion: Int(destinationPostion))
         var sourcePos = sourcePosition
         var desPos = destinationPostion
         if isForecastCurrentLocationWeather{
@@ -144,10 +193,10 @@ class SearchViewControllerViewModel{
 
 extension SearchViewControllerViewModel: EventEditDelegate{
     func editListWeatherCell() {
-        self.isHiddenEditView = false
-        self.outputFetchData.send(.isHiddenEditView(isHidden: self.isHiddenEditView))
+        self.isHiddenEditView = true
+        self.eventOutput.send(.isHiddenEditView(isHidden: self.isHiddenEditView))
         self.isEditMode = true
-        self.outputFetchData.send(.isEditMode(isEdit: true))
+        self.eventOutput.send(.isEditMode(isEdit: true))
     }
     
     func changeToCel() {

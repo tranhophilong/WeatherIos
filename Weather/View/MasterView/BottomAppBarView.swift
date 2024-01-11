@@ -50,7 +50,6 @@ class BottomAppBarView: UIView {
         }.store(in: &cancellables)
         
         viewModel.numberPageControl.sink {[weak self] value in
-            print(value)
             self?.pageControl.numberOfPages = value
         }.store(in: &cancellables)
         
@@ -63,7 +62,8 @@ class BottomAppBarView: UIView {
     
     private func setIndicatorLocationAtFirst(){
         pageControl.setIndicatorImage(UIImage(systemName: "location.fill", withConfiguration: UIImage.SymbolConfiguration(weight: .bold)), forPage: 0)
-
+        
+//        pageControl.pageind
         
     }
     
@@ -72,6 +72,13 @@ class BottomAppBarView: UIView {
         showLstContentBtn.image = UIImage(systemName: "list.bullet", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
         showLstContentBtn.tintColor = .white
         showLstContentBtn.contentMode = .scaleAspectFit
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(navToSearchView))
+        showLstContentBtn.isUserInteractionEnabled = true
+        showLstContentBtn.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func navToSearchView(){
+        viewModel.navToSearchView.send(true)
     }
     
     private func setupShowMapBtn(){

@@ -17,8 +17,8 @@ class HeaderContentViewModel{
     let alphaColorDegreeConditionLbl = CurrentValueSubject<CGFloat, Never>(0)
     let disLocationLblAndTopHeader = CurrentValueSubject<CGFloat, Never>(0)
     
-    let nameLocation = CurrentValueSubject<String, Never>("--")
-    let currentDegree = CurrentValueSubject<String, Never>("")
+    let nameLocation = CurrentValueSubject<String, Never>("")
+    let currentDegree = CurrentValueSubject<String, Never>("--")
     let highLowDegree = CurrentValueSubject<String, Never>("")
     let condition = CurrentValueSubject<String, Never>("")
     let conditionDegree = CurrentValueSubject<String, Never>("")
@@ -42,7 +42,6 @@ class HeaderContentViewModel{
     }
     
     func changeColorLbl(with contentOffset: CGFloat, disHighLowDegreeLblAndBottomHeader: CGFloat, disConditionWeatherLblAndBottomHeader: CGFloat, disDegreeLblAndBottomHeader: CGFloat, disDegreeConditionAndBottomHeader: CGFloat, heightDegreeLbl: CGFloat, heightHighAndLowDegreeLbl: CGFloat, heightConditionLbl: CGFloat){
-    
   
         let alpha1 =   ( disHighLowDegreeLblAndBottomHeader  + heightHighAndLowDegreeLbl + contentOffset ) / (disHighLowDegreeLblAndBottomHeader / 2)
         alphaColorhightLowDegreeLbl.value = alpha1
@@ -58,13 +57,15 @@ class HeaderContentViewModel{
         
 //  DegreeConditionLbl will show
         alphaColorDegreeConditionLbl.value = 1 - alpha4
-        
       
     }
     
     func changeDisLblAndTopHeaderDidScroll(with contentOffset: CGFloat, heightHeaderStart: CGFloat, heightHightAndLowDegreeLbl: CGFloat){
         let offset = contentOffset * 1/3 + heightHightAndLowDegreeLbl / 2
         disLocationLblAndTopHeader.value = heightHeaderStart + offset
+        if disLocationLblAndTopHeader.value <= 0{
+            disLocationLblAndTopHeader.value = 0
+        }
     }
     
 }

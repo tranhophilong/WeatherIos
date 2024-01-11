@@ -162,9 +162,16 @@
 		869AFB552B3D2A930099D209 /* EditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB542B3D2A930099D209 /* EditViewModel.swift */; };
 		869AFB572B3D414C0099D209 /* EditCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB562B3D414C0099D209 /* EditCellViewModel.swift */; };
 		869AFB592B429EC80099D209 /* CardViewHumidityForecastViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB582B429EC80099D209 /* CardViewHumidityForecastViewModel.swift */; };
+		869AFB5D2B4524B70099D209 /* MasterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB5C2B4524B70099D209 /* MasterCoordinator.swift */; };
+		869AFB5F2B4524CA0099D209 /* SearchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB5E2B4524CA0099D209 /* SearchCoordinator.swift */; };
+		869AFB612B4524E70099D209 /* RouterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB602B4524E70099D209 /* RouterProtocol.swift */; };
+		869AFB632B45517F0099D209 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB622B45517F0099D209 /* Router.swift */; };
+		869AFB652B45596B0099D209 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB642B45596B0099D209 /* AppCoordinator.swift */; };
+		869AFB672B45599A0099D209 /* CoordinatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB662B45599A0099D209 /* CoordinatorProtocol.swift */; };
+		869AFB692B4812D10099D209 /* ContentViewControllerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869AFB682B4812D10099D209 /* ContentViewControllerCoordinator.swift */; };
 		869DAE752AEA5FBC00152FCF /* String+Extra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DAE742AEA5FBC00152FCF /* String+Extra.swift */; };
 		86C46BBA2B12013900E8CC3E /* 302.png in Resources */ = {isa = PBXBuildFile; fileRef = 86C46BB92B12013900E8CC3E /* 302.png */; };
-		86C46BBC2B12064000E8CC3E /* SearchResulVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C46BBB2B12064000E8CC3E /* SearchResulVC.swift */; };
+		86C46BBC2B12064000E8CC3E /* SearchResultVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C46BBB2B12064000E8CC3E /* SearchResultVC.swift */; };
 		86C46BC02B120C7300E8CC3E /* GMSPlacesClient+Extra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C46BBF2B120C7300E8CC3E /* GMSPlacesClient+Extra.swift */; };
 		86C46BC22B13399300E8CC3E /* SearchResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C46BC12B13399300E8CC3E /* SearchResultViewModel.swift */; };
 		86C46BC52B148ACF00E8CC3E /* CustomVisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C46BC42B148ACF00E8CC3E /* CustomVisualEffectView.swift */; };
@@ -346,9 +353,16 @@
 		869AFB542B3D2A930099D209 /* EditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewModel.swift; sourceTree = "<group>"; };
 		869AFB562B3D414C0099D209 /* EditCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCellViewModel.swift; sourceTree = "<group>"; };
 		869AFB582B429EC80099D209 /* CardViewHumidityForecastViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewHumidityForecastViewModel.swift; sourceTree = "<group>"; };
+		869AFB5C2B4524B70099D209 /* MasterCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterCoordinator.swift; sourceTree = "<group>"; };
+		869AFB5E2B4524CA0099D209 /* SearchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoordinator.swift; sourceTree = "<group>"; };
+		869AFB602B4524E70099D209 /* RouterProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterProtocol.swift; sourceTree = "<group>"; };
+		869AFB622B45517F0099D209 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
+		869AFB642B45596B0099D209 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		869AFB662B45599A0099D209 /* CoordinatorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorProtocol.swift; sourceTree = "<group>"; };
+		869AFB682B4812D10099D209 /* ContentViewControllerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewControllerCoordinator.swift; sourceTree = "<group>"; };
 		869DAE742AEA5FBC00152FCF /* String+Extra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extra.swift"; sourceTree = "<group>"; };
 		86C46BB92B12013900E8CC3E /* 302.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 302.png; sourceTree = "<group>"; };
-		86C46BBB2B12064000E8CC3E /* SearchResulVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResulVC.swift; sourceTree = "<group>"; };
+		86C46BBB2B12064000E8CC3E /* SearchResultVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultVC.swift; sourceTree = "<group>"; };
 		86C46BBF2B120C7300E8CC3E /* GMSPlacesClient+Extra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GMSPlacesClient+Extra.swift"; sourceTree = "<group>"; };
 		86C46BC12B13399300E8CC3E /* SearchResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultViewModel.swift; sourceTree = "<group>"; };
 		86C46BC42B148ACF00E8CC3E /* CustomVisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVisualEffectView.swift; sourceTree = "<group>"; };
@@ -441,6 +455,8 @@
 			children = (
 				865463032AE1796C008E56A2 /* SceneDelegate.swift */,
 				865463012AE1796C008E56A2 /* AppDelegate.swift */,
+				869AFB5B2B4524520099D209 /* Router */,
+				869AFB5A2B45243E0099D209 /* Coordinator */,
 				865F6A532B008E5100593105 /* Location */,
 				86ED68BA2AF8F98100BED0D5 /* SpriteFiles */,
 				867EF8892AE180CE0064562C /* Helpers */,
@@ -671,7 +687,6 @@
 				8626F3402AECFB4100E2F826 /* HeaderContentView.swift */,
 				86FE70052AEE4BF400E4BC1D /* BodyContentView.swift */,
 				86C46BC62B14926600E8CC3E /* AlternativeView.swift */,
-				86C46BC82B14B3D200E8CC3E /* ContentViewController.swift */,
 			);
 			path = MasterView;
 			sourceTree = "<group>";
@@ -747,6 +762,27 @@
 			path = SubViewModelProtocol;
 			sourceTree = "<group>";
 		};
+		869AFB5A2B45243E0099D209 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				869AFB5C2B4524B70099D209 /* MasterCoordinator.swift */,
+				869AFB5E2B4524CA0099D209 /* SearchCoordinator.swift */,
+				869AFB642B45596B0099D209 /* AppCoordinator.swift */,
+				869AFB662B45599A0099D209 /* CoordinatorProtocol.swift */,
+				869AFB682B4812D10099D209 /* ContentViewControllerCoordinator.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		869AFB5B2B4524520099D209 /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				869AFB602B4524E70099D209 /* RouterProtocol.swift */,
+				869AFB622B45517F0099D209 /* Router.swift */,
+			);
+			path = Router;
+			sourceTree = "<group>";
+		};
 		86C46BC32B145E2C00E8CC3E /* ForecastView */ = {
 			isa = PBXGroup;
 			children = (
@@ -764,7 +800,8 @@
 				86ED68B32AF8EF0100BED0D5 /* SearchViewController.swift */,
 				86ED68CB2AF9F0C500BED0D5 /* WeatherCell.swift */,
 				865F687C2AFB7A6400593105 /* EditView.swift */,
-				86C46BBB2B12064000E8CC3E /* SearchResulVC.swift */,
+				86C46BBB2B12064000E8CC3E /* SearchResultVC.swift */,
+				86C46BC82B14B3D200E8CC3E /* ContentViewController.swift */,
 			);
 			path = SearchView;
 			sourceTree = "<group>";
@@ -1018,6 +1055,7 @@
 				869AFB432B37EB080099D209 /* CardViewWindForecastViewModelCreator.swift in Sources */,
 				863FA70E2AE51106000229CB /* ContentView.swift in Sources */,
 				8626F3412AECFB4100E2F826 /* HeaderContentView.swift in Sources */,
+				869AFB5F2B4524CA0099D209 /* SearchCoordinator.swift in Sources */,
 				869AFB282B2D642A0099D209 /* ImageHandler.swift in Sources */,
 				868B6C192AEC0EE3006610A9 /* UILabel+Extra.swift in Sources */,
 				869AFB492B37F51B0099D209 /* CardViewVisForecastViewModelCreator.swift in Sources */,
@@ -1043,20 +1081,24 @@
 				869AFB3B2B355F660099D209 /* CardViewTenDayForecastViewModelCreator.swift in Sources */,
 				86ED66562AF4A80A00BED0D5 /* HeaderContentViewModel.swift in Sources */,
 				869AFB412B3560170099D209 /* CardViewAstroForecastViewModelCreator.swift in Sources */,
+				869AFB692B4812D10099D209 /* ContentViewControllerCoordinator.swift in Sources */,
 				86C46BC92B14B3D200E8CC3E /* ContentViewController.swift in Sources */,
 				86ED66522AF4A7D100BED0D5 /* ContentViewModel.swift in Sources */,
 				86ED68B42AF8EF0100BED0D5 /* SearchViewController.swift in Sources */,
+				869AFB652B45596B0099D209 /* AppCoordinator.swift in Sources */,
 				863FA7142AE63679000229CB /* CardView.swift in Sources */,
 				86C46BC02B120C7300E8CC3E /* GMSPlacesClient+Extra.swift in Sources */,
 				867EF8992AE39C5D0064562C /* Device.swift in Sources */,
 				868528C02B1971AB0010C9EB /* CoreDataHelper.swift in Sources */,
+				869AFB672B45599A0099D209 /* CoordinatorProtocol.swift in Sources */,
 				86ED665C2AF6018600BED0D5 /* HourlyForecastView.swift in Sources */,
 				867EF8932AE39C3F0064562C /* AdaptiveLayoutHelper.swift in Sources */,
+				869AFB612B4524E70099D209 /* RouterProtocol.swift in Sources */,
 				86C46BC72B14926600E8CC3E /* AlternativeView.swift in Sources */,
 				869AFB262B2D63300099D209 /* TimeHandler.swift in Sources */,
 				865463042AE1796C008E56A2 /* SceneDelegate.swift in Sources */,
 				869AFB202B2C43B10099D209 /* WeatherCellViewModel.swift in Sources */,
-				86C46BBC2B12064000E8CC3E /* SearchResulVC.swift in Sources */,
+				86C46BBC2B12064000E8CC3E /* SearchResultVC.swift in Sources */,
 				863FA7122AE57B5F000229CB /* Constant.swift in Sources */,
 				86ED66582AF4A82800BED0D5 /* BodyContentViewModel.swift in Sources */,
 				8695140F2B1D954F006B8D43 /* ContentViewModel+Extra.swift in Sources */,
@@ -1071,6 +1113,8 @@
 				86C46BDB2B15F50900E8CC3E /* Location+CoreDataClass.swift in Sources */,
 				869AFB592B429EC80099D209 /* CardViewHumidityForecastViewModel.swift in Sources */,
 				86FE70062AEE4BF400E4BC1D /* BodyContentView.swift in Sources */,
+				869AFB5D2B4524B70099D209 /* MasterCoordinator.swift in Sources */,
+				869AFB632B45517F0099D209 /* Router.swift in Sources */,
 				867EF88B2AE1821D0064562C /* Model.swift in Sources */,
 				869AFB222B2C46A30099D209 /* GradientColorViewModel.swift in Sources */,
 				867EF89F2AE39CB20064562C /* CGFloatExtension.swift in Sources */,

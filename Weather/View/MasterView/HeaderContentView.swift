@@ -23,12 +23,12 @@ class HeaderContentView: UIView{
     private let lblColor: UIColor = .white
     private var locationLblToTopHeaderConstraint: Constraint?
     
-    private var heightHeaderContent: CGFloat = 350.VAdapted
+    private let heightHeaderContent: CGFloat
     private lazy var disConditionLblAndDegreeLbl: CGFloat = round(heightHeaderContent * 0.027)
     private lazy var disHightLowDegreeLblAndConditionWeatherLbl: CGFloat = round(heightHeaderContent * 0.027)
     private lazy var didsDegreeLblAndLocationLbl: CGFloat = round(heightHeaderContent * 0.027)
 
-    private lazy var disLocationLblAndTopHeaderStart: CGFloat = 350.VAdapted / 5
+    private lazy var disLocationLblAndTopHeaderStart: CGFloat = heightHeaderContent / 5
     private lazy var disDegreeLblAndBottomHeader: CGFloat = heightHeaderContent * 2/5
     private lazy var disConditionWeatherLblAndBottomHeader: CGFloat = round(heightHeaderContent * 0.3)
     private lazy var disDegreeConditionAndBottomHeader: CGFloat = round(heightHeaderContent * 0.627)
@@ -43,7 +43,8 @@ class HeaderContentView: UIView{
     private lazy var fontLocationLbl = UIFont.systemFont(ofSize: round(heightHeaderContent * 0.108), weight: .regular)
     
 
-    public init(frame: CGRect, viewModel: HeaderContentViewModel) {
+    public init(frame: CGRect, viewModel: HeaderContentViewModel, heightHedaerContent: CGFloat) {
+        self.heightHeaderContent = heightHedaerContent
         self.viewModel = viewModel
         super.init(frame: frame)
         setupViews()
@@ -55,15 +56,6 @@ class HeaderContentView: UIView{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-//        print("///////////")
-//        print(self.frame.height)
-//        heightHeaderContent = 350.VAdapted
-//        disLocationLblAndTopHeaderStart = 350.VAdapted / 5
-    }
-    
     
     private func setupBinder(){
         
