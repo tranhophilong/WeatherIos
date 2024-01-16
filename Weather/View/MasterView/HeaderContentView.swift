@@ -18,7 +18,7 @@ class HeaderContentView: UIView{
     private lazy var highLowDegreeLbl = UILabel(frame: .zero)
     private lazy var degreeIcon = UILabel(frame: .zero)
     private lazy var  degreeConditionLbl = UILabel(frame: .zero)
-    private let viewModel: HeaderContentViewModel
+    unowned private let viewModel: HeaderContentViewModel
     private var cancellables = Set<AnyCancellable>()
     private let lblColor: UIColor = .white
     private var locationLblToTopHeaderConstraint: Constraint?

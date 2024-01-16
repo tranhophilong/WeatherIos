@@ -15,7 +15,7 @@ protocol SearchViewModelDelegate:  AnyObject{
     func removeContentView(at index: Int)
     func reorderContentView(sourcePosition: Int, destinationPostion: Int)
     func appendContentView(contentViewModel: ContentViewModel)
-    func updateWeatherSummarys(weatherSummarys: [Int: WeatherSummary])
+    func appendWeatherSummary(weatherSummary: WeatherSummary)
 }
 
 class SearchViewControllerViewModel{
@@ -49,13 +49,11 @@ class SearchViewControllerViewModel{
     private var cancellabels = Set<AnyCancellable>()
     let eventOutput = PassthroughSubject<EventOutput, Never>()
     let backToMasterVC = PassthroughSubject<Int, Never>()
-    let weatherSummarys  = CurrentValueSubject<[Int: WeatherSummary], Never>([:])
     weak var delegate: SearchViewModelDelegate?
     
     init(isForecastCurrentWeather: Bool){
         self.eventOutput.send(.isHiddenEditView(isHidden: isHiddenEditView))
         self.eventOutput.send(.isEditMode(isEdit: isEditMode))
-//        self.weatherSummarys = weatherSummarys
         self.isForecastCurrentLocationWeather = isForecastCurrentWeather
     }
     
@@ -80,8 +78,8 @@ class SearchViewControllerViewModel{
             case .viewDidLoad:
                 self?.isEditMode = false
                 self?.eventOutput.send(.isEditMode(isEdit: self!.isEditMode))
-                self?.setupWeatherCellViewModels()
                 self?.eventOutput.send(.isForecastCurrentLocationWeather(isForecast: self!.isForecastCurrentLocationWeather))
+                self!.eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: self!.weatherCellViewModels))
             case .addWeatherCellViewModel(weatherSummary: let weatherSummary):
                 self?.appendWeatherCellViewModel(weatherSummary: weatherSummary)
             case .addContentView(contentViewModel: let contentViewModel):
@@ -95,19 +93,16 @@ class SearchViewControllerViewModel{
     
     //    MARK: - Data
     
-    private func setupWeatherCellViewModels(){
+    func setupWeatherCellViewModels(weatherSummaries: [Int: WeatherSummary]){
         
-        weatherSummarys.sink {[weak self] weatherSummarys in
-            let sortedWeatherSummarys = weatherSummarys.sorted{ $0.key < $1.key }.map{ $0.value }
-            var weatherCellViewModels = [WeatherCellViewModel]()
-            for weatherSummary in sortedWeatherSummarys{
-                let weatherCellViewModel = self!.createWeatherCellViewModel(weatherSummary: weatherSummary)
-                weatherCellViewModels.append(weatherCellViewModel)
-            }
-            self!.weatherCellViewModels = weatherCellViewModels
-            self!.eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: weatherCellViewModels))
-        }.store(in: &cancellabels)
-        
+        let sortedWeatherSummaries = weatherSummaries.sorted{ $0.key < $1.key }.map{ $0.value }
+        var weatherCellViewModels = [WeatherCellViewModel]()
+        for weatherSummary in sortedWeatherSummaries{
+            let weatherCellViewModel = createWeatherCellViewModel(weatherSummary: weatherSummary)
+            weatherCellViewModels.append(weatherCellViewModel)
+        }
+        self.weatherCellViewModels = weatherCellViewModels
+        eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: weatherCellViewModels))
     }
     
     private func createWeatherCellViewModel(weatherSummary: WeatherSummary) -> WeatherCellViewModel{
@@ -125,27 +120,32 @@ class SearchViewControllerViewModel{
     }
         
     private func appendWeatherCellViewModel(weatherSummary: WeatherSummary){
-        weatherSummarys.value[weatherSummarys.value.count] = weatherSummary
-        delegate?.updateWeatherSummarys(weatherSummarys: weatherSummarys.value)
-//        let weatherCellViewModel = createWeatherCellViewModel(weatherSummary: weatherSummary)
-//        self.weatherCellViewModels.append(weatherCellViewModel)
+        
+        delegate?.appendWeatherSummary(weatherSummary: weatherSummary)
         CoreDataHelper.shared.addNameLocationCoredata(locationName: weatherSummary.location)
-//        eventOutput.send(.fetchSuccessWeatherCellViewModels(weatherCellViewModels: weatherCellViewModels))
         eventOutput.send(.isDeactiveSearch(isDeactive: true))
     }
  
     
     private func removeNameLocationCoreData(at index: Int){
-        let location = weatherCellViewModels[index].location.value
-        weatherSummarys.value.removeValue(forKey: index)
-        delegate?.updateWeatherSummarys(weatherSummarys: weatherSummarys.value)
+        
+        var location = ""
+        if isForecastCurrentLocationWeather{
+            location = CoreDataHelper.shared.getNameLocationsCoreData()[index - 1]
+        }else{
+            location = CoreDataHelper.shared.getNameLocationsCoreData()[index]
+
+        }
+ 
+
         delegate?.removeContentView(at: index)
-//        weatherCellViewModels.remove(at: index)
         let fetchRequest: NSFetchRequest<Location> = Location.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "name == %@", location)
         do {
             let object = try context.fetch(fetchRequest).first
-            context.delete(object!)
+            if let object = object{
+                context.delete(object)
+            }
             try context.save()
         } catch _ {
             print("error delete coreData")
@@ -170,16 +170,7 @@ class SearchViewControllerViewModel{
     
     private func reorderLocationCoreData(sourcePosition: Int16, destinationPostion: Int16){
         
-        if let value1 = weatherSummarys.value[Int(sourcePosition)], let value2 = weatherSummarys.value[Int(destinationPostion)] {
-            weatherSummarys.value[Int(sourcePosition)] = value2
-            weatherSummarys.value[Int(destinationPostion)] = value1
-        }
-        
-        delegate?.updateWeatherSummarys(weatherSummarys: weatherSummarys.value)
-        
-//        let selectedItem = weatherCellViewModels[Int(sourcePosition)]
-//        weatherCellViewModels.remove(at: Int(sourcePosition))
-//        weatherCellViewModels.insert(selectedItem, at: Int(destinationPostion))
+      
         delegate?.reorderContentView(sourcePosition: Int(sourcePosition), destinationPostion: Int(destinationPostion))
         var sourcePos = sourcePosition
         var desPos = destinationPostion
@@ -187,7 +178,20 @@ class SearchViewControllerViewModel{
             sourcePos = sourcePos - 1
             desPos = desPos - 1
         }
-        CoreDataHelper.shared.reorderLocationCoreData(sourcePosition: sourcePos, destinationPostion: desPos)
+        if sourcePos < desPos{
+            let range = stride(from: sourcePos, to: desPos, by: 1)
+            for i in range{
+                CoreDataHelper.shared.reorderLocationCoreData(sourcePosition: i, destinationPostion: i+1)
+
+            }
+        }else{
+            let range = stride(from: sourcePos, to: desPos, by: -1)
+            for i in range{
+                CoreDataHelper.shared.reorderLocationCoreData(sourcePosition: i, destinationPostion: i-1)
+
+            }
+        }
+
     }
 }
 

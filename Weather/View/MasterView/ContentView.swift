@@ -17,7 +17,7 @@ class ContentView: UIView{
     private let bodyContentViewModel = BodyContentViewModel()
     private let headerContentViewModel = HeaderContentViewModel()
     private var heightHeaderContentConstraint: Constraint?
-    private let viewModel: ContentViewModel
+    unowned private let viewModel: ContentViewModel
     private let heightHeaderContent = 350.VAdapted
     private var cancellables = Set<AnyCancellable>()
     let event = PassthroughSubject<ContentViewModel.EventInput, Never>()
@@ -29,6 +29,7 @@ class ContentView: UIView{
         constraint()
         setupBinder()
         event.send(.viewDidLoad)
+//        event.send(.scroll(contentOffSet: 0, bodyContentOffSetIsZero: false, heightHeaderContent: self.heightHeaderContent))
         
     }
     
@@ -77,7 +78,6 @@ class ContentView: UIView{
                     self!.heightHeaderContentConstraint?.update(offset: height)
                 }else{
                     self!.heightHeaderContentConstraint?.update(offset: self!.heightHeaderContent/5 + 25.VAdapted)
-//                    self!.headerContent.changeDisLblAndTopHeaderDidScroll(contentOffset: 0)
                 }
 
             }
@@ -101,6 +101,8 @@ class ContentView: UIView{
             make.right.equalTo(self!.snp.right)
             self!.heightHeaderContentConstraint =  make.height.equalTo(self!.heightHeaderContent).constraint
         }
+        
+//        print(headerContent.frame.height)
         
         bodyContent.snp.makeConstraints { [weak self] make in
             make.top.equalTo(self!.headerContent.snp.bottom).offset(10.VAdapted)

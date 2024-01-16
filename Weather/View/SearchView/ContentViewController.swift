@@ -99,12 +99,15 @@ class ContentViewController: UIViewController {
             make.top.left.right.bottom.equalToSuperview()
         }
         
-        contentView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(20.VAdapted)
+        
+        contentView.snp.makeConstraints {[weak self] make in
+            make.top.equalTo(self!.btnCancel.snp.bottom).offset(20.VAdapted)
             make.left.equalToSuperview()
             make.right.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.height.equalTo(SCREEN_HEIGHT())
         }
+        
+        contentView.event.send(.scroll(contentOffSet: -44, bodyContentOffSetIsZero: true, heightHeaderContent: 350.VAdapted))
     }
 
 }

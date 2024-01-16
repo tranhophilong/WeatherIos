@@ -21,7 +21,7 @@ class ForecastView: UIView {
     private let subDesFont = AdaptiveFont.medium(size: 15.HAdapted)
     
     private let lblColor: UIColor = .white
-    private let viewModel: ForecastViewModel
+   unowned private let viewModel: ForecastViewModel
     private var cancellabels = Set<AnyCancellable>()
     
     public init(frame: CGRect, viewModel: ForecastViewModel) {
@@ -54,9 +54,9 @@ class ForecastView: UIView {
             self?.subDescription.text = value
         }.store(in: &cancellabels)
         
-        viewModel.subDescriptionViewModel.sink {[weak self] viewModel in
-            
-        }.store(in: &cancellabels)
+//        viewModel.subDescriptionViewModel.sink {[weak self] viewModel in
+//            
+//        }.store(in: &cancellabels)
     }
     
     private func setupIndexLbl(){
@@ -100,11 +100,11 @@ class ForecastView: UIView {
             make.left.equalToSuperview().offset(10.HAdapted)
         }
         
-        descriptionView.snp.makeConstraints { make in
+        descriptionView.snp.makeConstraints {[weak self] make in
             make.left.equalToSuperview().offset(10.HAdapted)
             make.right.equalToSuperview().offset(-15.HAdapted)
-            make.top.equalTo(descriptionLbl.snp.bottom).offset(10.VAdapted)
-            make.bottom.equalTo(subDescription.snp.top)
+            make.top.equalTo(self!.descriptionLbl.snp.bottom).offset(10.VAdapted)
+            make.bottom.equalTo(self!.subDescription.snp.top)
         }
         
         subDescription.snp.makeConstraints { make in

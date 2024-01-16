@@ -12,8 +12,8 @@ class SearchCoordinator: BaseCoordinator{
     
     
     private var cancellables = Set<AnyCancellable>()
-    let vcPresent: UIViewController
-    let isForecastCurrentWeather: Bool
+   unowned let vcPresent: UIViewController
+   let isForecastCurrentWeather: Bool
   
     lazy var searchView: SearchViewController = {
        let searchViewModel  =  SearchViewControllerViewModel(isForecastCurrentWeather: isForecastCurrentWeather)
@@ -36,10 +36,11 @@ class SearchCoordinator: BaseCoordinator{
             self?.presentContentVC(contentViewModel: contentViewModel)
         }.store(in: &cancellables)
         
-        if let vcPresent = vcPresent as? MasterViewController{
-            searchView.viewModel.delegate = vcPresent.viewModel
-            vcPresent.viewModel.weatherSummarys.sink {[weak self] weatherSymmarys in
-                self?.searchView.viewModel.weatherSummarys.value = weatherSymmarys
+        if let masterVC = vcPresent as? MasterViewController{
+            
+            searchView.viewModel.delegate = masterVC.viewModel
+            masterVC.viewModel.weatherSummaries.sink {[weak self] weatherSymmaries in
+                self?.searchView.viewModel.setupWeatherCellViewModels(weatherSummaries: weatherSymmaries)
             }.store(in: &cancellables)
         }
         

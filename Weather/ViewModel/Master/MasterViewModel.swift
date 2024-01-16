@@ -11,6 +11,8 @@ import CoreLocation
 
 
 class MasterViewModel: SearchViewModelDelegate{
+  
+    
    
     enum EventMasterView{
         case viewDidLoad(currentCoordinateLocation: String?)
@@ -30,7 +32,7 @@ class MasterViewModel: SearchViewModelDelegate{
     }
 
     let isForeCastCurrentWeather = CurrentValueSubject<Bool, Never>(false)
-    let weatherSummarys = CurrentValueSubject<[Int: WeatherSummary], Never>([:])
+    let weatherSummaries = CurrentValueSubject<[Int: WeatherSummary], Never>([:])
     private var currentPageControl = 0
     private let contentSize = CGSize(width: SCREEN_WIDTH(), height: SCREEN_HEIGHT())
     private let outputFetchData = PassthroughSubject<FetchDataOutput, Never>()
@@ -68,6 +70,7 @@ class MasterViewModel: SearchViewModelDelegate{
     
     private func getWeatherLocations(currentCoor: String?){
         let locations = CoreDataHelper.shared.getNameLocationsCoreData()
+        contentViewModels  = []
         
         if let currentCoor = currentCoor{
             let coor = Coordinate(lat: Double(currentCoor.split(separator: ",")[0])!, lon: Double(currentCoor.split(separator: ",")[1])!)
@@ -95,7 +98,7 @@ class MasterViewModel: SearchViewModelDelegate{
     
     private func setupWeatherSummary(index: Int, contentViewModel: ContentViewModel){
         contentViewModel.weatherSummary.sink {[weak self] weatherSummary in
-            self?.weatherSummarys.value[index] = weatherSummary
+            self?.weatherSummaries.value[index] = weatherSummary
         }.store(in: &cancellables)
     }
     
@@ -106,34 +109,65 @@ class MasterViewModel: SearchViewModelDelegate{
     }
     
     func removeContentView(at index: Int) {
+        weatherSummaries.value.removeValue(forKey: index)
+//        var weatherSumaryNew = weatherSummaries.value
+        for key in weatherSummaries.value.keys.sorted(){
+            if key > index{
+                if let value = weatherSummaries.value.removeValue(forKey: key) {
+                    weatherSummaries.value[key - 1] = value
+                }
+               
+            }
+        }
         contentViewModels.remove(at: index)
         outputFetchData.send(.layoutNumberPageControl(numberPageControl: contentViewModels.count))
         outputFetchData.send(.removeContentView(index: index))
-        weatherSummarys.value.removeValue(forKey: index)
     }
     
     func reorderContentView(sourcePosition: Int, destinationPostion: Int) {
+
+        if sourcePosition < destinationPostion{
+            let range = stride(from: sourcePosition, to: destinationPostion, by: 1)
+            for i in range{
+                if let value1 = weatherSummaries.value[Int(i)], let value2 = weatherSummaries.value[Int(i+1)] {
+                    weatherSummaries.value[Int(i)] = value2
+                    weatherSummaries.value[Int(i+1)] = value1
+                }
+                outputFetchData.send(.reorderContentView(sourcePosition: i, destinationPosition: i+1))
+            }
+        }else{
+            let range = stride(from: sourcePosition, to: destinationPostion, by: -1)
+            for i in range{
+                if let value1 = weatherSummaries.value[Int(i)], let value2 = weatherSummaries.value[Int(i-1)] {
+                    weatherSummaries.value[Int(i)] = value2
+                    weatherSummaries.value[Int(i-1)] = value1
+                }
+                outputFetchData.send(.reorderContentView(sourcePosition: i, destinationPosition: i-1))
+            }
+        }
+
         let selectedItem = contentViewModels[Int(sourcePosition)]
         contentViewModels.remove(at: Int(sourcePosition))
         contentViewModels.insert(selectedItem, at: Int(destinationPostion))
-        outputFetchData.send(.reorderContentView(sourcePosition: sourcePosition, destinationPosition: destinationPostion))
+        
         
         
     }
     
     func appendContentView(contentViewModel: ContentViewModel) {
+
         self.contentViewModels.append(contentViewModel)
         outputFetchData.send(.layoutNumberPageControl(numberPageControl: contentViewModels.count))
         outputFetchData.send(.appendContentView(contentViewModel: contentViewModel))
         
     }
     
-    func updateWeatherSummarys(weatherSummarys: [Int : WeatherSummary]) {
-        self.weatherSummarys.value = weatherSummarys
-    }
+ 
     
-   
-   
+    func appendWeatherSummary(weatherSummary: WeatherSummary) {
+        weatherSummaries.value[weatherSummaries.value.count] = weatherSummary
+
+    }
      
  }
 

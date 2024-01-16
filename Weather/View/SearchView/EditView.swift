@@ -14,7 +14,7 @@ import Combine
 class EditView: UIView, UITableViewDataSource, UITableViewDelegate{
         
     private lazy var tableView = UITableView(frame: .zero)
-    private let viewModel: EditViewModel
+    unowned   private let viewModel: EditViewModel
     private var editCellViewModels = [EditCellViewModelProtocol]()
     private var cancellables = Set<AnyCancellable>()
         

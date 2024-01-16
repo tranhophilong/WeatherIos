@@ -14,7 +14,7 @@ class AlternativeView: UIView {
     private lazy var image = UIImageView(frame: .zero)
     private lazy var title = UILabel(frame: .zero)
     private lazy var subTitle = UILabel(frame: .zero)
-    private let viewModel: AlternativeViewModel
+    unowned private let viewModel: AlternativeViewModel
     private var cancellables = Set<AnyCancellable>()
 
     public init(frame: CGRect, viewModel: AlternativeViewModel) {

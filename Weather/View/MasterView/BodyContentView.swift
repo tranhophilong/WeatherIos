@@ -13,7 +13,7 @@ import Combine
 class BodyContentView: UIView {
     
    private let containerView = UIScrollView(frame: .zero)
-   private let viewModel: BodyContentViewModel
+   unowned private let viewModel: BodyContentViewModel
    private var cancellables = Set<AnyCancellable>()
     
    public init(frame: CGRect, viewModel: BodyContentViewModel) {

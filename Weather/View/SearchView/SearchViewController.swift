@@ -115,6 +115,9 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UITextFie
                 case .fetchSuccessWeatherCellViewModels(weatherCellViewModels: let weatherCellViewModels):
                     self?.weatherCellViewModels = weatherCellViewModels
                     self?.tableView.reloadData()
+                    for weatherCellViewModel in self!.weatherCellViewModels{
+                        weatherCellViewModel.hiddenConditionHighLowLbl(is: self!.tableView.isEditing)
+                    }
                 case .isForecastCurrentWeather(isForecast: let isForecast):
                     self?.isForecastCurrentWeather = isForecast
                     self?.tableView.reloadData()
@@ -333,9 +336,11 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        
         event.send(.reorderLocation(sourcePosition: Int16(sourceIndexPath.row), destinationPosition: Int16(destinationIndexPath.row)))
     }
+    
+    
+
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var actions = [UIContextualAction]()
@@ -357,7 +362,8 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource{
         if proposedDestinationIndexPath.row == 0 {
                return sourceIndexPath
            }
-           
+      
+        
            return proposedDestinationIndexPath
     }
     

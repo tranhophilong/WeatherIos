@@ -15,7 +15,7 @@ class BottomAppBarView: UIView {
     private lazy var pageControl  = UIPageControl(frame: .zero)
     lazy var showLstContentBtn = UIImageView(frame: .zero)
     private lazy var showMapBtn = UIImageView(frame: .zero)
-    private let viewModel: BottomAppBarViewModel
+    unowned private let viewModel: BottomAppBarViewModel
     private var cancellables = Set<AnyCancellable>()
     
     public init(frame: CGRect, viewModel: BottomAppBarViewModel) {

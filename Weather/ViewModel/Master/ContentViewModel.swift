@@ -52,6 +52,7 @@ class ContentViewModel{
                 self?.createBlankWeatherSummary(coordinate: self!.coordinate, nameLocation: self!.nameLocation)
                 self?.getDataWeatherLocation(coor: self!.coordinate, nameLocation: self!.nameLocation)
             case .scroll(contentOffSet: let contentOffSet, bodyContentOffSetIsZero: let bodyContentOffSetIsZero, heightHeaderContent: let heightHeaderContent):
+//                print(heightHeaderContent)
                 self?.scrollAction(with: contentOffSet, bodyContentOffsetIsZero: bodyContentOffSetIsZero, heightHeaderContent: heightHeaderContent)
                 
             }
@@ -134,8 +135,13 @@ class ContentViewModel{
     }
     
     private func createWeatherSummary(currentWeather: CurrentWeather, locationWeather: LocationWeather, forecastDayDetail: ForecastDayDetail) -> WeatherSummary{
+        var location = ""
+        if coordinate != nil{
+            location = "My location"
+        }else{
+            location = locationWeather.name
+        }
         
-        let location = locationWeather.name
         let mintempC = forecastDayDetail.mintempC
         let mintempF = forecastDayDetail.mintempF
         let maxtempC = forecastDayDetail.maxtempC

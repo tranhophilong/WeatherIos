@@ -15,7 +15,7 @@ class SearchResult: UIViewController, UITableViewDelegate, UITableViewDataSource
     
     private var cancellabels = Set<AnyCancellable>()
     private var searchResultCellViewModels: [SearchResulCellViewModel] = []
-    private let viewModel: SearchResultViewModel
+    unowned private let viewModel: SearchResultViewModel
     private var textSearching: String = ""
     private let tableView = UITableView(frame: .zero)
     private let alternativeViewModel = AlternativeViewModel(imgName: "magnifyingglass", title: "No Results")

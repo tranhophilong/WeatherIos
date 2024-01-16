@@ -175,9 +175,11 @@ extension MasterViewController: CLLocationManagerDelegate{
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch locationManager.authorizationStatus{
         case .notDetermined, .restricted, .denied:
+            print("Undefine authorization status")
             event.send(.viewDidLoad(currentCoordinateLocation: nil))
 //            bottomAppBarViewModel.isIndicatorLocationFirst.value = false
         case .authorizedAlways, .authorizedWhenInUse:
+            print("authorization status")
             locationManager.startUpdatingLocation()
 //            bottomAppBarViewModel.isIndicatorLocationFirst.value = true
         @unknown default:
